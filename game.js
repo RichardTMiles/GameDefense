@@ -198,6 +198,7 @@ const gameState = {
     score: 0,
     turrets: [], // This will hold turret objects with x, y, and type properties,
     monsters: [], // This will hold monster objects with x, y, and type properties,
+    projectiles: [], // This will hold projectile objects with x, y, and type properties,
     status: 'playing', // playing, won, or lost
 };
 
@@ -539,14 +540,130 @@ canvas.addEventListener('wheel', function (event) {
 
 });
 
+class Projectile {
+    constructor(startX, startY, target, speed, damage) {
+        this.x = startX;
+        this.y = startY;
+        this.target = target;
+        this.speed = speed;
+        this.damage = damage;
+    }
+
+    move() {
+        // Calculate direction towards the target
+        const dirX = this.target.position.x - this.x;
+        const dirY = this.target.position.y - this.y;
+        const distance = Math.sqrt(dirX * dirX + dirY * dirY);
+
+        // Normalize direction and move towards the target
+        this.x += (dirX / distance) * this.speed;
+        this.y += (dirY / distance) * this.speed;
+
+        // Check if reached the target (or close enough)
+        if (Math.abs(this.x - this.target.position.x) < this.speed &&
+            Math.abs(this.y - this.target.position.y) < this.speed) {
+            this.hitTarget();
+        }
+    }
+
+    hitTarget() {
+        // Damage the target monster
+        this.target.health -= this.damage;
+
+        // Remove the projectile (this will be handled in the game loop)
+        this.isDestroyed = true;
+    }
+}
+
+
+// Turret class
+class Turret {
+    constructor(x, y, range, damage) {
+        this.x = x;
+        this.y = y;
+        this.range = range;
+        this.damage = damage;
+        this.cooldown = 0;
+    }
+
+    findTarget(monsters) {
+        // Find the closest monster within range
+        let target = null;
+        let minDist = this.range;
+        for (let monster of monsters) {
+            let dx = this.x - monster.position.x;
+            let dy = this.y - monster.position.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < minDist) {
+                target = monster;
+                minDist = dist;
+            }
+        }
+        return target;
+    }
+
+    shoot(target) {
+        if (this.cooldown === 0) {
+            console.log('shoot', target);
+
+            const projectile = new Projectile(this.x, this.y, target, 0.5, this.damage); // Speed and damage
+
+            gameState.projectiles.push(projectile);
+
+            // Implement shooting logic here
+            // You could subtract health from the target monster
+            //target.health -= this.damage;
+
+            // Reset cooldown
+            this.cooldown = 10; // Cooldown period for 60 frames, for example
+        } else {
+            console.log('cooldown', this.cooldown);
+        }
+    }
+
+    update(monsters) {
+        if (this.cooldown > 0) {
+            this.cooldown--;
+        }
+        let target = this.findTarget(monsters);
+        if (target) {
+            this.shoot(target);
+        }
+    }
+}
+
+// Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
+canvas.addEventListener('click', function(event) {
+    console.log('click', event);
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top - getHeaderHeight();
+    const cellSize = getCellSize();
+
+    // Convert click position to grid coordinates
+    const gridX = Math.floor(x / cellSize);
+    const gridY = Math.floor(y / cellSize);
+
+    console.log('gridX', gridX, 'gridY', gridY, gameGrid[gridY][gridX]);
+
+    // Place turret if the cell is free
+    if (gameGrid[gridY][gridX] === 2) {
+        const newTurret = new Turret(gridX, gridY, 3, 10); // Range and damage values are examples
+        gameState.turrets.push(newTurret);
+        gameGrid[gridY][gridX] = 2; // Update the grid to indicate a turret is placed
+    }
+});
+
 // Monster class
 class Monster {
-    constructor(x, y, speed = 0.15) {
+    constructor(x, y, speed = 0.15, health = 100) {
         console.log('new monster', x, y);
         this.path = dijkstraWithCaching(gameGrid, {x: x, y: y}, orbs[0]);
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
         this.speed = speed; // Speed of the monster, adjust as needed
+        this.health = health; // Health of the monster, adjust as needed
     }
 
     move() {
@@ -637,8 +754,36 @@ function gameLoop() {
 
     }
 
+    // Update turrets and draw them
+    for (const turret of gameState.turrets) {
+        turret.update(gameState.monsters);
+        ctx.fillStyle = 'rgba(172,39,192,0.66)'; // Color of the monster
+        ctx.beginPath();
+        ctx.fillRect(turret.x * cellSize, turret.y * cellSize, cellSize, cellSize);
+        ctx.fill();
+    }
+
+    for (const projectile of gameState.projectiles) {
+        if (undefined === projectile.target || true === projectile.isDestroyed) {
+            // remove projectile from game state
+            gameState.projectiles = gameState.projectiles.filter(p => p !== projectile);
+            continue;
+        }
+        projectile.move();
+        ctx.fillStyle = 'rgba(0,0,0,0.37)'; // Color of the monster
+        ctx.beginPath();
+        ctx.fillRect(projectile.x * cellSize, projectile.y * cellSize, cellSize, cellSize);
+        ctx.fill();
+    }
+
     // Draw the monster and then move it for next cycle
     for (const monster of gameState.monsters) {
+
+        if (monster.health <= 0) {
+            console.log('monster died');
+            gameState.monsters = gameState.monsters.filter(m => m !== monster);
+            continue;
+        }
 
         // todo - remove, just for testing. this must happen before monster draw
         for (const route of monster.path) {
