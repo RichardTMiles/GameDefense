@@ -199,6 +199,7 @@ const gameState = {
     turrets: [], // This will hold turret objects with x, y, and type properties,
     monsters: [], // This will hold monster objects with x, y, and type properties,
     projectiles: [], // This will hold projectile objects with x, y, and type properties,
+    spawners: [], // This will hold spawner objects to systematically spawn monsters
     status: 'playing', // playing, won, or lost
 };
 
@@ -423,7 +424,9 @@ function renderGame() {
 
     ctx.fillText(`Wave: ${gameState.level}`, 20, 30);
 
-    ctx.fillText(`Time: ${gameState.time}`, 120, 30);
+    const timeElapsed = secondsElapsed();
+
+    ctx.fillText(`Time: ${timeElapsed}`, 120, 30);
 
     ctx.fillText(`Energy: ${gameState.energy}`, 220, 30);
 
@@ -633,7 +636,7 @@ class Turret {
 }
 
 // Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
-canvas.addEventListener('click', function(event) {
+canvas.addEventListener('click', function (event) {
     console.log('click', event);
 
     const rect = canvas.getBoundingClientRect();
@@ -675,6 +678,8 @@ class Monster {
 
             if (0 === orbs.length) {
 
+                console.log('game over', orbs);
+
                 gameState.status = 'lost';
 
                 return;
@@ -714,15 +719,54 @@ class Monster {
     }
 }
 
+
+class Spawner {
+    constructor(interval, amount) {
+        this.interval = interval; // The interval in frames between spawns
+        this.counter = 0; // A counter to track when to spawn next
+        this.amount = amount; // The number of monsters to spawn
+    }
+
+    update() {
+
+        if (this.amount === 0) {
+
+            return false;
+
+        }
+
+        if (this.counter === this.interval) {
+
+            this.counter = 0; // Reset the counter
+
+            this.amount--; // Reduce the ammount of monsters left to spawn
+
+            // Spawn a new monster
+            const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
+
+            gameState.monsters.push(new Monster(spawnLocation.x, spawnLocation.y));
+
+        } else {
+
+            this.counter++;
+
+        }
+
+        return true;
+
+    }
+
+}
+
 const spawnLocations = [
-    {x:1, y:1},
-    {x:1, y:10},
-    {x:1, y:11},
-    {x:1, y:12},
-    {x:1, y:24},
-    {x:1, y:25},
-    {x:1, y:34},
-    {x:1, y:35},
+    {x: 1, y: 1},
+    {x: 1, y: 10},
+    {x: 1, y: 11},
+    {x: 1, y: 12},
+    {x: 1, y: 24},
+    {x: 1, y: 25},
+    {x: 1, y: 34},
+    {x: 1, y: 35},
 ]
 
 
@@ -747,10 +791,7 @@ function gameLoop() {
 
         gameState.processedLevel++;
 
-        // get random spawn location
-        const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
-
-        gameState.monsters.push(new Monster(spawnLocation.x, spawnLocation.y));
+        gameState.spawners.push(new Spawner(100, gameState.level));
 
     }
 
@@ -785,17 +826,31 @@ function gameLoop() {
             continue;
         }
 
-        // todo - remove, just for testing. this must happen before monster draw
+        /*// todo - remove, just for testing. this must happen before monster draw
         for (const route of monster.path) {
             ctx.fillStyle = 'rgb(39,192,42)';
             ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
-        }
+        }*/
 
         ctx.fillStyle = 'rgb(255,0,0)'; // Color of the monster
         ctx.beginPath();
         ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
         ctx.fill();
         monster.move()
+
+    }
+
+    for (const spawner of gameState.spawners) {
+        if (false === spawner.update()) {
+            gameState.spawners = gameState.spawners.filter(s => s !== spawner);
+        }
+    }
+
+    console.log(gameState)
+
+    if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
+
+        gameState.level++;
 
     }
 
