@@ -366,7 +366,7 @@ canvas.addEventListener('click', (event) => {
     // Calculate the click position relative to the canvas
     const rect = canvas.getBoundingClientRect();
 
-    const clickX = event.clientX - rect.left;
+    const clickX = event.clientX - rect.left
 
     const clickY = event.clientY - rect.top;
 
@@ -640,7 +640,7 @@ canvas.addEventListener('click', function (event) {
     console.log('click', event);
 
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
+    const x = event.clientX - rect.left + offsetX;
     const y = event.clientY - rect.top - getHeaderHeight();
     const cellSize = getCellSize();
 
