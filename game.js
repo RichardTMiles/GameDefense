@@ -49,7 +49,7 @@ const gameGrid = [
 
 // Define the positions of the orbs
 // If you have specific positions for the orbs
-const orbs = [
+let orbs = [
     {x: 60, y: 17},
     {x: 93, y: 17},
     {x: 139, y: 17},
@@ -57,6 +57,7 @@ const orbs = [
     {x: 169, y: 4},
 ];
 
+// this essentially sets up a singly linked list
 class Node {
     constructor(position, distance, parent = null) {
         this.position = position;
@@ -66,17 +67,32 @@ class Node {
 }
 
 function findNeighbors(node, grid) {
+
     const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // Right, Down, Left, Up
+
     const result = [];
+
     for (let dir of directions) {
-        const neighborPos = {x: node.position.x + dir[0], y: node.position.y + dir[1]};
+
+        const neighborPos = {
+            x: Math.floor(node.position.x + dir[0]),
+            y: Math.floor(node.position.y + dir[1])
+        };
+
+        //console.log(neighborPos, grid)
+
         if (neighborPos.x >= 0 && neighborPos.x < grid[0].length &&
             neighborPos.y >= 0 && neighborPos.y < grid.length &&
             grid[neighborPos.y][neighborPos.x] === 0) {
+
             result.push(new Node(neighborPos, node.distance + 1));
+
         }
+
     }
+
     return result;
+
 }
 
 function dijkstra(grid, start, end) {
@@ -166,14 +182,9 @@ function dijkstraWithCaching(grid, start, end) {
 
     if (cachedPath) {
 
-        console.log('cachedPath', cachedPath);
-
         return cachedPath;
 
     }
-
-    console.log('dijkstraWithCaching', start, end);
-    console.trace()
 
     // Compute the path using Dijkstra's algorithm (not shown here for brevity)
     const path = dijkstra(grid, start, end);
@@ -183,11 +194,6 @@ function dijkstraWithCaching(grid, start, end) {
 
     return path;
 }
-
-
-// Define the start and end positions
-const start = {x: 1, y: 1}; // Starting position
-const end = orbs[0]; // Ending position (target)
 
 // Game state
 const gameState = {
@@ -225,7 +231,6 @@ const dragDropState = {
 
 const borderWidth = 1; // You can adjust the thickness of the border here
 
-
 // Function to create a radial gradient for orbs
 function createOrbGradient(ctx, x, y, radius) {
 
@@ -241,14 +246,11 @@ function createOrbGradient(ctx, x, y, radius) {
 
 }
 
-
 const getHeaderHeight = () => window.innerHeight * .10; // Example height for the header
 
 const getFooterHeight = () => window.innerHeight * .3; // Example height for the footer
 
 const getBodyHeight = () => window.innerHeight - (getHeaderHeight() + getFooterHeight());
-
-console.log('ih', window.innerHeight, 'hh', getHeaderHeight(), 'fh', getFooterHeight(), 'bh', getBodyHeight());
 
 const getCellSize = () => (window.innerHeight - getHeaderHeight() - getFooterHeight()) / gameGrid.length;
 
@@ -390,7 +392,7 @@ canvas.addEventListener('click', (event) => {
 
     }
 
-});
+}, {passive: true});
 
 // Game rendering function
 function renderGame() {
@@ -527,9 +529,6 @@ function scrollGrid(amount) {
 
 canvas.addEventListener('wheel', function (event) {
 
-    // Prevent the default scroll behavior and scroll the game grid instead
-    event.preventDefault();
-
     // Use event.deltaY for vertical mouse wheel event to scroll horizontally
     if (event.deltaX > 0) {
 
@@ -541,7 +540,7 @@ canvas.addEventListener('wheel', function (event) {
 
     }
 
-});
+}, {passive: true});
 
 class Projectile {
     constructor(startX, startY, target, speed, damage) {
@@ -570,23 +569,28 @@ class Projectile {
     }
 
     hitTarget() {
+
         // Damage the target monster
         this.target.health -= this.damage;
 
         // Remove the projectile (this will be handled in the game loop)
         this.isDestroyed = true;
+
     }
+
 }
 
 
 // Turret class
 class Turret {
-    constructor(x, y, range, damage) {
+
+    constructor(x, y, range = 5, damage, cooldown = 10) {
         this.x = x;
         this.y = y;
         this.range = range;
         this.damage = damage;
-        this.cooldown = 0;
+        this.cooldown = cooldown;
+        this.timer = 0;
     }
 
     findTarget(monsters) {
@@ -606,62 +610,73 @@ class Turret {
     }
 
     shoot(target) {
-        if (this.cooldown === 0) {
-            console.log('shoot', target);
+
+        if (this.timer >= this.cooldown) {
 
             const projectile = new Projectile(this.x, this.y, target, 0.5, this.damage); // Speed and damage
 
             gameState.projectiles.push(projectile);
 
-            // Implement shooting logic here
-            // You could subtract health from the target monster
-            //target.health -= this.damage;
-
             // Reset cooldown
-            this.cooldown = 10; // Cooldown period for 60 frames, for example
-        } else {
-            console.log('cooldown', this.cooldown);
+            this.timer = 0; // Cooldown period for 60 frames, for example
         }
+
     }
 
     update(monsters) {
-        if (this.cooldown > 0) {
-            this.cooldown--;
+
+        if (this.cooldown > this.timer) {
+
+            this.timer++;
+
         }
+
         let target = this.findTarget(monsters);
+
         if (target) {
+
             this.shoot(target);
+
         }
+
     }
+
 }
 
 // Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
 canvas.addEventListener('click', function (event) {
-    console.log('click', event);
 
     const rect = canvas.getBoundingClientRect();
+
     const x = event.clientX - rect.left + offsetX;
+
     const y = event.clientY - rect.top - getHeaderHeight();
+
     const cellSize = getCellSize();
 
     // Convert click position to grid coordinates
     const gridX = Math.floor(x / cellSize);
-    const gridY = Math.floor(y / cellSize);
 
-    console.log('gridX', gridX, 'gridY', gridY, gameGrid[gridY][gridX]);
+    const gridY = Math.floor(y / cellSize);
 
     // Place turret if the cell is free
     if (gameGrid[gridY][gridX] === 2) {
-        const newTurret = new Turret(gridX, gridY, 3, 10); // Range and damage values are examples
+
+        gameState.energy -= 10;
+
+        const newTurret = new Turret(gridX, gridY, 5, 10); // Range and damage values are examples
+
         gameState.turrets.push(newTurret);
+
         gameGrid[gridY][gridX] = 2; // Update the grid to indicate a turret is placed
+
     }
+
 });
 
 // Monster class
 class Monster {
     constructor(x, y, speed = 0.15, health = 100) {
-        console.log('new monster', x, y);
         this.path = dijkstraWithCaching(gameGrid, {x: x, y: y}, orbs[0]);
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
@@ -670,11 +685,20 @@ class Monster {
     }
 
     move() {
-        // If the monster has reached the end of the path, stop moving
-        if (this.pathIndex === this.path.length - 1) {
 
-            // destroy orb
-            orbs.shift();
+        const finalPath = this.path[this.path.length - 1];
+
+        // check if the destination orb is still there
+        const destinationOrb = orbs.find(orb =>
+            orb.x === finalPath.x && orb.y === finalPath.y);
+
+        // If the monster has reached the end of the path, stop moving
+        if (undefined === destinationOrb || this.pathIndex === this.path.length - 1) {
+
+            const finalPath = this.path[this.path.length - 1];
+
+            // remove the orbs from the game grid that match this.pathIndex
+            orbs = orbs.filter(orb => !(orb.x === finalPath.x && orb.y === finalPath.y));
 
             if (0 === orbs.length) {
 
@@ -722,9 +746,13 @@ class Monster {
 
 class Spawner {
     constructor(interval, amount) {
+
         this.interval = interval; // The interval in frames between spawns
+
         this.counter = 0; // A counter to track when to spawn next
+
         this.amount = amount; // The number of monsters to spawn
+
     }
 
     update() {
@@ -735,7 +763,7 @@ class Spawner {
 
         }
 
-        if (this.counter === this.interval) {
+        if (this.counter >= this.interval) {
 
             this.counter = 0; // Reset the counter
 
@@ -769,6 +797,18 @@ const spawnLocations = [
     {x: 1, y: 35},
 ]
 
+document.addEventListener('keydown', function (event) {
+
+    if (event.code === 'Space') {
+
+        // Your code here
+        console.log('Spacebar was pressed');
+
+        gameState.level++;
+
+    }
+
+}, {passive: true});
 
 // Main game loop
 function gameLoop() {
@@ -791,62 +831,91 @@ function gameLoop() {
 
         gameState.processedLevel++;
 
-        gameState.spawners.push(new Spawner(100, gameState.level));
+        gameState.spawners.push(new Spawner(100 / gameState.level, gameState.level * 5));
 
     }
 
     // Update turrets and draw them
     for (const turret of gameState.turrets) {
+
         turret.update(gameState.monsters);
+
         ctx.fillStyle = 'rgba(172,39,192,0.66)'; // Color of the monster
+
         ctx.beginPath();
+
         ctx.fillRect(turret.x * cellSize, turret.y * cellSize, cellSize, cellSize);
+
         ctx.fill();
+
     }
 
     for (const projectile of gameState.projectiles) {
+
         if (undefined === projectile.target || true === projectile.isDestroyed) {
+
             // remove projectile from game state
             gameState.projectiles = gameState.projectiles.filter(p => p !== projectile);
+
             continue;
+
         }
+
         projectile.move();
+
         ctx.fillStyle = 'rgba(0,0,0,0.37)'; // Color of the monster
+
         ctx.beginPath();
+
         ctx.fillRect(projectile.x * cellSize, projectile.y * cellSize, cellSize, cellSize);
+
         ctx.fill();
+
     }
 
     // Draw the monster and then move it for next cycle
     for (const monster of gameState.monsters) {
 
         if (monster.health <= 0) {
-            console.log('monster died');
+
+            gameState.score += 10 * gameState.level
+
+            gameState.energy += 10 * gameState.level
+
             gameState.monsters = gameState.monsters.filter(m => m !== monster);
+
             continue;
+
         }
 
-        /*// todo - remove, just for testing. this must happen before monster draw
+        /* Just for testing. Show the path the monster is following
         for (const route of monster.path) {
             ctx.fillStyle = 'rgb(39,192,42)';
             ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
-        }*/
+        }
+        */
 
         ctx.fillStyle = 'rgb(255,0,0)'; // Color of the monster
+
         ctx.beginPath();
+
         ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
+
         ctx.fill();
+
         monster.move()
 
     }
 
     for (const spawner of gameState.spawners) {
-        if (false === spawner.update()) {
-            gameState.spawners = gameState.spawners.filter(s => s !== spawner);
-        }
-    }
 
-    console.log(gameState)
+        if (false === spawner.update()) {
+
+            gameState.spawners = gameState.spawners.filter(s => s !== spawner);
+
+        }
+
+    }
 
     if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
 
