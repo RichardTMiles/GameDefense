@@ -160,14 +160,20 @@ function cachePath(start, end, path) {
 
 // Modified Dijkstra's algorithm that uses caching
 function dijkstraWithCaching(grid, start, end) {
+
     // Check if the path is already in the cache
     const cachedPath = getCachedPath(start, end);
 
     if (cachedPath) {
 
+        console.log('cachedPath', cachedPath);
+
         return cachedPath;
 
     }
+
+    console.log('dijkstraWithCaching', start, end);
+    console.trace()
 
     // Compute the path using Dijkstra's algorithm (not shown here for brevity)
     const path = dijkstra(grid, start, end);
@@ -185,12 +191,27 @@ const end = orbs[0]; // Ending position (target)
 
 // Game state
 const gameState = {
-    level: 4,
-    time: 25,
-    energy: 8,
-    score: 631,
-    turrets: [], // This will hold turret objects with x, y, and type properties
+    level: 1,
+    processedLevel: 0,
+    startTime: new Date(),
+    energy: 0,
+    score: 0,
+    turrets: [], // This will hold turret objects with x, y, and type properties,
+    monsters: [], // This will hold monster objects with x, y, and type properties,
+    status: 'playing', // playing, won, or lost
 };
+
+function secondsElapsed() {
+    const endTime = new Date();
+
+    let timeDiff = endTime - gameState.startTime; //in ms
+
+    // strip the ms
+    timeDiff /= 1000;
+
+    // get seconds
+    return Math.round(timeDiff);
+}
 
 // Drag and drop state
 const dragDropState = {
@@ -520,11 +541,12 @@ canvas.addEventListener('wheel', function (event) {
 
 // Monster class
 class Monster {
-    constructor(x, y) {
-        this.path = dijkstraWithCaching(gameGrid, start, end);
+    constructor(x, y, speed = 0.15) {
+        console.log('new monster', x, y);
+        this.path = dijkstraWithCaching(gameGrid, {x: x, y: y}, orbs[0]);
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
-        this.speed = 0.5; // Speed of the monster, adjust as needed
+        this.speed = speed; // Speed of the monster, adjust as needed
     }
 
     move() {
@@ -533,6 +555,14 @@ class Monster {
 
             // destroy orb
             orbs.shift();
+
+            if (0 === orbs.length) {
+
+                gameState.status = 'lost';
+
+                return;
+
+            }
 
             this.pathIndex = 0;
 
@@ -567,8 +597,17 @@ class Monster {
     }
 }
 
+const spawnLocations = [
+    {x:1, y:1},
+    {x:1, y:10},
+    {x:1, y:11},
+    {x:1, y:12},
+    {x:1, y:24},
+    {x:1, y:25},
+    {x:1, y:34},
+    {x:1, y:35},
+]
 
-const monster = new Monster(1, 1);
 
 // Main game loop
 function gameLoop() {
@@ -576,22 +615,44 @@ function gameLoop() {
     // Render the game
     renderGame();
 
-    const cellSize = getCellSize();
+    // be sure to render the final game board before exiting, aka don't change the order of these two lines
+    if (gameState.status !== 'playing') {
 
-    for (const route of monster.path) {
+        alert('Game Over! You ' + gameState.status + '!');
 
-        ctx.fillStyle = 'rgb(39,192,42)';
-
-        ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
+        return;
 
     }
 
-    // Draw the monster
-    ctx.fillStyle = 'red'; // Color of the monster
-    ctx.beginPath();
-    ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
-    ctx.fill();
-    monster.move()
+    const cellSize = getCellSize();
+
+    if (gameState.processedLevel < gameState.level) {
+
+        gameState.processedLevel++;
+
+        // get random spawn location
+        const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
+
+        gameState.monsters.push(new Monster(spawnLocation.x, spawnLocation.y));
+
+    }
+
+    // Draw the monster and then move it for next cycle
+    for (const monster of gameState.monsters) {
+
+        // todo - remove, just for testing. this must happen before monster draw
+        for (const route of monster.path) {
+            ctx.fillStyle = 'rgb(39,192,42)';
+            ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
+        }
+
+        ctx.fillStyle = 'rgb(255,0,0)'; // Color of the monster
+        ctx.beginPath();
+        ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
+        ctx.fill();
+        monster.move()
+
+    }
 
     // Call the next frame
     requestAnimationFrame(gameLoop);
