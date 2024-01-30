@@ -47,8 +47,6 @@ const gameGrid = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-console.log(gameGrid[0].length);
-
 // Define the positions of the orbs
 // If you have specific positions for the orbs
 const orbs = [
@@ -59,6 +57,79 @@ const orbs = [
     {x: 169, y: 4},
 ];
 
+class Node {
+    constructor(position, distance, parent = null) {
+        this.position = position;
+        this.distance = distance;
+        this.parent = parent;
+    }
+}
+
+function findNeighbors(node, grid) {
+    const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // Right, Down, Left, Up
+    const result = [];
+    for (let dir of directions) {
+        const neighborPos = {x: node.position.x + dir[0], y: node.position.y + dir[1]};
+        if (neighborPos.x >= 0 && neighborPos.x < grid[0].length &&
+            neighborPos.y >= 0 && neighborPos.y < grid.length &&
+            grid[neighborPos.y][neighborPos.x] === 0) {
+            result.push(new Node(neighborPos, node.distance + 1));
+        }
+    }
+    return result;
+}
+
+function dijkstra(grid, start, end) {
+    let startNode = new Node(start, 0);
+    let endNode = new Node(end, Infinity);
+    let unvisited = [startNode];
+    let visited = new Set();
+
+    while (unvisited.length > 0) {
+        // Sort unvisited nodes by distance from the start node
+        unvisited.sort((a, b) => a.distance - b.distance);
+        let currentNode = unvisited.shift();
+
+        // If we reach the end node, reconstruct and return the path
+        if (currentNode.position.x === endNode.position.x && currentNode.position.y === endNode.position.y) {
+            let path = [];
+            let current = currentNode;
+            while (current != null) {
+                path.unshift(current.position);
+                current = current.parent;
+            }
+            return path;
+        }
+
+        let id = `${currentNode.position.x}-${currentNode.position.y}`;
+        if (visited.has(id)) {
+            continue;
+        }
+        visited.add(id);
+
+        let neighbors = findNeighbors(currentNode, grid);
+        for (let neighbor of neighbors) {
+            let neighborId = `${neighbor.position.x}-${neighbor.position.y}`;
+            if (!visited.has(neighborId)) {
+                neighbor.parent = currentNode; // Set the parent
+                unvisited.push(neighbor);
+            }
+        }
+    }
+
+    return []; // Return an empty path if no path is found
+}
+
+
+// Define the start and end positions
+const start = {x: 1, y: 1}; // Starting position
+const end = orbs[0]; // Ending position (target)
+
+// Get the shortest path distance
+const distance = dijkstra(gameGrid, start, end);
+
+// Output the distance
+console.log('dist', distance);
 
 // Game state
 const gameState = {
@@ -105,7 +176,6 @@ const getBodyHeight = () => window.innerHeight - (getHeaderHeight() + getFooterH
 console.log('ih', window.innerHeight, 'hh', getHeaderHeight(), 'fh', getFooterHeight(), 'bh', getBodyHeight());
 
 const getCellSize = () => (window.innerHeight - getHeaderHeight() - getFooterHeight()) / gameGrid.length;
-
 
 // Footer Levels
 const getFooterButtons = () => [
@@ -214,7 +284,6 @@ function drawFooter() {
     ctx.restore();
 
 }
-
 
 // Add event listener for interaction with the footer buttons
 canvas.addEventListener('click', (event) => {
@@ -397,14 +466,72 @@ canvas.addEventListener('wheel', function (event) {
 
 });
 
+// Monster class
+class Monster {
+    constructor(path) {
+        this.path = path;
+        this.pathIndex = 0; // Start at the first point of the path
+        this.position = {...path[0]}; // Current position of the monster
+        this.speed = 0.15; // Speed of the monster, adjust as needed
+    }
+
+    move() {
+        // If the monster has reached the end of the path, stop moving
+        if (this.pathIndex === this.path.length - 1) {
+            return;
+        }
+
+        // Get the next point on the path
+        const target = this.path[this.pathIndex + 1];
+
+        // Calculate the direction vector from current position to the target
+        const dir = {
+            x: target.x - this.position.x,
+            y: target.y - this.position.y
+        };
+
+        // Normalize the direction
+        const length = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+        dir.x /= length;
+        dir.y /= length;
+
+        // Move the monster towards the target
+        this.position.x += dir.x * this.speed;
+        this.position.y += dir.y * this.speed;
+
+        // Check if the monster has reached the target point
+        if (Math.hypot(this.position.x - target.x, this.position.y - target.y) < this.speed) {
+            this.position = {...target}; // Snap to the target to avoid overshooting
+            this.pathIndex++; // Move to the next point
+        }
+    }
+}
+
+
+const monster = new Monster(distance);
+
 // Main game loop
 function gameLoop() {
 
     // Render the game
     renderGame();
 
+    const cellSize = getCellSize();
+
+    for (const path of distance) {
+        ctx.fillStyle = 'rgb(39,192,42)';
+        ctx.fillRect(path.x * cellSize, path.y * cellSize, cellSize, cellSize);
+    }
+
+    // Draw the monster
+    ctx.fillStyle = 'red'; // Color of the monster
+    ctx.beginPath();
+    ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
+    ctx.fill();
+    monster.move()
+
     // Call the next frame
-    //requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop);
 
 }
 
