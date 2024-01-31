@@ -254,71 +254,72 @@ const getBodyHeight = () => window.innerHeight - (getHeaderHeight() + getFooterH
 
 const getCellSize = () => (window.innerHeight - getHeaderHeight() - getFooterHeight()) / gameGrid.length;
 
+
 // Footer Levels
-const getFooterButtons = () => [
-    {x: 0, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 50, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 100, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 150, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 200, y: 10, width: 50, height: 20, text: 'ZOOMO', color: '#666'},
-    {x: 250, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 300, y: 10, width: 50, height: 20, text: 'TOUGHO', color: '#666'},
-    {x: 350, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 400, y: 10, width: 50, height: 20, text: 'FLYBO', color: '#666'},
-    {x: 450, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 500, y: 10, width: 50, height: 20, text: "NORMOBOSS", color: '#666'},
-    {x: 550, y: 10, width: 50, height: 20, text: "NORMO", color: '#666'},
-    {x: 600, y: 10, width: 50, height: 20, text: "BOMBO", color: '#666'},
-    {x: 650, y: 10, width: 50, height: 20, text: "NORMO", color: '#666'},
-    {x: 700, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 750, y: 10, width: 50, height: 20, text: 'SWARMOBOSS', color: '#666'},
-    {x: 800, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 850, y: 10, width: 50, height: 20, text: 'ZOOMO', color: '#666'},
-    {x: 900, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 950, y: 10, width: 50, height: 20, text: 'FLYBO', color: '#666'},
-    {x: 1000, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1050, y: 10, width: 50, height: 20, text: 'BOMBO', color: '#666'},
-    {x: 1100, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1150, y: 10, width: 50, height: 20, text: 'TOUGHO', color: '#666'},
-    {x: 1200, y: 10, width: 50, height: 20, text: 'ZOOMO', color: '#666'},
-    {x: 1250, y: 10, width: 50, height: 20, text: 'ZOOMOBOSS', color: '#666'},
-    {x: 1300, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1350, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 1400, y: 10, width: 50, height: 20, text: 'CHAMPO', color: '#666'},
-    {x: 1450, y: 10, width: 50, height: 20, text: 'TOUGHOBOSS', color: '#666'},
-    {x: 1500, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1550, y: 10, width: 50, height: 20, text: 'IRONO', color: '#666'},
-    {x: 1650, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 1700, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1750, y: 10, width: 50, height: 20, text: 'ZOOMO', color: '#666'},
-    {x: 1800, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 1850, y: 10, width: 50, height: 20, text: 'TOUGHO', color: '#666'},
-    {x: 1900, y: 10, width: 50, height: 20, text: 'FLYBO', color: '#666'},
-    {x: 1950, y: 10, width: 50, height: 20, text: 'FLYBOBOSS', color: '#666'},
-    {x: 2000, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 2050, y: 10, width: 50, height: 20, text: 'CHAMPO', color: '#666'},
-    {x: 2100, y: 10, width: 50, height: 20, text: 'BOMBO', color: '#666'},
-    {x: 2150, y: 10, width: 50, height: 20, text: 'BOMBOBOSS', color: '#666'},
-    {x: 2200, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 2250, y: 10, width: 50, height: 20, text: 'IRONO', color: '#666'},
-    {x: 2300, y: 10, width: 50, height: 20, text: 'BOMBO', color: '#666'},
-    {x: 2350, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 2400, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 2450, y: 10, width: 50, height: 20, text: 'CHAMPO', color: '#666'},
-    {x: 2500, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 2550, y: 10, width: 50, height: 20, text: 'IRONO', color: '#666'},
-    {x: 2600, y: 10, width: 50, height: 20, text: 'IRONOBOSS', color: '#666'},
-    {x: 2650, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 2700, y: 10, width: 50, height: 20, text: 'SWARMO', color: '#666'},
-    {x: 2750, y: 10, width: 50, height: 20, text: 'ZOOMO', color: '#666'},
-    {x: 2800, y: 10, width: 50, height: 20, text: 'TOUGHO', color: '#666'},
-    {x: 2850, y: 10, width: 50, height: 20, text: 'FLYBO', color: '#666'},
-    {x: 2900, y: 10, width: 50, height: 20, text: 'BOMBO', color: '#666'},
-    {x: 2950, y: 10, width: 50, height: 20, text: 'CHOMPO', color: '#666'},
-    {x: 3000, y: 10, width: 50, height: 20, text: 'IRONO', color: '#666'},
-    {x: 3050, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 3100, y: 10, width: 50, height: 20, text: 'NORMO', color: '#666'},
-    {x: 3150, y: 10, width: 50, height: 20, text: 'AWESOMEOBOSS', color: '#666'},
+const getFooterButtons = [
+    'NORMO',
+    'NORMO',
+    'SWARMO',
+    'NORMO',
+    'ZOOMO',
+    'NORMO',
+    'TOUGHO',
+    'NORMO',
+    'FLYBO',
+    'NORMO',
+    "NORMO BOSS",
+    "NORMO",
+    "BOMBO",
+    "NORMO",
+    'SWARMO',
+    'SWARMO BOSS',
+    'NORMO',
+    'ZOOMO',
+    'NORMO',
+    'FLYBO',
+    'NORMO',
+    'BOMBO',
+    'NORMO',
+    'TOUGHO',
+    'ZOOMO',
+    'ZOOMO BOSS',
+    'NORMO',
+    'SWARMO',
+    'CHAMPO',
+    'TOUGHO BOSS',
+    'NORMO',
+    'IRONO',
+    'SWARMO', ,
+    'NORMO',
+    'ZOOMO',
+    'NORMO',
+    'TOUGHO', ,
+    'FLYBO',
+    'FLYBO BOSS',
+    'NORMO',
+    'CHAMPO',
+    'BOMBO',
+    'BOMBO BOSS',
+    'NORMO',
+    'IRONO',
+    'BOMBO',
+    'NORMO',
+    'SWARMO',
+    'CHAMPO',
+    'NORMO',
+    'IRONO',
+    'IRONO BOSS',
+    'NORMO',
+    'SWARMO',
+    'ZOOMO',
+    'TOUGHO',
+    'FLYBO',
+    'BOMBO',
+    'CHOMPO',
+    'IRONO',
+    'NORMO',
+    'NORMO',
+    'AWESOMEO BOSS',
 ];
 
 function drawFooter() {
@@ -328,27 +329,31 @@ function drawFooter() {
     // Translate the context for horizontal scrolling of the game grid
     ctx.translate(0, getHeaderHeight() + getBodyHeight());
 
+    const footerHeight = getFooterHeight();
+
     // Draw the footer background
     ctx.fillStyle = 'rgba(98,74,74,0.37)'; // Assuming a dark background for the footer
 
-    ctx.fillRect(0, 0, canvas.width, getFooterHeight());
+    ctx.fillRect(0, 0, canvas.width, footerHeight);
 
     // Draw the buttons
-    getFooterButtons().forEach(button => {
+    getFooterButtons.forEach((button, index) => {
 
-        ctx.fillStyle = button.color;
+        const x = (canvas.width / 3) + 100 * index;
 
-        ctx.fillRect(button.x, button.y, button.width, button.height);
+        ctx.fillStyle = (index - 1) === gameState.level ? '#64c027' : '#ac27c0';
 
-        ctx.fillStyle = '#fff'; // Text color
+        ctx.fillRect(x, 0, 100, footerHeight * .15);
+
+        ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
         ctx.textAlign = 'center';
 
         ctx.textBaseline = 'middle';
 
-        ctx.font = 'bold 8px Arial';
+        ctx.font = 'bold 14px Arial';
 
-        ctx.fillText(button.text, button.x + button.width / 2, button.y + button.height / 2);
+        ctx.fillText(button, x + 50, 23);
 
     });
 
@@ -378,7 +383,7 @@ canvas.addEventListener('click', (event) => {
     if (clickY > footerY) {
 
         // Determine which button was clicked
-        getFooterButtons().forEach(button => {
+        getFooterButtons.forEach(button => {
             if (
                 clickX >= button.x &&
                 clickX <= button.x + button.width &&
@@ -424,15 +429,17 @@ function renderGame() {
 
     ctx.font = '20px Arial';
 
-    ctx.fillText(`Wave: ${gameState.level}`, 20, 30);
+    let boxWidth = canvas.width / 4;
 
-    const timeElapsed = secondsElapsed();
+    let boxTextHeight = getHeaderHeight() / 1.8;
 
-    ctx.fillText(`Time: ${timeElapsed}`, 120, 30);
+    ctx.fillText(`Wave: ${gameState.level}`, 20, boxTextHeight); //
 
-    ctx.fillText(`Energy: ${gameState.energy}`, 220, 30);
+    ctx.fillText(`Time: ` + secondsElapsed(), boxWidth, boxTextHeight);
 
-    ctx.fillText(`Score: ${gameState.score}`, 320, 30);
+    ctx.fillText(`Energy: ${gameState.energy}`, boxWidth * 2, boxTextHeight);
+
+    ctx.fillText(`Score: ${gameState.score}`, boxWidth * 3, boxTextHeight);
 
     // draw footer
     drawFooter();
