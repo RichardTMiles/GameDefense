@@ -3,4 +3,7 @@
   <component name="ProjectRootManager">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
+  <component name="ZipChangesCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
 </project>

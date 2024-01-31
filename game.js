@@ -424,15 +424,54 @@ function renderGame() {
 
     ctx.font = '20px Arial';
 
-    ctx.fillText(`Wave: ${gameState.level}`, 20, 30);
-
     const timeElapsed = secondsElapsed();
 
-    ctx.fillText(`Time: ${timeElapsed}`, 120, 30);
+    function drawGradientCircle(ctx, x, y, radius, colorStart, colorEnd) {
+        let gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
 
-    ctx.fillText(`Energy: ${gameState.energy}`, 220, 30);
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+    }
 
-    ctx.fillText(`Score: ${gameState.score}`, 320, 30);
+    const textPadding = 10;
+    const boxWidth = canvas.width / 4;
+    const boxTextHeight = getHeaderHeight() / 1.8;
+
+    const waveCircle = { x: boxWidth / 2, y: boxTextHeight, radius: 30 };
+    const timeCircle = { x: boxWidth * 1.5, y: boxTextHeight, radius: 30 };
+    const energyCircle = { x: boxWidth * 2.5, y: boxTextHeight, radius: 30 };
+    const scoreCircle = { x: boxWidth * 3.5, y: boxTextHeight, radius: 30 };
+
+    drawGradientCircle(ctx, waveCircle.x, waveCircle.y, waveCircle.radius, 'rgb(255,217,200)', 'rgb(215,103,33)');
+    drawGradientCircle(ctx, timeCircle.x, timeCircle.y, timeCircle.radius, 'rgb(255,200,200)', 'rgb(255,100,100)');
+    drawGradientCircle(ctx, energyCircle.x, energyCircle.y, energyCircle.radius, 'rgb(200,255,200)', 'rgb(100,255,100)');
+    drawGradientCircle(ctx, scoreCircle.x, scoreCircle.y, scoreCircle.radius, 'rgb(200,200,255)', 'rgb(100,100,255)');
+
+// Set style for descriptive text
+    ctx.fillStyle = '#fff'; // White text color
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+// Draw descriptive text next to circles
+    ctx.fillText("Waves", waveCircle.x - waveCircle.radius - textPadding, waveCircle.y);
+    ctx.fillText("Time", timeCircle.x - timeCircle.radius - textPadding, timeCircle.y);
+    ctx.fillText("Energy", energyCircle.x - energyCircle.radius - textPadding, energyCircle.y);
+    ctx.fillText("Score", scoreCircle.x - scoreCircle.radius - textPadding, scoreCircle.y);
+
+// Set style for numbers within the circles
+    ctx.fillStyle = 'black'; // Black text color
+    ctx.textAlign = 'center';
+
+// Draw numbers inside circles
+    ctx.fillText(`${gameState.level}`, waveCircle.x, waveCircle.y);
+    ctx.fillText(`${timeElapsed}`, timeCircle.x, timeCircle.y);
+    ctx.fillText(`${gameState.energy}`, energyCircle.x, energyCircle.y);
+    ctx.fillText(`${gameState.score}`, scoreCircle.x, scoreCircle.y);
 
     // draw footer
     drawFooter();
@@ -818,12 +857,10 @@ function gameLoop() {
 
     // be sure to render the final game board before exiting, aka don't change the order of these two lines
     if (gameState.status !== 'playing') {
-
-        alert('Game Over! You ' + gameState.status + '!');
-
+        createAndShowModal('Game Over! You ' + gameState.status + '!');
         return;
-
     }
+
 
     const cellSize = getCellSize();
 
@@ -925,6 +962,67 @@ function gameLoop() {
 
     // Call the next frame
     requestAnimationFrame(gameLoop);
+
+}
+function createAndShowModal(message) {
+    // Create the modal elements
+    var modal = document.createElement('div');
+    var modalContent = document.createElement('div');
+    var modalMessage = document.createElement('h2');
+    var restartButton = document.createElement('button');
+
+    // Set the content
+    modalMessage.innerText = message;
+    restartButton.innerText = 'Restart Game';
+
+    // Style the modal
+    modal.style.display = 'flex';
+    modal.style.position = 'fixed';
+    modal.style.left = '0';
+    modal.style.top = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+
+    modalContent.style.backgroundColor = 'white';
+    modalContent.style.padding = '20px';
+    modalContent.style.borderRadius = '10px';
+    modalContent.style.textAlign = 'center';
+
+    // Append elements
+    modalContent.appendChild(modalMessage);
+    modalContent.appendChild(restartButton);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    // Restart button functionality
+    restartButton.addEventListener('click', function() {
+        // Reset game state
+        gameState.level = 1;
+        gameState.processedLevel = 0;
+        gameState.startTime = new Date();
+        gameState.energy = 0;
+        gameState.score = 0;
+        gameState.turrets = [];
+        gameState.monsters = [];
+        gameState.projectiles = [];
+        gameState.spawners = [];
+        gameState.status = 'playing';
+
+        // Reset any other necessary variables
+        // For example, if you have a variable for player's lives or health, reset it here
+
+        // Hide the modal
+        modal.style.display = 'none';
+
+        // Optionally, reset the canvas or other UI elements
+        // ...
+
+        // Restart the game loop
+        requestAnimationFrame(gameLoop);
+    });
 
 }
 
