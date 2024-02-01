@@ -723,7 +723,7 @@ canvas.addEventListener('click', function (event) {
 
 // Monster class
 class Monster {
-    constructor(x, y, speed = 0.15, health = 100) {
+    constructor(x, y, speed = 0.1, health = 100) {
         this.path = dijkstraWithCaching(gameGrid, {x: x, y: y}, orbs[0]);
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
@@ -833,6 +833,27 @@ class Spawner {
 
 }
 
+const monsterImage = new Image();
+const monsterSVG = `
+<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:rgb(135,206,250);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(0,191,255);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <polygon points="20,0 40,20 20,40 0,20" fill="url(#grad1)" stroke="blue" stroke-width="2"/>
+  <path d="M 0 20 L 20 0 L 40 20 L 20 40 Z" fill="none" stroke="black" stroke-width="1" opacity="0.5"/>
+</svg>`;
+
+monsterImage.src = 'data:image/svg+xml;base64,' + btoa(monsterSVG);
+
+// Ensure the image is loaded before starting the game loop
+monsterImage.onload = () => {
+    // Start the game loop
+    gameLoop();
+};
+
 const spawnLocations = [
     {x: 1, y: 1},
     {x: 1, y: 10},
@@ -919,37 +940,54 @@ function gameLoop() {
     }
 
     // Draw the monster and then move it for next cycle
+    // for (const monster of gameState.monsters) {
+    //
+    //     if (monster.health <= 0) {
+    //
+    //         gameState.score += 10 * gameState.level
+    //
+    //         gameState.energy += 10 * gameState.level
+    //
+    //         gameState.monsters = gameState.monsters.filter(m => m !== monster);
+    //
+    //         continue;
+    //
+    //     }
+    //
+    //     /* Just for testing. Show the path the monster is following
+    //     for (const route of monster.path) {
+    //         ctx.fillStyle = 'rgb(39,192,42)';
+    //         ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
+    //     }
+    //     */
+    //
+    //     ctx.fillStyle = 'rgb(255,0,0)'; // Color of the monster
+    //
+    //     ctx.beginPath();
+    //
+    //     ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
+    //
+    //     ctx.fill();
+    //
+    //     monster.move()
+    //
+    // }
     for (const monster of gameState.monsters) {
 
         if (monster.health <= 0) {
-
             gameState.score += 10 * gameState.level
-
             gameState.energy += 10 * gameState.level
-
             gameState.monsters = gameState.monsters.filter(m => m !== monster);
-
             continue;
-
         }
 
-        /* Just for testing. Show the path the monster is following
-        for (const route of monster.path) {
-            ctx.fillStyle = 'rgb(39,192,42)';
-            ctx.fillRect(route.x * cellSize, route.y * cellSize, cellSize, cellSize);
-        }
-        */
+        const cellSize = getCellSize(); // Assuming you have a function to get cell size
 
-        ctx.fillStyle = 'rgb(255,0,0)'; // Color of the monster
+        // Draw the monster using the blue 3D diamond SVG image
+        ctx.drawImage(monsterImage, monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
 
-        ctx.beginPath();
-
-        ctx.fillRect(monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
-
-        ctx.fill();
-
-        monster.move()
-
+        // Existing code to move the monster
+        monster.move();
     }
 
     for (const spawner of gameState.spawners) {
