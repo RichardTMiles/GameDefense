@@ -6,7 +6,7 @@ let offsetX = 0; // This will be used to scroll the grid horizontally
 
 // Create the game grid array
 // 0: path, 1: wall, 2: player space, 3: orb
-const gameGrid = [
+let gameGrid = [
     // Row 1
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -46,6 +46,8 @@ const gameGrid = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
+
+gameGrid = gameGrid.slice().reverse()
 
 // Define the positions of the orbs
 // If you have specific positions for the orbs
@@ -338,9 +340,11 @@ function drawFooter() {
     // Draw the buttons
     getFooterButtons.forEach((button, index) => {
 
-        const x = (canvas.width / 3) + 100 * index;
+        const x = (canvas.width / 3) + (100 * index);
 
         ctx.fillStyle = (index - 1) === gameState.level ? '#64c027' : '#ac27c0';
+
+        console.log(button, ctx.fillStyle, index, gameState.level);
 
         ctx.fillRect(x, 0, 100, footerHeight * .15);
 
@@ -357,7 +361,7 @@ function drawFooter() {
     });
 
     // Draw other footer elements like game stats
-    // ...
+    // ctx.fillRect(0, 0, canvas.width * .3, getFooterHeight());
 
     // You can also add images/icons by loading them and drawing them onto the canvas
     // ...
@@ -445,10 +449,10 @@ function renderGame() {
     const boxWidth = canvas.width / 4;
     const boxTextHeight = getHeaderHeight() / 1.8;
 
-    const waveCircle = { x: boxWidth / 2, y: boxTextHeight, radius: 30 };
-    const timeCircle = { x: boxWidth * 1.5, y: boxTextHeight, radius: 30 };
-    const energyCircle = { x: boxWidth * 2.5, y: boxTextHeight, radius: 30 };
-    const scoreCircle = { x: boxWidth * 3.5, y: boxTextHeight, radius: 30 };
+    const waveCircle = {x: boxWidth / 2, y: boxTextHeight, radius: 30};
+    const timeCircle = {x: boxWidth * 1.5, y: boxTextHeight, radius: 30};
+    const energyCircle = {x: boxWidth * 2.5, y: boxTextHeight, radius: 30};
+    const scoreCircle = {x: boxWidth * 3.5, y: boxTextHeight, radius: 30};
 
     drawGradientCircle(ctx, waveCircle.x, waveCircle.y, waveCircle.radius, 'rgb(255,217,200)', 'rgb(215,103,33)');
     drawGradientCircle(ctx, timeCircle.x, timeCircle.y, timeCircle.radius, 'rgb(255,200,200)', 'rgb(255,100,100)');
@@ -968,6 +972,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 
 }
+
 function createAndShowModal(message) {
     // Create the modal elements
     var modal = document.createElement('div');
@@ -1002,7 +1007,7 @@ function createAndShowModal(message) {
     document.body.appendChild(modal);
 
     // Restart button functionality
-    restartButton.addEventListener('click', function() {
+    restartButton.addEventListener('click', function () {
         // Reset game state
         gameState.level = 1;
         gameState.processedLevel = 0;
