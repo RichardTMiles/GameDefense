@@ -34,14 +34,27 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     ctx.fillRect(0, 0, canvas.width, footerHeight);
 
+    // Draw the level background
+    ctx.fillStyle = 'rgba(172,39,192,0.46)'; // Assuming a dark background for the footer
+
+    ctx.fillRect(0, 0, canvas.width, footerHeight * .15);
+
     // Draw the buttons
     getFooterButtons.forEach((button, index) => {
 
-        const x = (canvas.width / 3) + (100 * index);
+        const x = (canvas.width / 2) + (100 * index) - (100 * gameState.level);
 
-        ctx.fillStyle = (index - 1) === gameState.level ? '#64c027' : '#ac27c0';
+        const buttonActive = (index + 1) === gameState.level;
 
-        ctx.fillRect(x, 0, 100, footerHeight * .15);
+        ctx.fillStyle = buttonActive ? '#64c027' : '#ac27c0';
+
+        if (buttonActive) {
+
+            console.log(button, ctx.fillStyle, index, gameState.level);
+
+        }
+
+        ctx.fillRect(x, 0, 99, footerHeight * .15);
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
@@ -55,14 +68,19 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     });
 
+    const OneThird = canvas.width * (1 / 3);
+
     // Draw other footer elements like game stats
-    // ctx.fillRect(0, 0, canvas.width * .3, getFooterHeight());
+    ctx.fillStyle = 'rgba(0,207,250,0.64)'; // Text color
+    ctx.fillRect(0, 0, OneThird, footerHeight);
 
     // You can also add images/icons by loading them and drawing them onto the canvas
-    // ...
+    ctx.fillStyle = 'rgba(199,19,19,0.19)'; // Text color
+    ctx.fillRect(OneThird, 0, OneThird, footerHeight);
 
     // Draw turrets in footer
-    // ... (Your logic to draw turret selection icons)
+    ctx.fillStyle = 'rgba(157,156,156,0.41)'; // Text color
+    ctx.fillRect(OneThird * 2, 0, OneThird, footerHeight);
 
     ctx.restore();
 

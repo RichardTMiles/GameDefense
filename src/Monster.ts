@@ -75,7 +75,7 @@ export default class Monster {
     health: number;
 
     constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
-        this.path = dijkstraWithCaching(gameState.gameGrid, {x: x, y: y}, gameState.gameTargets[0]);
+        this.path = dijkstraWithCaching(gameState.gameGrid, {x: x, y: y}, gameState.gameTargets.find(orb => orb.destroyed === false));
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
         this.speed = speed; // Speed of the monster, adjust as needed
@@ -109,7 +109,7 @@ export default class Monster {
 
         // check if the destination orb is still there
         const destinationOrb = gameState.gameTargets.find(orb => {
-            return orb.x === finalPath.x && orb.y === finalPath.y
+            return false === orb.destroyed && orb.x === finalPath.x && orb.y === finalPath.y
         });
 
         // If the monster has reached the end of the path, stop moving
@@ -120,7 +120,12 @@ export default class Monster {
             const finalPath = this.path[this.path.length - 1];
 
             // remove the orbs from the game grid that match this.pathIndex
-            gameState.gameTargets = gameState.gameTargets.filter(orb => !(orb.x === finalPath.x && orb.y === finalPath.y));
+            gameState.gameTargets = gameState.gameTargets.map(orb => {
+                if (orb.x === finalPath.x && orb.y === finalPath.y) {
+                    orb.destroyed = true;
+                }
+                return orb;
+            });
 
             if (0 === gameState.gameTargets.length) {
 
@@ -134,7 +139,7 @@ export default class Monster {
 
             this.pathIndex = 0;
 
-            this.path = dijkstraWithCaching(gameState.gameGrid, this.position, gameState.gameTargets[0]);
+            this.path = dijkstraWithCaching(gameState.gameGrid, this.position, gameState.gameTargets.find(orb => orb.destroyed === false));
 
             return true;
         }

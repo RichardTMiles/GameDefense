@@ -80,4 +80,29 @@ export class Turret {
 
     }
 
+    draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+        // Base position and dimensions
+        let baseX = this.x * cellSize;
+        let baseY = this.y * cellSize;
+        let baseWidth = cellSize;
+        let baseHeight = cellSize * 0.6; // Making the base a bit shorter than a full cell
+
+        // Turret color
+        ctx.fillStyle = 'rgba(172,39,192,0.66)';
+
+        // Draw the cylindrical base
+        ctx.beginPath();
+        ctx.ellipse(baseX + baseWidth / 2, baseY + baseHeight, baseWidth / 2, baseHeight / 2, 0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Draw the rectangular part of the base
+        ctx.fillRect(baseX, baseY, baseWidth, baseHeight);
+
+        // Draw the ball on top
+        let ballRadius = cellSize * 0.3; // Adjust size as needed
+        ctx.beginPath();
+        ctx.arc(baseX + baseWidth / 2, baseY, ballRadius, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
 }

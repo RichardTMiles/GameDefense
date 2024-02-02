@@ -14,7 +14,7 @@ export type tGameState = {
     projectiles: Projectile[];
     particles: Particle[];
     turrets: Turret[];
-    gameTargets: tGridPosition[];
+    gameTargets: (tGridPosition & { destroyed: boolean })[];
     score: number;
     offsetX: number;
     offsetY: number;

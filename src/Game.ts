@@ -66,13 +66,7 @@ export default function Game() {
 
         turret.update(gameState.monsters, gameState);
 
-        ctx.fillStyle = 'rgba(172,39,192,0.66)'; // Color of the monster
-
-        ctx.beginPath();
-
-        ctx.fillRect(turret.x * cellSize, turret.y * cellSize, cellSize, cellSize);
-
-        ctx.fill();
+        turret.draw(ctx, cellSize);
 
     }
 
