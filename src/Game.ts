@@ -1,4 +1,4 @@
-import {getGameGridPosition} from "./Position";
+import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import monsterImage from "./assets/svg/MonsterSVG";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
@@ -235,7 +235,7 @@ canvas.addEventListener('click', function (event) {
         // Place turret if the cell is free
         if (gameGridPosition) {
 
-            if (gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] === 2) {
+            if (isSpaceAvailable(gameGridPosition.x, gameGridPosition.y, gameState.selectedTurret.w, gameState.selectedTurret.h, gameState)) {
 
                 const selectedTurret = gameState.selectedTurret;
 
@@ -256,11 +256,10 @@ canvas.addEventListener('click', function (event) {
                     ...selectedTurret,
                     x: gameGridPosition.x,
                     y: gameGridPosition.y,
+                    gameState: gameState
                 });
 
                 gameState.turrets.push(newTurret);
-
-                gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] = 3; // Update the grid to indicate a turret is placed
 
             } else {
 

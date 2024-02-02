@@ -1,4 +1,4 @@
-import {iTurretInfo, Turret1} from "./Footer";
+import {eTurretTargetDimensionsLocation, iTurretInfo, Turret1} from "./Footer";
 import tGridPosition from "./tGridPosition";
 import {Turret} from "./Turret";
 import Monster, {Spawner} from "./Monster";
@@ -44,5 +44,5 @@ export const InitialGameState = () : tGameState => ({
     spawners: [], // This will hold spawner objects to systematically spawn monsters
     status: 'playing', // playing, won, or lost,
     mousePosition: {x: 0, y: 0},
-    selectedTurret: Turret1()
+    selectedTurret: Turret1(eTurretTargetDimensionsLocation.GAME)
 });

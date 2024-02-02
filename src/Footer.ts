@@ -43,7 +43,9 @@ export enum eTurretTargetDimensionsType {
 
 }
 
-export const Turret1 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+type tTurretCallable = (location: eTurretTargetDimensionsLocation) => iTurretInfo;
+
+export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
@@ -59,7 +61,7 @@ export const Turret1 = (location: eTurretTargetDimensionsLocation): iTurretInfo 
     }
 }
 
-export const Turret2 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
@@ -76,7 +78,7 @@ export const Turret2 = (location: eTurretTargetDimensionsLocation): iTurretInfo 
 
 }
 
-export const Turret3 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
@@ -92,11 +94,11 @@ export const Turret3 = (location: eTurretTargetDimensionsLocation): iTurretInfo 
     }
 }
 
-export const Turret4 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + 3* OneThird / 6,
+        x: OneThird + 3 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
         w: forGame ? 3 : OneThird / 6,
         h: forGame ? 3 : OneThird / 6,
@@ -108,7 +110,7 @@ export const Turret4 = (location: eTurretTargetDimensionsLocation): iTurretInfo 
     }
 }
 
-export const Turret5 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
@@ -124,7 +126,7 @@ export const Turret5 = (location: eTurretTargetDimensionsLocation): iTurretInfo 
     }
 }
 
-export const Turret6 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
+export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
@@ -198,7 +200,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 14px Arial';
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue,currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 2);
+    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 2);
 
     // Draw turrets in footer turret section
     ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color
@@ -238,13 +240,16 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillStyle = 'rgb(157,156,156)'; // Text color
     ctx.fillRect(OneThird * 2, 0, OneThird, footerHeight);
 
+    const centerAlign = OneThird * 2 + OneThird / 2
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 14px Arial';
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-    ctx.fillText("Damage: " + gameState.selectedTurret.damage, OneThird * 2 + OneThird / 2, footerHeight * 2 / 5);
-    ctx.fillText("Range: " + gameState.selectedTurret.range, OneThird * 2 + OneThird / 2, footerHeight * 3 / 5);
-    ctx.fillText("Cost: " + gameState.selectedTurret.cost, OneThird * 2 + OneThird / 2, footerHeight * 4 / 5);
+    ctx.fillText("Damage: " + gameState.selectedTurret.damage, centerAlign, footerHeight * 2 / 6);
+    ctx.fillText("Range: " + gameState.selectedTurret.range, centerAlign, footerHeight * 3 / 6);
+    ctx.fillText("Cost: " + gameState.selectedTurret.cost, centerAlign, footerHeight * 4 / 6);
+    ctx.fillText("W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, footerHeight * 5 / 6);
     ctx.restore();
 
 }
@@ -260,13 +265,15 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     console.log('Clicked on the footer');
 
-    const checkTurretClicked = (turret: iTurretInfo) => {
+    const checkTurretClicked = (turretCallable: tTurretCallable) => {
+
+        const turret = turretCallable(eTurretTargetDimensionsLocation.FOOTER);
 
         turret.y += footerOffset;
 
         if (x > turret.x && x < turret.x + turret.w && y > turret.y && y < turret.y + turret.h) {
 
-            gameState.selectedTurret = turret;
+            gameState.selectedTurret = turretCallable(eTurretTargetDimensionsLocation.GAME);
 
             return true;
 
@@ -276,61 +283,16 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
     }
 
     // determine which button was clicked
-    const turretOne = Turret1(eTurretTargetDimensionsLocation.FOOTER)
 
-    if (checkTurretClicked(turretOne)) {
+    if (checkTurretClicked(Turret1)
+        || checkTurretClicked(Turret2)
+        || checkTurretClicked(Turret3)
+        || checkTurretClicked(Turret4)
+        || checkTurretClicked(Turret5)
+        || checkTurretClicked(Turret6)
+    ) {
 
-        console.log('Turret 1 was clicked')
-
-        return;
-
-    }
-
-    const turretTwo = Turret2(eTurretTargetDimensionsLocation.FOOTER)
-
-    if (checkTurretClicked(turretTwo)) {
-
-        console.log('Turret 2 was clicked')
-
-        return;
-
-    }
-
-    const turretThree = Turret3(eTurretTargetDimensionsLocation.FOOTER)
-
-    if (checkTurretClicked(turretThree)) {
-
-        console.log('Turret 3 was clicked')
-
-        return;
-
-    }
-
-    const turretFour = Turret4(eTurretTargetDimensionsLocation.FOOTER)
-
-    if (checkTurretClicked(turretFour)) {
-
-        console.log('Turret 4 was clicked')
-
-        return;
-
-    }
-
-    const turretFive = Turret5(eTurretTargetDimensionsLocation.FOOTER)
-
-    if (checkTurretClicked(turretFive)) {
-
-        console.log('Turret 5 was clicked')
-
-        return;
-
-    }
-
-    const turretSix = Turret6(eTurretTargetDimensionsLocation.FOOTER)
-
-    if (checkTurretClicked(turretSix)) {
-
-        console.log('Turret 6 was clicked')
+        console.log('Turret in footer was clicked')
 
         return;
 

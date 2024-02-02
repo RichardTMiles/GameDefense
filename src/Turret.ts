@@ -1,5 +1,4 @@
 // Turret class
-import HeaderHeight from "./HeaderHeight";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import CellSize from "./CellSize";
 import {getGameState} from "./Game";
@@ -8,44 +7,76 @@ import {tGameState} from "./InitialState";
 import Projectile from "./Projectile";
 import Monster from "./Monster";
 
-export interface iTurret {
-    x: number;
-    y: number;
-    cost: number;
-    range: number;
-    damage: number;
-    fillStyle: string;
-    cooldown?: number;
-    direction?: tGridPosition;
-}
-
 export enum eTurretTargetType {
     OLDEST,
     NEWEST,
     CLOSEST,
 }
 
+export interface iTurret {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    cost: number;
+    range: number;
+    damage: number;
+    fillStyle: string;
+    cooldown?: number;
+    direction?: tGridPosition;
+    targetType?: eTurretTargetType;
+}
+
 export class Turret {
     x: number;
     y: number;
+    w: number;
+    h: number;
     range: number;
     damage: number;
     cooldown: number;
     fillStyle: string;
     cost: number;
-    direction: tGridPosition; // Directional vector
     private timer: number;
-    targetType: eTurretTargetType = eTurretTargetType.OLDEST;
+    targetType: eTurretTargetType;
 
-    constructor({x, y, fillStyle, range, cost, damage, cooldown = 10, direction = {x: 1, y: 0}}: iTurret) {
+    constructor({
+                    x,
+                    y,
+                    fillStyle,
+                    range,
+                    cost,
+                    damage,
+                    cooldown = 10,
+                    w,
+                    h,
+                    gameState,
+                    targetType = eTurretTargetType.OLDEST
+                }: iTurret & { gameState: tGameState }) {
         this.x = x;
         this.y = y;
+        this.w = w;
+        this.h = h;
+
+        // Dynamically update the grid based on the w and h
+        for (let offsetY = 0; offsetY < h; offsetY++) {
+            for (let offsetX = 0; offsetX < w; offsetX++) {
+                const gridX = x + offsetX;
+                const gridY = y + offsetY;
+
+                // Check bounds to avoid accessing outside of the grid
+                if (gridY >= 0 && gridY < gameState.gameGrid.length && gridX >= 0 && gridX < gameState.gameGrid[gridY].length) {
+                    gameState.gameGrid[gridY][gridX] = 3; // Update the grid to indicate a turret is placed
+                }
+            }
+        }
+
         this.range = range; // radius
         this.damage = damage;
         this.cooldown = cooldown;
         this.cost = cost;
         this.fillStyle = fillStyle;
-        this.direction = direction; // Default direction
+        this.targetType = targetType; // Default direction
         this.timer = 0;
     }
 
@@ -169,54 +200,37 @@ export class Turret {
 }
 
 export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridPosition) {
-
-    const gameState = getGameState()
+    const gameState = getGameState();
 
     const mouseX = position.x;
-
     const mouseY = position.y;
-
     const gameGridPosition = getGameGridPosition(mouseX, mouseY);
 
     if (undefined === gameGridPosition) {
-
         return;
-
     }
 
-    const {x, y} = gameGridPosition;
-
+    const { x, y } = gameGridPosition;
     const cellSize = CellSize(gameState);
 
-    if (isSpaceAvailable(x, y)) {
-
-        const turretRadius = gameState.selectedTurret.range * cellSize; // Example radius, adjust according to your game's logic
-
-        const centerX = (x * cellSize) + (cellSize / 2);
-
-        const centerY = (y * cellSize) + (cellSize / 2);
+    // Assuming gameState.selectedTurret is correctly initialized
+    const turret = gameState.selectedTurret;
+    // Adjust to draw the turret placement box with mouse in the upper left
+    if (isSpaceAvailable(x, y, turret.w, turret.h, gameState)) {
+        // Show the turret's effective range
+        const turretRadius = turret.range * cellSize;
+        // Calculate the center based on the full turret size
+        const centerX = x * cellSize + turret.w * cellSize / 2;
+        const centerY = y * cellSize + turret.h * cellSize / 2;
 
         // Draw the turret radius
         ctx.beginPath();
-
         ctx.arc(centerX, centerY, turretRadius, 0, 2 * Math.PI, false);
-
-        const fillStyle = gameState.selectedTurret.fillStyle;
-
-        ctx.fillStyle = fillStyle.includes('rgb(')
-            ? fillStyle
-                .replace(/rgb/i, "rgba")
-                .replace(/\)/i, ',0.15)')
-            : fillStyle; // Semi-transparent fill
-
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.15)'; // Semi-transparent fill for the radius
         ctx.fill();
 
-        ctx.strokeStyle = 'red'; // Red border
-
-        ctx.stroke();
-
+        // Draw the placement box for the turret itself
+        ctx.strokeStyle = 'red'; // Red border for the placement box
+        ctx.strokeRect(x * cellSize, y * cellSize, turret.w * cellSize, turret.h * cellSize);
     }
-
 }
-
-
