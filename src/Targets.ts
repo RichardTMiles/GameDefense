@@ -1,11 +1,11 @@
-import GameCellSize from "./GameCellSize";
-import {tGameState} from "./GamesState";
+import CellSize from "./CellSize";
+import {tGameState} from "./State";
 
 // Define the positions of the orbs
 // If you have specific positions for the orbs
 import tGridPosition from "./tGridPosition";
 
-let GameTargets = [
+let Targets = [
     {x: 60, y: 17},
     {x: 93, y: 17},
     {x: 139, y: 17},
@@ -14,7 +14,7 @@ let GameTargets = [
 ];
 
 
-export default GameTargets;
+export default Targets;
 
 // Function to create a radial gradient for orbs
 function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
@@ -33,7 +33,7 @@ function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, 
 
 export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
-    const cellSize = GameCellSize(gameState);
+    const cellSize = CellSize(gameState);
 
     const orbRadius = cellSize * 4; // You can adjust the radius of the orbs here
 

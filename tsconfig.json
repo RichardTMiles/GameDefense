@@ -5,7 +5,7 @@
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
-    "sourceRoot": "src",
+    "sourceRoot": ".",
     "sourceMap": true,
   },
   "files": ["src/index.ts"]

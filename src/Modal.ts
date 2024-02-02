@@ -1,6 +1,4 @@
-import {gameLoop} from "./Game";
-import {tGameState} from "./GamesState";
-
+import {tGameState} from "./State";
 
 export function createAndShowModal(message : string, gameState : tGameState) {
 
@@ -59,8 +57,6 @@ export function createAndShowModal(message : string, gameState : tGameState) {
         // Optionally, reset the canvas or other UI elements
         // ...
 
-        // Restart the game loop
-        requestAnimationFrame(gameLoop);
     });
 
 }

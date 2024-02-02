@@ -1,7 +1,7 @@
-import GridGamePosition from "./GridGamePosition";
+import GamePosition from "./Position";
 import tGridPosition from "./tGridPosition";
 
-function findNeighbors(node: GridGamePosition, grid: number[][]) {
+function findNeighbors(node: GamePosition, grid: number[][]) {
 
     const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // Right, Down, Left, Up
 
@@ -20,7 +20,7 @@ function findNeighbors(node: GridGamePosition, grid: number[][]) {
             neighborPos.y >= 0 && neighborPos.y < grid.length &&
             grid[neighborPos.y][neighborPos.x] === 0) {
 
-            result.push(new GridGamePosition(neighborPos, node.distance + 1));
+            result.push(new GamePosition(neighborPos, node.distance + 1));
 
         }
 
@@ -32,8 +32,8 @@ function findNeighbors(node: GridGamePosition, grid: number[][]) {
 
 export function dijkstra(grid: number[][], start: tGridPosition, end: tGridPosition) {
 
-    let startNode = new GridGamePosition(start, 0);
-    let endNode = new GridGamePosition(end, Infinity);
+    let startNode = new GamePosition(start, 0);
+    let endNode = new GamePosition(end, Infinity);
     let unvisited = [startNode];
     let visited = new Set();
 
@@ -48,7 +48,7 @@ export function dijkstra(grid: number[][], start: tGridPosition, end: tGridPosit
 
             let path = [];
 
-            let current: GridGamePosition | null = currentNode;
+            let current: GamePosition | null = currentNode;
 
             while (current != null) {
 
@@ -111,6 +111,10 @@ function cachePath(start: tGridPosition, end: tGridPosition, path: tGridPosition
 
 // Modified Dijkstra's algorithm that uses caching
 export function dijkstraWithCaching(grid: number[][], start: tGridPosition, end: tGridPosition) : tGridPosition[] {
+
+    if (undefined === start || undefined === end) {
+        return [];
+    }
 
     // Check if the path is already in the cache
     const cachedPath = getCachedPath(start, end);

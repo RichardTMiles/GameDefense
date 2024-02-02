@@ -1,5 +1,6 @@
-import Monster from "./GameMonster";
-import GridGamePosition from "./GridGamePosition";
+import {tGameState} from "./State";
+import Monster from "./Monster";
+import GamePosition from "./Position";
 
 
 export default class Projectile {
@@ -18,10 +19,19 @@ export default class Projectile {
         this.damage = damage;
     }
 
+    draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+        ctx.beginPath();
+        ctx.arc(this.x * cellSize, this.y * cellSize, 5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgb(211,5,5)';
+        ctx.fill();
+    }
+
     move(): boolean {
 
-        if (this.isDestroyed) {
+        if (this.isDestroyed || undefined === this.target) {
+
             return false;
+
         }
 
         // Calculate direction towards the target

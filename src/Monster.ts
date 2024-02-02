@@ -1,9 +1,13 @@
-import {tGameState} from "./GamesState";
+import GameHeaderHeight from "./HeaderHeight";
+import {energyCirclePosition} from "./Header";
+import gamesState from "./State";
+import Particle from "./Particle";
+import {tGameState} from "./State";
 import tGridPosition from "./tGridPosition";
 import {dijkstraWithCaching} from "./Dijkstra";
 
 // Monster class
-import gameGrid from "./GameGrid";
+import gameGrid from "./Grid";
 
 
 const spawnLocations = [
@@ -69,24 +73,44 @@ export default class Monster {
     position: tGridPosition;
     speed: number;
     health: number;
-    constructor(x: number, y:number, gameState: tGameState, speed = 0.2, health = 100, ) {
-        this.path = dijkstraWithCaching(gameGrid, {x: x, y: y}, gameState.gameTargets[0]);
+
+    constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
+        this.path = dijkstraWithCaching(gameState.gameGrid, {x: x, y: y}, gameState.gameTargets[0]);
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
         this.speed = speed; // Speed of the monster, adjust as needed
         this.health = health; // Health of the monster, adjust as needed
     }
 
-    move(gameState: tGameState) {
+    move(gameState: tGameState, cellSize: number): boolean {
+
+        if (this.health <= 0) {
+
+            const headerSize = GameHeaderHeight()
+
+            gamesState.particles.push(new Particle({
+                x: cellSize * this.position.x + headerSize,
+                y: cellSize * this.position.y + headerSize
+            }, energyCirclePosition(), 10 * gameState.level, 10 * gameState.level));
+
+            return false;
+
+        }
 
         const finalPath = this.path[this.path.length - 1];
 
+        if (undefined === finalPath) {
+
+            console.log('finalPath is undefined', this.path, this.pathIndex, this.position);
+
+            return false;
+
+        }
+
         // check if the destination orb is still there
-        const destinationOrb = gameState.gameTargets.find(orb =>
-            orb.x === finalPath.x && orb.y === finalPath.y);
-
-
-        console.log('destinationOrb', destinationOrb);
+        const destinationOrb = gameState.gameTargets.find(orb => {
+            return orb.x === finalPath.x && orb.y === finalPath.y
+        });
 
         // If the monster has reached the end of the path, stop moving
         if (undefined === destinationOrb || this.pathIndex === this.path.length - 1) {
@@ -98,25 +122,21 @@ export default class Monster {
             // remove the orbs from the game grid that match this.pathIndex
             gameState.gameTargets = gameState.gameTargets.filter(orb => !(orb.x === finalPath.x && orb.y === finalPath.y));
 
-            console.log('gameTargets', gameState.gameTargets);
-
             if (0 === gameState.gameTargets.length) {
 
                 console.log('game over', gameState.gameTargets);
 
                 gameState.status = 'lost';
 
-                return;
+                return false;
 
             }
 
             this.pathIndex = 0;
 
-            this.path = dijkstraWithCaching(gameGrid, this.position, gameState.gameTargets[0]);
+            this.path = dijkstraWithCaching(gameState.gameGrid, this.position, gameState.gameTargets[0]);
 
-            console.log('new path', this.path);
-
-            return;
+            return true;
         }
 
         // Get the next point on the path
@@ -142,5 +162,9 @@ export default class Monster {
             this.position = {...target}; // Snap to the target to avoid overshooting
             this.pathIndex++; // Move to the next point
         }
+
+        return true;
+
     }
+
 }

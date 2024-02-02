@@ -1,7 +1,7 @@
 // Turret class
-import {tGameState} from "./GamesState";
-import Projectile from "./GameProjectile";
-import Monster from "./GameMonster";
+import {tGameState} from "./State";
+import Projectile from "./Projectile";
+import Monster from "./Monster";
 
 export class Turret {
     x: number;
@@ -20,19 +20,32 @@ export class Turret {
     }
 
     findTarget(monsters : Monster[]) {
+
         // Find the closest monster within range
         let target = null;
+
         let minDist = this.range;
+
         for (let monster of monsters) {
+
             let dx = this.x - monster.position.x;
+
             let dy = this.y - monster.position.y;
+
             let dist = Math.sqrt(dx * dx + dy * dy);
+
             if (dist < minDist) {
+
                 target = monster;
+
                 minDist = dist;
+
             }
+
         }
+
         return target;
+
     }
 
     shoot(target: Monster, gameState: tGameState) {

@@ -1,46 +1,31 @@
-import {createAndShowModal} from "./GameModal";
-import {Spawner} from "./GameMonster";
-import GameState from "./GamesState";
-import {Turret} from "./GameTurret";
-import {drawFooter} from "./GameFooter";
-import GameCellSize from "./GameCellSize";
-import GameHeaderHeight from "./GameHeaderHeight";
-import {DrawGameTargets} from "./GameTargets";
-import gameGrid from "./GameGrid";
-import {drawGradientCircleHeader} from "./GameHeader";
-import canvas from "./GameCanvas";
+import monsterImage from "./assets/svg/MonsterSVG";
+import FPS from "./FPS";
+import DrawGameGrid from "./Grid";
+import {createAndShowModal} from "./Modal";
+import {Spawner} from "./Monster";
+import gamesState from "./State";
+import GameState from "./State";
+import {Turret} from "./Turret";
+import Footer from "./Footer";
+import CellSize from "./CellSize";
+import GameHeaderHeight from "./HeaderHeight";
+import {DrawGameTargets} from "./Targets";
+import gameGrid from "./Grid";
+import Header, {energyCirclePosition} from "./Header";
+import canvas from "./Canvas";
 
 const ctx = canvas.getContext('2d')!;
 
 // Game state
 const gameState = GameState
 
-function secondsElapsed() {
-
-    const endTime = new Date();
-
-    let timeDiff = endTime.getTime() - gameState.startTime; //in ms
-
-    // strip the ms
-    timeDiff /= 1000;
-
-    // get seconds
-    return Math.round(timeDiff);
-
-}
-
-const borderWidth = 1; // You can adjust the thickness of the border here
 
 // Function to create a radial gradient for orbs
 // Game rendering function
-function renderGame() {
+export default function Game() {
 
     // Clear the entire canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    gameState.rotationX += 0.01; // Adjust rotation speed
-
-    gameState.rotationY += 0.01;
 
     // Save the current context state (with no translations)
     ctx.save();
@@ -49,113 +34,21 @@ function renderGame() {
 
     canvas.width = window.innerWidth;
 
-    const headerHeight = GameHeaderHeight(); // Example height for the header
+    const cellSize = CellSize(gameState);
 
-
-    // Define the game grid dimensions
-    // Define the size of each cell
-    const cellSize = GameCellSize(gameState);
-
-    // Draw header
-    ctx.fillStyle = '#444'; // Dark gray background for header
-
-    ctx.fillRect(0, 0, canvas.width, headerHeight);
-
-    // Add text for level info
-    ctx.fillStyle = '#fff'; // White text
-
-    ctx.font = '20px Arial';
-
-    const timeElapsed = secondsElapsed();
-
-    const textPadding = 10;
-    const boxWidth = canvas.width / 4;
-    const boxTextHeight = GameHeaderHeight() / 1.8;
-
-    const waveCircle = {x: boxWidth / 2, y: boxTextHeight, radius: 30};
-    const timeCircle = {x: boxWidth * 1.5, y: boxTextHeight, radius: 30};
-    const energyCircle = {x: boxWidth * 2.5, y: boxTextHeight, radius: 30};
-    const scoreCircle = {x: boxWidth * 3.5, y: boxTextHeight, radius: 30};
-
-    drawGradientCircleHeader(ctx, waveCircle.x, waveCircle.y, waveCircle.radius, 'rgb(255,217,200)', 'rgb(215,103,33)');
-    drawGradientCircleHeader(ctx, timeCircle.x, timeCircle.y, timeCircle.radius, 'rgb(255,200,200)', 'rgb(255,100,100)');
-    drawGradientCircleHeader(ctx, energyCircle.x, energyCircle.y, energyCircle.radius, 'rgb(200,255,200)', 'rgb(100,255,100)');
-    drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, scoreCircle.radius, 'rgb(200,200,255)', 'rgb(100,100,255)');
-
-    // Set style for descriptive text
-    ctx.fillStyle = '#fff'; // White text color
-    ctx.font = 'bold 20px Arial';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-
-    // Draw descriptive text next to circles
-    ctx.fillText("Waves", waveCircle.x - waveCircle.radius - textPadding, waveCircle.y);
-    ctx.fillText("Time", timeCircle.x - timeCircle.radius - textPadding, timeCircle.y);
-    ctx.fillText("Energy", energyCircle.x - energyCircle.radius - textPadding, energyCircle.y);
-    ctx.fillText("Score", scoreCircle.x - scoreCircle.radius - textPadding, scoreCircle.y);
-
-    // Set style for numbers within the circles
-    ctx.fillStyle = 'black'; // Black text color
-    ctx.textAlign = 'center';
-
-    // Draw numbers inside circles
-    ctx.fillText(`${gameState.level}`, waveCircle.x, waveCircle.y);
-    ctx.fillText(`${timeElapsed}`, timeCircle.x, timeCircle.y);
-    ctx.fillText(`${gameState.energy}`, energyCircle.x, energyCircle.y);
-    ctx.fillText(`${gameState.score}`, scoreCircle.x, scoreCircle.y);
+    Header(ctx, gameState);
 
     // draw footer
-    drawFooter(ctx, gameState)
+    Footer(ctx, gameState)
+
+
+    // move the grid context to the "Game Grid" position
+    ctx.save();
 
     // Translate the context for horizontal scrolling of the game grid
     ctx.translate(-gameState.offsetX, gameState.offsetY + GameHeaderHeight());//headerHeight
 
-    for (let y = 0; y < gameGrid.length; y++) {
-
-        for (let x = 0; x < gameGrid[y].length; x++) {
-
-            const cellX = x * cellSize;
-
-            const cellY = y * cellSize;
-
-            // Paths are not drawn as they are the default background
-            switch (gameGrid[y][x]) {
-                case 0:
-                    // Draw path
-                    ctx.fillStyle = 'rgba(98,74,74,0.37)'; // Black
-                    ctx.fillRect(cellX, cellY, cellSize, cellSize);
-                    break;
-                case 1:
-                    // Draw wall
-                    ctx.fillStyle = '#FF00FF'; // Purple
-                    ctx.fillRect(cellX, cellY, cellSize, cellSize);
-                    break;
-                case 2:
-                    // Draw wall
-                    ctx.fillStyle = '#31b0c3'; // Purple
-                    ctx.fillRect(cellX, cellY, cellSize, cellSize);
-                    break;
-                case 3:
-                    // Draw orb
-                    ctx.fillStyle = '#d30505'; // Black
-                    ctx.fillRect(cellX, cellY, cellSize, cellSize);
-                    ctx.fillStyle = '#27c02a';
-                    ctx.beginPath();
-                    ctx.arc((cellX) + (cellSize / 2), (cellY) + (cellSize / 2), cellSize / 3, 0, Math.PI * 2);
-                    ctx.fill();
-                    break;
-            }
-
-            // Draw the border around the cell
-            ctx.strokeStyle = 'rgba(15,15,15,0.23)'; // Black color for the border
-
-            ctx.lineWidth = borderWidth;
-
-            ctx.strokeRect(cellX + borderWidth / 2, cellY + borderWidth / 2, cellSize - borderWidth, cellSize - borderWidth);
-
-        }
-
-    }
+    DrawGameGrid(ctx, gameState);
 
     // game objectives
     DrawGameTargets(ctx, gameState);
@@ -171,7 +64,7 @@ function renderGame() {
     // Update turrets and draw them
     for (const turret of gameState.turrets) {
 
-        turret.update(gameState.monsters);
+        turret.update(gameState.monsters, gameState);
 
         ctx.fillStyle = 'rgba(172,39,192,0.66)'; // Color of the monster
 
@@ -183,56 +76,56 @@ function renderGame() {
 
     }
 
-    for (const projectile of gameState.projectiles) {
+    // remove projectile from game state - remove any destroyed projectiles so were not running this loop often
+    gameState.projectiles = gameState.projectiles.filter(projectile => {
 
-        if (undefined === projectile.target || true === projectile.isDestroyed) {
+        if (!projectile.move()) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
 
-            // remove projectile from game state
-            gameState.projectiles = gameState.projectiles.filter(p => p !== projectile);
-
-            continue;
+            return false;
 
         }
 
-        projectile.move();
+        projectile.draw(ctx, cellSize);
 
-        ctx.fillStyle = 'rgba(0,0,0,0.37)'; // Color of the monster
+        return true;
 
-        ctx.beginPath();
+    }) ?? [];
 
-        ctx.fillRect(projectile.x * cellSize, projectile.y * cellSize, cellSize, cellSize);
+    gameState.monsters = gameState.monsters.filter(monster => {
 
-        ctx.fill();
+        const cellSize = CellSize(gameState); // Assuming you have a function to get cell size
 
-    }
+        // Existing code to move the monster
+        if (false === monster.move(gameState, cellSize)) {
 
-    for (const monster of gameState.monsters) {
+            return false;
 
-        if (monster.health <= 0) {
-            gameState.score += 10 * gameState.level
-            gameState.energy += 10 * gameState.level
-            gameState.monsters = gameState.monsters.filter(m => m !== monster);
-            continue;
         }
-
-        const cellSize = GameCellSize(gameState); // Assuming you have a function to get cell size
 
         // Draw the monster using the blue 3D diamond SVG image
         ctx.drawImage(monsterImage, monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
 
-        // Existing code to move the monster
-        monster.move(gameState);
-    }
+        return true
 
-    for (const spawner of gameState.spawners) {
+    }) ?? [];
 
-        if (false === spawner.update(gameState)) {
+    gameState.spawners = gameState.spawners.filter(spawner => spawner.update(gameState));
 
-            gameState.spawners = gameState.spawners.filter(s => s !== spawner);
+    ctx.restore();
+
+    gamesState.particles = gamesState.particles.filter(particle => {
+
+        if (particle.updatePosition(gameState)) {
+
+            particle.draw(ctx);
+
+            return true;
 
         }
 
-    }
+        return false;
+
+    });
 
     if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
 
@@ -251,22 +144,30 @@ canvas.addEventListener('wheel', function (event) {
         gameState.offsetX += amount;
 
         // Optionally add limits to prevent scrolling too far left or right
-        gameState.offsetX = Math.max(0, Math.min(gameState.offsetX, GameCellSize(gameState) * gameGrid[0].length - window.innerWidth));
+        gameState.offsetX = Math.max(0, Math.min(gameState.offsetX,
+            CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
 
-        renderGame();
+        Game();
 
     }
 
-    /*const scrollGridY = (amount: number) => {
+    const scrollGridY = (amount: number) => {
+
+        // comment this out to allow vertical scrolling
+        if (gameState.offsetY + amount !== 0) {
+
+            return;
+
+        }
 
         gameState.offsetY += amount;
 
         // Optionally add limits to prevent scrolling too far left or right
-        gameState.offsetY = Math.max(0, Math.min(gameState.offsetY, GameCellSize(gameState) * gameGrid[0].length - window.innerWidth));
+        gameState.offsetY = Math.max(0, Math.min(gameState.offsetY, CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
 
-        renderGame();
+        Game();
 
-    }*/
+    }
 
     // Use event.deltaY for vertical mouse wheel event to scroll horizontally
     if (event.deltaX) {
@@ -275,11 +176,11 @@ canvas.addEventListener('wheel', function (event) {
 
     }
 
-    /*if (event.deltaY) {
+    if (event.deltaY) {
 
         scrollGridY(event.deltaY)
 
-    }*/
+    }
 
 }, {passive: true});
 
@@ -292,7 +193,7 @@ canvas.addEventListener('click', function (event) {
 
     const y = event.clientY - rect.top - GameHeaderHeight();
 
-    const cellSize = GameCellSize(gameState);
+    const cellSize = CellSize(gameState);
 
     // Convert click position to grid coordinates
     const gridX = Math.floor(x / cellSize);
@@ -300,7 +201,7 @@ canvas.addEventListener('click', function (event) {
     const gridY = Math.floor(y / cellSize);
 
     // Place turret if the cell is free
-    if (gameGrid[gridY][gridX] === 2) {
+    if (gameState.gameGrid[gridY][gridX] === 2) {
 
         gameState.energy -= 10;
 
@@ -308,31 +209,25 @@ canvas.addEventListener('click', function (event) {
 
         gameState.turrets.push(newTurret);
 
-        gameGrid[gridY][gridX] = 2; // Update the grid to indicate a turret is placed
+        gameState.gameGrid[gridY][gridX] = 2; // Update the grid to indicate a turret is placed
 
     }
 
 });
 
-const monsterImage = new Image();
-
-const monsterSVG = (color1 = 'rgb(134,30,30)', color2 = 'rgb(0,191,255)') => `
-<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color: ${color1};stop-opacity:1" />
-      <stop offset="100%" style="stop-color: ${color2};stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <polygon points="20,0 40,20 20,40 0,20" fill="url(#grad1)" stroke="blue" stroke-width="2"/>
-  <path d="M 0 20 L 20 0 L 40 20 L 20 40 Z" fill="none" stroke="black" stroke-width="1" opacity="0.5"/>
-</svg>`;
-
-monsterImage.src = 'data:image/svg+xml;base64,' + btoa(monsterSVG());
-
 document.addEventListener('keydown', function (event) {
 
+    console.log('Keydown event', event.code);
+
     if (event.code === 'Space') {
+
+        if (FPS() < 30) {
+
+            console.warn('FPS is too low to continue');
+
+            return;
+
+        }
 
         // Your code here
         console.log('Spacebar was pressed');
@@ -341,13 +236,7 @@ document.addEventListener('keydown', function (event) {
 
     }
 
-}, {passive: true});
-
-// Main game loop
-export function gameLoop() {
-
-    // Render the game
-    renderGame();
+    // note - good 4 testing renderGame()
 
     // be sure to render the final game board before exiting, aka don't change the order of these two lines
     if (gameState.status !== 'playing') {
@@ -358,9 +247,6 @@ export function gameLoop() {
 
     }
 
+}, {passive: true});
 
-    // Call the next frame
-    requestAnimationFrame(gameLoop);
-
-}
 

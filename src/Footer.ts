@@ -1,57 +1,17 @@
-import GameBodyHeight from "./GameBodyHeight";
-import canvas from "./GameCanvas";
-import GameHeaderHeight from "./GameHeaderHeight";
-import {tGameState} from "./GamesState";
+import GameBodyHeight from "./BodyHeight";
+import canvas from "./Canvas";
+import GameHeaderHeight from "./HeaderHeight";
+import {tGameState} from "./State";
 
 
 // Footer Levels
 const getFooterButtons: string[] = [
     'NORMO', 'NORMO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO', 'TOUGHO', 'NORMO', 'FLYBO', 'NORMO', "NORMO BOSS", "NORMO",
-    "BOMBO", "NORMO", 'SWARMO', 'SWARMO BOSS', 'NORMO', 'ZOOMO', 'NORMO',
-    'FLYBO',
-    'NORMO',
-    'BOMBO',
-    'NORMO',
-    'TOUGHO',
-    'ZOOMO',
-    'ZOOMO BOSS',
-    'NORMO',
-    'SWARMO',
-    'CHAMPO',
-    'TOUGHO BOSS',
-    'NORMO',
-    'IRONO',
-    'SWARMO',
-    'NORMO',
-    'ZOOMO',
-    'NORMO',
-    'TOUGHO',
-    'FLYBO',
-    'FLYBO BOSS',
-    'NORMO',
-    'CHAMPO',
-    'BOMBO',
-    'BOMBO BOSS',
-    'NORMO',
-    'IRONO',
-    'BOMBO',
-    'NORMO',
-    'SWARMO',
-    'CHAMPO',
-    'NORMO',
-    'IRONO',
-    'IRONO BOSS',
-    'NORMO',
-    'SWARMO',
-    'ZOOMO',
-    'TOUGHO',
-    'FLYBO',
-    'BOMBO',
-    'CHOMPO',
-    'IRONO',
-    'NORMO',
-    'NORMO',
-    'AWESOMEO BOSS',
+    "BOMBO", "NORMO", 'SWARMO', 'SWARMO BOSS', 'NORMO', 'ZOOMO', 'NORMO', 'FLYBO', 'NORMO', 'BOMBO', 'NORMO', 'TOUGHO',
+    'ZOOMO', 'ZOOMO BOSS', 'NORMO', 'SWARMO', 'CHAMPO', 'TOUGHO BOSS', 'NORMO', 'IRONO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO',
+    'TOUGHO', 'FLYBO', 'FLYBO BOSS', 'NORMO', 'CHAMPO', 'BOMBO', 'BOMBO BOSS', 'NORMO', 'IRONO', 'BOMBO', 'NORMO', 'SWARMO',
+    'CHAMPO', 'NORMO', 'IRONO', 'IRONO BOSS', 'NORMO', 'SWARMO', 'ZOOMO', 'TOUGHO', 'FLYBO', 'BOMBO', 'CHOMPO', 'IRONO',
+    'NORMO', 'NORMO', 'AWESOMEO BOSS',
 ];
 
 
@@ -60,7 +20,7 @@ export function GameFooterHeight() {
 } // Example height for the footer
 
 
-export function drawFooter(ctx: CanvasRenderingContext2D, gameState: tGameState) {
+export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
     ctx.save();
 

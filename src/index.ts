@@ -1,4 +1,27 @@
 // Start the game loop
-import {gameLoop} from "./Game";
+import Game from "./Game";
 
-gameLoop();
+
+let fpsInterval = 1000 / 30; // 30 FPS
+
+let then = 0;
+
+function gameLoop(now:number) {
+
+    requestAnimationFrame(gameLoop);
+
+    then = then || now;
+
+    let elapsed = now - then;
+
+    if (elapsed > fpsInterval) {
+
+        then = now - (elapsed % fpsInterval);
+
+        Game();
+
+    }
+
+}
+
+requestAnimationFrame(gameLoop);
