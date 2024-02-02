@@ -20,7 +20,7 @@ const footerLevelBarHeight = () => GameFooterHeight() * .15;
 const turretSectionHeight = () => GameFooterHeight() * .85;
 
 export function GameFooterHeight() {
-    return window.innerHeight * .3;
+    return window.innerHeight * .25;
 } // Example height for the footer
 
 
@@ -43,6 +43,7 @@ export const Turret1 = (): iTurretInfo => {
         range: 5,
         damage: 10,
         cooldown: 10,
+        cost: 10
     }
 }
 
@@ -54,9 +55,10 @@ export const Turret2 = (): iTurretInfo => {
         w: OneThird / 8,
         h: OneThird / 8,
         fillStyle: 'rgb(211,5,5)',
-        range: 5,
-        damage: 10,
-        cooldown: 10,
+        range: 10,
+        damage: 100,
+        cooldown: 9,
+        cost: 100
     }
 
 }
@@ -70,8 +72,9 @@ export const Turret3 = (): iTurretInfo => {
         h: OneThird / 8,
         fillStyle: 'rgb(192,172,39)',
         range: 5,
-        damage: 10,
-        cooldown: 10,
+        damage: 200,
+        cooldown: 8,
+        cost: 1000
     }
 }
 
@@ -83,9 +86,10 @@ export const Turret4 = (): iTurretInfo => {
         w: OneThird / 8,
         h: OneThird / 8,
         fillStyle: 'rgb(157,156,156)',
-        range: 5,
-        damage: 10,
-        cooldown: 10,
+        range: 30,
+        damage: 10000,
+        cooldown: 20,
+        cost: 10000
     }
 }
 
@@ -97,9 +101,10 @@ export const Turret5 = (): iTurretInfo => {
         w: OneThird / 8,
         h: OneThird / 8,
         fillStyle: 'rgb(0,207,250)',
-        range: 5,
-        damage: 10,
-        cooldown: 10,
+        range: 40,
+        damage: 2000,
+        cooldown: 3,
+        cost: 20000
     }
 }
 
@@ -111,9 +116,10 @@ export const Turret6 = (): iTurretInfo => {
         w: OneThird / 8,
         h: OneThird / 8,
         fillStyle: 'rgb(232,122,54)',
-        range: 5,
-        damage: 10,
-        cooldown: 10,
+        range: 50,
+        damage: 10000,
+        cooldown: 0,
+        cost: 500000
     }
 }
 

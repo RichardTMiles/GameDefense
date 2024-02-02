@@ -10,25 +10,27 @@ export default class Projectile {
     speed: number;
     damage: number;
     isDestroyed = false;
+    fillStyle: string;
 
-    constructor(startX: number, startY: number, target: Monster, speed: number, damage: number) {
+    constructor(startX: number, startY: number, target: Monster, speed: number, damage: number, fillStyle: string = 'rgb(211,5,5)') {
         this.x = startX;
         this.y = startY;
         this.target = target;
         this.speed = speed;
         this.damage = damage;
+        this.fillStyle = fillStyle;
     }
 
     draw(ctx: CanvasRenderingContext2D, cellSize: number) {
         ctx.beginPath();
         ctx.arc(this.x * cellSize, this.y * cellSize, 5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgb(211,5,5)';
+        ctx.fillStyle = this.fillStyle;
         ctx.fill();
     }
 
     move(): boolean {
 
-        if (this.isDestroyed || undefined === this.target) {
+        if (this.isDestroyed || undefined === this.target || this.target.isDestroyed) {
 
             return false;
 

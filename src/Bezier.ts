@@ -16,13 +16,15 @@ function serializeArguments(start: Point, control: Point, end: Point, numPoints:
 
 export default function Bezier(start: Point, control: Point, end: Point, numPoints: number): Point[] {
     // Generate a key for the current arguments
-    const key = serializeArguments(start, control, end, numPoints);
+    // its tempting to use this as a cache key, but it's not a good idea
+    // the memory usage would be horrible
+    /*const key = serializeArguments(start, control, end, numPoints);
 
     // Check if the result is already in the cache
     if (cache[key]) {
         return cache[key];
     }
-
+    */
     const curvePoints = [start];
 
     for (let i = 0; i <= numPoints; i++) {

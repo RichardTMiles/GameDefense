@@ -7,14 +7,7 @@ import {Spawner} from "./Monster";
 import {InitialGameState} from "./InitialState";
 import {showTurretRadius, Turret} from "./Turret";
 import Footer, {
-    GameFooterHeight, handleFooterClick,
-    iTurretInfo,
-    Turret1,
-    Turret2,
-    Turret3,
-    Turret4,
-    Turret5,
-    Turret6
+    GameFooterHeight, handleFooterClick
 } from "./Footer";
 import CellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
@@ -236,9 +229,12 @@ canvas.addEventListener('click', function (event) {
 
             if (gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] === 2) {
 
-                if (gameState.energy < 10) {
+                const selectedTurret = gameState.selectedTurret;
 
-                    alert('Not enough energy to place a turret');
+
+                if (gameState.energy < selectedTurret.cost) {
+
+                    alert('Not enough energy to place a turret. Requires (' + selectedTurret.cost + ') energy. You have (' + gameState.energy + ') energy.');
 
                     console.warn('Not enough energy to place a turret');
 
@@ -246,17 +242,12 @@ canvas.addEventListener('click', function (event) {
 
                 }
 
-                gameState.energy -= 10;
-
-                const selectedTurret = gameState.selectedTurret;
+                gameState.energy -= selectedTurret.cost;
 
                 const newTurret = new Turret({
+                    ...selectedTurret,
                     x: gameGridPosition.x,
                     y: gameGridPosition.y,
-                    cooldown: selectedTurret.cooldown,
-                    range: selectedTurret.range,
-                    damage: selectedTurret.damage,
-                    fillStyle: selectedTurret.fillStyle
                 });
 
                 gameState.turrets.push(newTurret);

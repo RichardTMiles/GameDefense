@@ -11,6 +11,7 @@ import Monster from "./Monster";
 export interface iTurret {
     x: number;
     y: number;
+    cost: number;
     range: number;
     damage: number;
     cooldown: number;
@@ -24,14 +25,16 @@ export class Turret {
     damage: number;
     cooldown: number;
     fillStyle: string;
+    cost: number;
     private timer: number;
 
-    constructor({x, y, fillStyle, range, damage, cooldown = 10} :iTurret) {
+    constructor({x, y, fillStyle, range,cost, damage, cooldown = 10} :iTurret) {
         this.x = x;
         this.y = y;
-        this.range = range;
+        this.range = range; // radius
         this.damage = damage;
         this.cooldown = cooldown;
+        this.cost = cost;
         this.fillStyle = fillStyle;
         this.timer = 0;
     }
@@ -147,7 +150,7 @@ export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridP
 
     if (isSpaceAvailable(x, y)) {
 
-        const turretRadius = 100; // Example radius, adjust according to your game's logic
+        const turretRadius = gameState.selectedTurret.range * cellSize; // Example radius, adjust according to your game's logic
 
         const centerX = (x * cellSize) + (cellSize / 2);
 

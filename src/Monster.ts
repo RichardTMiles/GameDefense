@@ -72,6 +72,7 @@ export default class Monster {
     position: tGridPosition;
     speed: number;
     health: number;
+    isDestroyed = false;
 
     constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
         this.path = dijkstraWithCaching(gameState.gameGrid, {
@@ -87,6 +88,8 @@ export default class Monster {
     move(gameState: tGameState, cellSize: number): boolean {
 
         if (this.health <= 0) {
+
+            this.isDestroyed = true;
 
             const headerSize = GameHeaderHeight()
 
