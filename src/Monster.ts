@@ -75,7 +75,10 @@ export default class Monster {
     health: number;
 
     constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
-        this.path = dijkstraWithCaching(gameState.gameGrid, {x: x, y: y}, gameState.gameTargets.find(orb => orb.destroyed === false));
+        this.path = dijkstraWithCaching(gameState.gameGrid, {
+            x: x,
+            y: y
+        }, gameState.gameTargets.find(orb => orb.destroyed === false));
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: x, y: y}; // Current position of the monster
         this.speed = speed; // Speed of the monster, adjust as needed
@@ -88,10 +91,26 @@ export default class Monster {
 
             const headerSize = GameHeaderHeight()
 
-            gamesState.particles.push(new Particle({
+            const start = {
                 x: cellSize * this.position.x + headerSize,
                 y: cellSize * this.position.y + headerSize
-            }, energyCirclePosition(), 10 * gameState.level, 10 * gameState.level));
+            };
+
+            const end = energyCirclePosition();
+
+            gamesState.particles.push(new Particle({
+                    x: cellSize * this.position.x + headerSize,
+                    y: cellSize * this.position.y + headerSize
+                },  gamesState.particles.length % 2 ? {
+                    x: start.x,
+                    y: end.y
+                } : {
+                    x: end.x,
+                    y: start.y
+                },
+                end,
+                10 * gameState.level,
+                10 * gameState.level));
 
             return false;
 
@@ -100,8 +119,6 @@ export default class Monster {
         const finalPath = this.path[this.path.length - 1];
 
         if (undefined === finalPath) {
-
-            console.log('finalPath is undefined', this.path, this.pathIndex, this.position);
 
             return false;
 

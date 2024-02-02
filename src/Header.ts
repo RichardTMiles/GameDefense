@@ -27,7 +27,7 @@ export const scoreCirclePosition = () => ({x: boxWidth() * 3.5, y: boxTextHeight
 
 let lastLog = -1
 
-function secondsElapsed(gameState: tGameState) {
+export function secondsElapsed(gameState: tGameState) {
 
     const endTime = new Date();
 
@@ -50,6 +50,17 @@ function secondsElapsed(gameState: tGameState) {
     return seconds;
 
 }
+
+function formatNumber(num: number) : string{
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 100000) {
+        return (num / 1000).toFixed(0) + 'k';
+    } else {
+        return num.toString();
+    }
+}
+
 
 export default function Header(ctx: CanvasRenderingContext2D, gameState: any) {
 
@@ -104,13 +115,13 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: any) {
     ctx.textAlign = 'center';
 
     // Draw numbers inside circles
-    ctx.fillText(`${gameState.level}`, waveCircle.x, waveCircle.y);
+    ctx.fillText(gameState.level, waveCircle.x, waveCircle.y);
 
-    ctx.fillText(`${timeElapsed}`, timeCircle.x, timeCircle.y);
+    ctx.fillText(timeElapsed.toString(), timeCircle.x, timeCircle.y);
 
-    ctx.fillText(`${gameState.energy}`, energyCircle.x, energyCircle.y);
+    ctx.fillText(formatNumber(gameState.energy), energyCircle.x, energyCircle.y);
 
-    ctx.fillText(`${gameState.score}`, scoreCircle.x, scoreCircle.y);
+    ctx.fillText(gameState.score, scoreCircle.x, scoreCircle.y);
 
     displayFPS(ctx);
 

@@ -21,7 +21,8 @@ export type tGameState = {
     startTime: number;
     gameGrid: number[][];
     energy: number;
-    status: string
+    status: string;
+    mousePosition: tGridPosition;
 }
 
 const GameState: tGameState = {
@@ -40,6 +41,7 @@ const GameState: tGameState = {
     projectiles: [], // This will hold projectile objects
     spawners: [], // This will hold spawner objects to systematically spawn monsters
     status: 'playing', // playing, won, or lost,
+    mousePosition: {x: 0, y: 0}
 };
 
 

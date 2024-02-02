@@ -4,21 +4,31 @@ import DrawGameGrid from "./Grid";
 import {createAndShowModal} from "./Modal";
 import {Spawner} from "./Monster";
 import gamesState from "./State";
-import GameState from "./State";
-import {Turret} from "./Turret";
+import InitialGameState from "./State";
+import {showTurretRadius, Turret} from "./Turret";
 import Footer from "./Footer";
 import CellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
 import {DrawGameTargets} from "./Targets";
-import gameGrid from "./Grid";
-import Header, {energyCirclePosition} from "./Header";
+import Header from "./Header";
 import canvas from "./Canvas";
 
 const ctx = canvas.getContext('2d')!;
 
-// Game state
-const gameState = GameState
+export function getCanvasContext(): CanvasRenderingContext2D {
+    return ctx;
+}
 
+// Game state
+let gameState = InitialGameState
+
+export function getGameState() {
+    return gameState;
+}
+
+export function setGameState(state: typeof gameState) {
+    gameState = state;
+}
 
 // Function to create a radial gradient for orbs
 // Game rendering function
@@ -105,7 +115,11 @@ export default function Game() {
 
     gameState.spawners = gameState.spawners.filter(spawner => spawner.update(gameState));
 
+    // this may or may not show the turret radius, depending on the mouse position
+    showTurretRadius(ctx, gamesState.mousePosition);
+
     ctx.restore();
+
 
     gamesState.particles = gamesState.particles.filter(particle => {
 
@@ -243,4 +257,10 @@ document.addEventListener('keydown', function (event) {
 
 }, {passive: true});
 
+canvas.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    gamesState.mousePosition = {x: mouseX, y: mouseY}
+});
 

@@ -1,4 +1,9 @@
 // Turret class
+import HeaderHeight from "./HeaderHeight";
+import {getGameGridPosition, isSpaceAvailable} from "./Position";
+import CellSize from "./CellSize";
+import Game, {getGameState} from "./Game";
+import tGridPosition from "./tGridPosition";
 import {tGameState} from "./State";
 import Projectile from "./Projectile";
 import Monster from "./Monster";
@@ -10,6 +15,7 @@ export class Turret {
     damage: number;
     cooldown: number;
     timer: number;
+
     constructor(x: number, y: number, range: number = 5, damage: number, cooldown: number = 10) {
         this.x = x;
         this.y = y;
@@ -19,7 +25,7 @@ export class Turret {
         this.timer = 0;
     }
 
-    findTarget(monsters : Monster[]) {
+    findTarget(monsters: Monster[]) {
 
         // Find the closest monster within range
         let target = null;
@@ -106,3 +112,32 @@ export class Turret {
     }
 
 }
+
+export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridPosition) {
+
+    const gameState = getGameState()
+
+    const mouseX = position.x;
+
+    const mouseY = position.y;
+
+    const {gridX, gridY} = getGameGridPosition(mouseX, mouseY);
+
+    const cellSize = CellSize(gameState);
+
+    if (isSpaceAvailable(gridX, gridY)) {
+        const turretRadius = 100; // Example radius, adjust according to your game's logic
+        const centerX = (gridX * cellSize) + (cellSize / 2);
+        const centerY = (gridY * cellSize) + (cellSize / 2);
+
+        // Draw the turret radius
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, turretRadius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)'; // Semi-transparent fill
+        ctx.fill();
+        ctx.strokeStyle = 'red'; // Red border
+        ctx.stroke();
+    }
+}
+
+

@@ -48,12 +48,6 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.fillStyle = buttonActive ? '#64c027' : '#ac27c0';
 
-        if (buttonActive) {
-
-            console.log(button, ctx.fillStyle, index, gameState.level);
-
-        }
-
         ctx.fillRect(x, 0, 99, footerHeight * .15);
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
