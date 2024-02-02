@@ -1,4 +1,4 @@
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import Bezier from "./Bezier";
 
 export interface Point {

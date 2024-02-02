@@ -1,3 +1,4 @@
+import {iTurretInfo, Turret1} from "./Footer";
 import tGridPosition from "./tGridPosition";
 import {Turret} from "./Turret";
 import Monster, {Spawner} from "./Monster";
@@ -23,9 +24,10 @@ export type tGameState = {
     energy: number;
     status: string;
     mousePosition: tGridPosition;
+    selectedTurret: iTurretInfo | null;
 }
 
-const GameState: tGameState = {
+export const InitialGameState = () : tGameState => ({
     particles: [], // This will hold particle objects
     gameGrid: GameGrid2D,
     gameTargets: Targets,
@@ -41,8 +43,6 @@ const GameState: tGameState = {
     projectiles: [], // This will hold projectile objects
     spawners: [], // This will hold spawner objects to systematically spawn monsters
     status: 'playing', // playing, won, or lost,
-    mousePosition: {x: 0, y: 0}
-};
-
-
-export default GameState;
+    mousePosition: {x: 0, y: 0},
+    selectedTurret: Turret1()
+});

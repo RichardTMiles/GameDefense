@@ -2,7 +2,7 @@ import cellSize from "./CellSize";
 import Particle, {Point} from "./Particle";
 import {energyCirclePosition, secondsElapsed} from "./Header";
 import CellSize from "./CellSize";
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 
 // Define the positions of the orbs
 // If you have specific positions for the orbs

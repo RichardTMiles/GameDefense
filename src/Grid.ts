@@ -1,6 +1,6 @@
 import gameCellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 
 export type TwoDimensionalGrid = number[][];
 

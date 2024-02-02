@@ -2,11 +2,20 @@
 import HeaderHeight from "./HeaderHeight";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import CellSize from "./CellSize";
-import Game, {getGameState} from "./Game";
+import {getGameState} from "./Game";
 import tGridPosition from "./tGridPosition";
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import Projectile from "./Projectile";
 import Monster from "./Monster";
+
+export interface iTurret {
+    x: number;
+    y: number;
+    range: number;
+    damage: number;
+    cooldown: number;
+    fillStyle: string;
+}
 
 export class Turret {
     x: number;
@@ -14,14 +23,16 @@ export class Turret {
     range: number;
     damage: number;
     cooldown: number;
-    timer: number;
+    fillStyle: string;
+    private timer: number;
 
-    constructor(x: number, y: number, range: number = 5, damage: number, cooldown: number = 10) {
+    constructor({x, y, fillStyle, range, damage, cooldown = 10} :iTurret) {
         this.x = x;
         this.y = y;
         this.range = range;
         this.damage = damage;
         this.cooldown = cooldown;
+        this.fillStyle = fillStyle;
         this.timer = 0;
     }
 
@@ -87,6 +98,7 @@ export class Turret {
     }
 
     draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+
         // Base position and dimensions
         let baseX = this.x * cellSize;
         let baseY = this.y * cellSize;
@@ -94,7 +106,7 @@ export class Turret {
         let baseHeight = cellSize * 0.6; // Making the base a bit shorter than a full cell
 
         // Turret color
-        ctx.fillStyle = 'rgba(172,39,192,0.66)';
+        ctx.fillStyle = this.fillStyle;
 
         // Draw the cylindrical base
         ctx.beginPath();
@@ -121,23 +133,47 @@ export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridP
 
     const mouseY = position.y;
 
-    const {gridX, gridY} = getGameGridPosition(mouseX, mouseY);
+    const gameGridPosition = getGameGridPosition(mouseX, mouseY);
+
+    if (undefined === gameGridPosition) {
+
+        return;
+
+    }
+
+    const {x, y} = gameGridPosition;
 
     const cellSize = CellSize(gameState);
 
-    if (isSpaceAvailable(gridX, gridY)) {
+    if (isSpaceAvailable(x, y)) {
+
         const turretRadius = 100; // Example radius, adjust according to your game's logic
-        const centerX = (gridX * cellSize) + (cellSize / 2);
-        const centerY = (gridY * cellSize) + (cellSize / 2);
+
+        const centerX = (x * cellSize) + (cellSize / 2);
+
+        const centerY = (y * cellSize) + (cellSize / 2);
 
         // Draw the turret radius
         ctx.beginPath();
+
         ctx.arc(centerX, centerY, turretRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)'; // Semi-transparent fill
+
+        const fillStyle = gameState.selectedTurret.fillStyle;
+
+        ctx.fillStyle = fillStyle.includes('rgb(')
+            ? fillStyle
+                .replace(/rgb/i, "rgba")
+                .replace(/\)/i,',0.15)')
+            : fillStyle; // Semi-transparent fill
+
         ctx.fill();
+
         ctx.strokeStyle = 'red'; // Red border
+
         ctx.stroke();
+
     }
+
 }
 
 

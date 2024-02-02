@@ -1,4 +1,4 @@
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
 import canvas from "./Canvas";
 import CellSize from "./CellSize";
@@ -54,8 +54,8 @@ export function secondsElapsed(gameState: tGameState) {
 function formatNumber(num: number) : string{
     if (num >= 1000000) {
         return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 100000) {
-        return (num / 1000).toFixed(0) + 'k';
+    } else if (num >= 10000) {
+        return (num / 1000).toFixed(1) + 'k';
     } else {
         return num.toString();
     }
@@ -121,7 +121,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: any) {
 
     ctx.fillText(formatNumber(gameState.energy), energyCircle.x, energyCircle.y);
 
-    ctx.fillText(gameState.score, scoreCircle.x, scoreCircle.y);
+    ctx.fillText(formatNumber(gameState.score), scoreCircle.x, scoreCircle.y);
 
     displayFPS(ctx);
 

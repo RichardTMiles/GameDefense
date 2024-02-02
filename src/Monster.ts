@@ -1,8 +1,7 @@
 import GameHeaderHeight from "./HeaderHeight";
 import {energyCirclePosition} from "./Header";
-import gamesState from "./State";
 import Particle from "./Particle";
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import tGridPosition from "./tGridPosition";
 import {dijkstraWithCaching} from "./Dijkstra";
 
@@ -98,10 +97,10 @@ export default class Monster {
 
             const end = energyCirclePosition();
 
-            gamesState.particles.push(new Particle({
+            gameState.particles.push(new Particle({
                     x: cellSize * this.position.x + headerSize,
                     y: cellSize * this.position.y + headerSize
-                },  gamesState.particles.length % 2 ? {
+                },  gameState.particles.length % 2 ? {
                     x: start.x,
                     y: end.y
                 } : {

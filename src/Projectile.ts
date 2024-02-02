@@ -1,4 +1,4 @@
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import Monster from "./Monster";
 import GamePosition from "./Position";
 

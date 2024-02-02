@@ -1,6 +1,6 @@
 import {getGameState} from "./Game";
 import {GameFooterHeight} from "./Footer";
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 import GameHeaderHeight from "./HeaderHeight";
 
 const CellSize = (gameState: tGameState = null) => {

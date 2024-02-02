@@ -1,4 +1,4 @@
-import {tGameState} from "./State";
+import {tGameState} from "./InitialState";
 
 export function createAndShowModal(message : string, gameState : tGameState) {
 

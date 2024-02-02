@@ -1,12 +1,21 @@
+import {getGameGridPosition} from "./Position";
 import monsterImage from "./assets/svg/MonsterSVG";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
 import {createAndShowModal} from "./Modal";
 import {Spawner} from "./Monster";
-import gamesState from "./State";
-import InitialGameState from "./State";
+import {InitialGameState} from "./InitialState";
 import {showTurretRadius, Turret} from "./Turret";
-import Footer from "./Footer";
+import Footer, {
+    GameFooterHeight, handleFooterClick,
+    iTurretInfo,
+    Turret1,
+    Turret2,
+    Turret3,
+    Turret4,
+    Turret5,
+    Turret6
+} from "./Footer";
 import CellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
 import {DrawGameTargets} from "./Targets";
@@ -20,7 +29,7 @@ export function getCanvasContext(): CanvasRenderingContext2D {
 }
 
 // Game state
-let gameState = InitialGameState
+let gameState = InitialGameState()
 
 export function getGameState() {
     return gameState;
@@ -116,12 +125,11 @@ export default function Game() {
     gameState.spawners = gameState.spawners.filter(spawner => spawner.update(gameState));
 
     // this may or may not show the turret radius, depending on the mouse position
-    showTurretRadius(ctx, gamesState.mousePosition);
+    showTurretRadius(ctx, gameState.mousePosition);
 
     ctx.restore();
 
-
-    gamesState.particles = gamesState.particles.filter(particle => {
+    gameState.particles = gameState.particles.filter(particle => {
 
         if (particle.updatePosition(gameState)) {
 
@@ -195,33 +203,82 @@ canvas.addEventListener('wheel', function (event) {
 // Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
 canvas.addEventListener('click', function (event) {
 
-    const rect = canvas.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
 
-    const x = event.clientX - rect.left + gameState.offsetX;
+        const x = event.clientX - rect.left;
 
-    const y = event.clientY - rect.top - GameHeaderHeight();
+        const y = event.clientY - rect.top;
 
-    const cellSize = CellSize(gameState);
+        const headerHeight = GameHeaderHeight();
 
-    // Convert click position to grid coordinates
-    const gridX = Math.floor(x / cellSize);
+        if (y < headerHeight) {
 
-    const gridY = Math.floor(y / cellSize);
+            console.log('Clicked on the header');
 
-    // Place turret if the cell is free
-    if (gameState.gameGrid[gridY][gridX] === 2) {
+            return;
 
-        gameState.energy -= 10;
+        }
 
-        const newTurret = new Turret(gridX, gridY, 5, 10); // Range and damage values are examples
+        const footerHeight = GameFooterHeight();
 
-        gameState.turrets.push(newTurret);
+        if (y > window.innerHeight - footerHeight) {
 
-        gameState.gameGrid[gridY][gridX] = 2; // Update the grid to indicate a turret is placed
+            handleFooterClick(gameState, {x, y});
+
+            return;
+
+        }
+
+        const gameGridPosition = getGameGridPosition(x, y);
+
+        // Place turret if the cell is free
+        if (gameGridPosition) {
+
+            if (gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] === 2) {
+
+                if (gameState.energy < 10) {
+
+                    alert('Not enough energy to place a turret');
+
+                    console.warn('Not enough energy to place a turret');
+
+                    return;
+
+                }
+
+                gameState.energy -= 10;
+
+                const selectedTurret = gameState.selectedTurret;
+
+                const newTurret = new Turret({
+                    x: gameGridPosition.x,
+                    y: gameGridPosition.y,
+                    cooldown: selectedTurret.cooldown,
+                    range: selectedTurret.range,
+                    damage: selectedTurret.damage,
+                    fillStyle: selectedTurret.fillStyle
+                });
+
+                gameState.turrets.push(newTurret);
+
+                gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] = 3; // Update the grid to indicate a turret is placed
+
+            } else {
+
+                console.warn('Cell is not free');
+
+            }
+
+            return;
+
+        }
+
+        // this should never happen
+        console.error('Out of bounds', x, y);
 
     }
-
-});
+)
+;
 
 document.addEventListener('keydown', function (event) {
 
@@ -261,6 +318,6 @@ canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    gamesState.mousePosition = {x: mouseX, y: mouseY}
+    gameState.mousePosition = {x: mouseX, y: mouseY}
 });
 
