@@ -1,3 +1,4 @@
+import headerHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
 import canvas from "./Canvas";
@@ -19,10 +20,10 @@ const textPadding = 10;
 const boxWidth = () => canvas.width / 4;
 const boxTextHeight = () => GameHeaderHeight() / 1.8;
 
-export const waveCirclePosition = () => ({x: boxWidth() / 2, y: boxTextHeight(), radius: 30});
-export const timeCirclePosition = () => ({x: boxWidth() * 1.5, y: boxTextHeight(), radius: 30});
-export const energyCirclePosition = () => ({x: boxWidth() * 2.5, y: boxTextHeight(), radius: 30});
-export const scoreCirclePosition = () => ({x: boxWidth() * 3.5, y: boxTextHeight(), radius: 30});
+export const waveCirclePosition = () => ({x: boxWidth() / 2, y: boxTextHeight(), radius: headerHeight() / 3});
+export const timeCirclePosition = () => ({x: boxWidth() * 1.5, y: boxTextHeight(), radius: headerHeight() / 3});
+export const energyCirclePosition = () => ({x: boxWidth() * 2.5, y: boxTextHeight(), radius: headerHeight() / 3});
+export const scoreCirclePosition = () => ({x: boxWidth() * 3.5, y: boxTextHeight(), radius: headerHeight() / 3});
 
 
 let lastLog = -1
@@ -40,10 +41,15 @@ export function secondsElapsed(gameState: tGameState) {
     const seconds = Math.round(timeDiff);
 
     if (0 === seconds % 10 && lastLog !== seconds) {
+
         lastLog = seconds
+
         console.groupCollapsed('0 === seconds % 10', seconds)
+
         console.log('gameState', gameState);
+
         console.groupEnd()
+
     }
 
     // get seconds

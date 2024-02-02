@@ -14,8 +14,15 @@ export interface iTurret {
     cost: number;
     range: number;
     damage: number;
-    cooldown: number;
     fillStyle: string;
+    cooldown?: number;
+    direction?: tGridPosition;
+}
+
+export enum eTurretTargetType {
+    OLDEST,
+    NEWEST,
+    CLOSEST,
 }
 
 export class Turret {
@@ -26,9 +33,11 @@ export class Turret {
     cooldown: number;
     fillStyle: string;
     cost: number;
+    direction: tGridPosition; // Directional vector
     private timer: number;
+    targetType: eTurretTargetType = eTurretTargetType.OLDEST;
 
-    constructor({x, y, fillStyle, range,cost, damage, cooldown = 10} :iTurret) {
+    constructor({x, y, fillStyle, range, cost, damage, cooldown = 10, direction = {x: 1, y: 0}}: iTurret) {
         this.x = x;
         this.y = y;
         this.range = range; // radius
@@ -36,8 +45,19 @@ export class Turret {
         this.cooldown = cooldown;
         this.cost = cost;
         this.fillStyle = fillStyle;
+        this.direction = direction; // Default direction
         this.timer = 0;
     }
+
+
+    normalize(vector: { x: number; y: number }) {
+        const magnitude = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+        return {
+            x: vector.x / magnitude,
+            y: vector.y / magnitude
+        };
+    }
+
 
     findTarget(monsters: Monster[]) {
 
@@ -46,7 +66,19 @@ export class Turret {
 
         let minDist = this.range;
 
+        if (this.targetType === eTurretTargetType.NEWEST) {
+
+            monsters = monsters.reverse()
+
+        }
+
         for (let monster of monsters) {
+
+            if (monster.startingHealth - monster.damageDoneAndQueued <= 0) {
+
+                continue;
+
+            }
 
             let dx = this.x - monster.position.x;
 
@@ -58,7 +90,15 @@ export class Turret {
 
                 target = monster;
 
-                minDist = dist;
+                switch (this.targetType) {
+                    case eTurretTargetType.CLOSEST:
+                        minDist = dist;
+                        break;
+                    default:
+                    case eTurretTargetType.NEWEST:
+                    case eTurretTargetType.OLDEST:
+                        return target;
+                }
 
             }
 
@@ -166,7 +206,7 @@ export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridP
         ctx.fillStyle = fillStyle.includes('rgb(')
             ? fillStyle
                 .replace(/rgb/i, "rgba")
-                .replace(/\)/i,',0.15)')
+                .replace(/\)/i, ',0.15)')
             : fillStyle; // Semi-transparent fill
 
         ctx.fill();

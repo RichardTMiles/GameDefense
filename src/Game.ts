@@ -7,7 +7,7 @@ import {Spawner} from "./Monster";
 import {InitialGameState} from "./InitialState";
 import {showTurretRadius, Turret} from "./Turret";
 import Footer, {
-    GameFooterHeight, handleFooterClick
+    GameFooterHeight, handleFooterClick, levelNames
 } from "./Footer";
 import CellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
@@ -137,6 +137,14 @@ export default function Game() {
     });
 
     if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
+
+        if (levelNames.length === gameState.level) {
+
+            alert('Congratulations, you\'ve one!');
+
+            return;
+
+        }
 
         gameState.level++;
 

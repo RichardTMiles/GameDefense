@@ -18,6 +18,7 @@ export default class Projectile {
         this.target = target;
         this.speed = speed;
         this.damage = damage;
+        target.damageDoneAndQueued += damage;
         this.fillStyle = fillStyle;
     }
 

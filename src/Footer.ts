@@ -8,7 +8,7 @@ import {tGameState} from "./InitialState";
 
 
 // Footer Levels
-const getFooterButtons: string[] = [
+export const levelNames: string[] = [
     'NORMO', 'NORMO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO', 'TOUGHO', 'NORMO', 'FLYBO', 'NORMO', "NORMO BOSS", "NORMO",
     "BOMBO", "NORMO", 'SWARMO', 'SWARMO BOSS', 'NORMO', 'ZOOMO', 'NORMO', 'FLYBO', 'NORMO', 'BOMBO', 'NORMO', 'TOUGHO',
     'ZOOMO', 'ZOOMO BOSS', 'NORMO', 'SWARMO', 'CHAMPO', 'TOUGHO BOSS', 'NORMO', 'IRONO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO',
@@ -33,13 +33,24 @@ export interface iTurretInfo extends tGridPosition, iTurret {
     fillStyle: string
 }
 
-export const Turret1 = (): iTurretInfo => {
+
+export enum eTurretTargetDimensionsLocation {
+    GAME,
+    FOOTER
+}
+
+export enum eTurretTargetDimensionsType {
+
+}
+
+export const Turret1 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
+        w: forGame ? 1 : OneThird / 6,
+        h: forGame ? 1 : OneThird / 6,
         fillStyle: 'rgb(39,192,42)',
         range: 5,
         damage: 10,
@@ -48,13 +59,14 @@ export const Turret1 = (): iTurretInfo => {
     }
 }
 
-export const Turret2 = (): iTurretInfo => {
+export const Turret2 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird + OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
+        w: forGame ? 1 : OneThird / 6,
+        h: forGame ? 1 : OneThird / 6,
         fillStyle: 'rgb(211,5,5)',
         range: 10,
         damage: 100,
@@ -64,13 +76,14 @@ export const Turret2 = (): iTurretInfo => {
 
 }
 
-export const Turret3 = (): iTurretInfo => {
+export const Turret3 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird + 2 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
+        w: forGame ? 2 : OneThird / 6,
+        h: forGame ? 2 : OneThird / 6,
         fillStyle: 'rgb(192,172,39)',
         range: 5,
         damage: 200,
@@ -79,13 +92,14 @@ export const Turret3 = (): iTurretInfo => {
     }
 }
 
-export const Turret4 = (): iTurretInfo => {
+export const Turret4 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird + 3* OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
+        w: forGame ? 3 : OneThird / 6,
+        h: forGame ? 3 : OneThird / 6,
         fillStyle: 'rgb(157,156,156)',
         range: 30,
         damage: 10000,
@@ -94,8 +108,9 @@ export const Turret4 = (): iTurretInfo => {
     }
 }
 
-export const Turret5 = (): iTurretInfo => {
+export const Turret5 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird + 4 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
@@ -109,13 +124,14 @@ export const Turret5 = (): iTurretInfo => {
     }
 }
 
-export const Turret6 = (): iTurretInfo => {
+export const Turret6 = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
     const OneThird = OneThirdFooter();
+    const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneThird + 5 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
+        w: forGame ? 3 : OneThird / 6,
+        h: forGame ? 3 : OneThird / 6,
         fillStyle: 'rgb(232,122,54)',
         range: 50,
         damage: 10000,
@@ -145,7 +161,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillRect(0, 0, canvas.width, footerLevelBarHeight());
 
     // Draw the buttons
-    getFooterButtons.forEach((button, index) => {
+    levelNames.forEach((button, index) => {
 
         const x = (canvas.width / 2) + (100 * index) - (100 * gameState.level);
 
@@ -189,32 +205,32 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillRect(OneThird, footerLevelBarHeight(), OneThird, turretSectionHeight());
 
     // Turret 1
-    const turret1 = Turret1();
+    const turret1 = Turret1(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret1.fillStyle; // Text color
     ctx.fillRect(turret1.x, turret1.y, turret1.w, turret1.h);
 
     // Turret 2
-    const turret2 = Turret2();
+    const turret2 = Turret2(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret2.fillStyle; // Text color
     ctx.fillRect(turret2.x, turret2.y, turret2.w, turret2.h);
 
     // Turret 3
-    const turret3 = Turret3();
+    const turret3 = Turret3(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret3.fillStyle; // Text color
     ctx.fillRect(turret3.x, turret3.y, turret3.w, turret3.h);
 
     // Turret 4
-    const turret4 = Turret4();
+    const turret4 = Turret4(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret4.fillStyle; // Text color
     ctx.fillRect(turret4.x, turret4.y, turret4.w, turret4.h);
 
     // Turret 5
-    const turret5 = Turret5();
+    const turret5 = Turret5(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret5.fillStyle; // Text color
     ctx.fillRect(turret5.x, turret5.y, turret5.w, turret5.h);
 
     // Turret 6
-    const turret6 = Turret6();
+    const turret6 = Turret6(eTurretTargetDimensionsLocation.FOOTER);
     ctx.fillStyle = turret6.fillStyle; // Text color
     ctx.fillRect(turret6.x, turret6.y, turret6.w, turret6.h);
 
@@ -260,7 +276,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
     }
 
     // determine which button was clicked
-    const turretOne = Turret1()
+    const turretOne = Turret1(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretOne)) {
 
@@ -270,7 +286,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     }
 
-    const turretTwo = Turret2()
+    const turretTwo = Turret2(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretTwo)) {
 
@@ -280,7 +296,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     }
 
-    const turretThree = Turret3()
+    const turretThree = Turret3(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretThree)) {
 
@@ -290,7 +306,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     }
 
-    const turretFour = Turret4()
+    const turretFour = Turret4(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretFour)) {
 
@@ -300,7 +316,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     }
 
-    const turretFive = Turret5()
+    const turretFive = Turret5(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretFive)) {
 
@@ -310,7 +326,7 @@ export function handleFooterClick(gameState: tGameState, click: tGridPosition) {
 
     }
 
-    const turretSix = Turret6()
+    const turretSix = Turret6(eTurretTargetDimensionsLocation.FOOTER)
 
     if (checkTurretClicked(turretSix)) {
 

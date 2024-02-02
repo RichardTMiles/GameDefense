@@ -72,6 +72,8 @@ export default class Monster {
     position: tGridPosition;
     speed: number;
     health: number;
+    startingHealth: number;
+    damageDoneAndQueued: number;
     isDestroyed = false;
 
     constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
@@ -83,6 +85,8 @@ export default class Monster {
         this.position = {x: x, y: y}; // Current position of the monster
         this.speed = speed; // Speed of the monster, adjust as needed
         this.health = health; // Health of the monster, adjust as needed
+        this.startingHealth = health;
+        this.damageDoneAndQueued = 0;
     }
 
     move(gameState: tGameState, cellSize: number): boolean {
