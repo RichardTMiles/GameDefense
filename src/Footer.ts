@@ -1,3 +1,4 @@
+import headerHeight from "./HeaderHeight";
 import {iTurret} from "./Turret";
 import tGridPosition from "./tGridPosition";
 import GameBodyHeight from "./BodyHeight";
@@ -35,10 +36,10 @@ export interface iTurretInfo extends tGridPosition, iTurret {
 export const Turret1 = (): iTurretInfo => {
     const OneThird = OneThirdFooter();
     return {
-        x: OneThird + OneThird / 6,
+        x: OneThird,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(39,192,42)',
         range: 5,
         damage: 10,
@@ -51,9 +52,9 @@ export const Turret2 = (): iTurretInfo => {
     const OneThird = OneThirdFooter();
     return {
         x: OneThird + OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .6,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        y: footerLevelBarHeight() + turretSectionHeight() * .3,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(211,5,5)',
         range: 10,
         damage: 100,
@@ -68,8 +69,8 @@ export const Turret3 = (): iTurretInfo => {
     return {
         x: OneThird + 2 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(192,172,39)',
         range: 5,
         damage: 200,
@@ -81,10 +82,10 @@ export const Turret3 = (): iTurretInfo => {
 export const Turret4 = (): iTurretInfo => {
     const OneThird = OneThirdFooter();
     return {
-        x: OneThird + 2 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .6,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        x: OneThird + 3* OneThird / 6,
+        y: footerLevelBarHeight() + turretSectionHeight() * .3,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(157,156,156)',
         range: 30,
         damage: 10000,
@@ -96,10 +97,10 @@ export const Turret4 = (): iTurretInfo => {
 export const Turret5 = (): iTurretInfo => {
     const OneThird = OneThirdFooter();
     return {
-        x: OneThird + 3 * OneThird / 6,
+        x: OneThird + 4 * OneThird / 6,
         y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(0,207,250)',
         range: 40,
         damage: 2000,
@@ -111,10 +112,10 @@ export const Turret5 = (): iTurretInfo => {
 export const Turret6 = (): iTurretInfo => {
     const OneThird = OneThirdFooter();
     return {
-        x: OneThird + 3 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .6,
-        w: OneThird / 8,
-        h: OneThird / 8,
+        x: OneThird + 5 * OneThird / 6,
+        y: footerLevelBarHeight() + turretSectionHeight() * .3,
+        w: OneThird / 6,
+        h: OneThird / 6,
         fillStyle: 'rgb(232,122,54)',
         range: 50,
         damage: 10000,
@@ -176,6 +177,13 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillStyle = 'rgba(199,19,19,0.19)'; // Text color
     ctx.fillRect(OneThird, 0, OneThird, footerHeight);
 
+    // Draw the wave strength
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 14px Arial';
+    ctx.fillStyle = 'rgb(255,255,255)'; // Text color
+    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue,currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 2);
+
     // Draw turrets in footer turret section
     ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color
     ctx.fillRect(OneThird, footerLevelBarHeight(), OneThird, turretSectionHeight());
@@ -211,9 +219,16 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillRect(turret6.x, turret6.y, turret6.w, turret6.h);
 
     // Draw turrets in footer
-    ctx.fillStyle = 'rgba(157,156,156,0.41)'; // Text color
+    ctx.fillStyle = 'rgb(157,156,156)'; // Text color
     ctx.fillRect(OneThird * 2, 0, OneThird, footerHeight);
 
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 14px Arial';
+    ctx.fillStyle = 'rgb(255,255,255)'; // Text color
+    ctx.fillText("Damage: " + gameState.selectedTurret.damage, OneThird * 2 + OneThird / 2, footerHeight * 2 / 5);
+    ctx.fillText("Range: " + gameState.selectedTurret.range, OneThird * 2 + OneThird / 2, footerHeight * 3 / 5);
+    ctx.fillText("Cost: " + gameState.selectedTurret.cost, OneThird * 2 + OneThird / 2, footerHeight * 4 / 5);
     ctx.restore();
 
 }
