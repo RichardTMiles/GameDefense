@@ -1,7 +1,8 @@
-import {eTurretTargetDimensionsLocation, iTurretInfo, Turret1} from "./Footer";
+import {iTurretInfo} from "./Footer";
 import tGridPosition from "./tGridPosition";
-import {Turret} from "./Turret";
-import Monster, {Spawner} from "./Monster";
+import {eTurretTargetDimensionsLocation, Turret, Turret1} from "./Turret";
+import Monster from "./Monster";
+import Spawner from "./Spawner";
 import Projectile from "./Projectile";
 import Targets from "./Targets";
 import {GameGrid2D} from "./Grid";

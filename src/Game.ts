@@ -3,11 +3,11 @@ import monsterImage from "./assets/svg/MonsterSVG";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
 import {createAndShowModal} from "./Modal";
-import {Spawner} from "./Monster";
+import Spawner from "./Spawner";
 import {InitialGameState} from "./InitialState";
 import {showTurretRadius, Turret} from "./Turret";
 import Footer, {
-    GameFooterHeight, handleFooterClick, levelNames
+    GameFooterHeight, handleFooterClick, dictionary
 } from "./Footer";
 import CellSize from "./CellSize";
 import GameHeaderHeight from "./HeaderHeight";
@@ -78,7 +78,7 @@ export default function Game() {
 
         turret.update(gameState.monsters, gameState);
 
-        turret.draw(ctx, cellSize);
+        turret.draw(ctx, gameState, cellSize);
 
     }
 
@@ -109,7 +109,7 @@ export default function Game() {
         }
 
         // Draw the monster using the blue 3D diamond SVG image
-        ctx.drawImage(monsterImage, monster.position.x * cellSize, monster.position.y * cellSize, cellSize, cellSize);
+        monster.draw(ctx, cellSize);
 
         return true
 
@@ -124,7 +124,7 @@ export default function Game() {
 
     gameState.particles = gameState.particles.filter(particle => {
 
-        if (particle.updatePosition(gameState)) {
+        if (particle.updatePosition()) {
 
             particle.draw(ctx);
 
@@ -138,11 +138,9 @@ export default function Game() {
 
     if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
 
-        if (levelNames.length === gameState.level) {
+        if (dictionary.length === gameState.level) {
 
-            alert('Congratulations, you\'ve one!');
-
-            return;
+            alert('Congratulations, you\'ve won!');
 
         }
 

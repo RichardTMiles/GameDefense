@@ -1,69 +1,18 @@
+import monsterImage from "./assets/svg/MonsterSVG";
 import GameHeaderHeight from "./HeaderHeight";
-import {energyCirclePosition} from "./Header";
+import {energyCirclePosition, scoreCirclePosition} from "./Header";
 import Particle from "./Particle";
 import {tGameState} from "./InitialState";
 import tGridPosition from "./tGridPosition";
 import {dijkstraWithCaching} from "./Dijkstra";
 
-// Monster class
-import gameGrid from "./Grid";
 
-
-const spawnLocations = [
-    {x: 1, y: 1},
-    {x: 1, y: 10},
-    {x: 1, y: 11},
-    {x: 1, y: 12},
-    {x: 1, y: 24},
-    {x: 1, y: 25},
-    {x: 1, y: 34},
-    {x: 1, y: 35},
-]
-
-export class Spawner {
-    private interval: number;
-    private counter: number;
-    private amount: number;
-
-    constructor(interval: number, amount: number) {
-
-        this.interval = interval; // The interval in frames between spawns
-
-        this.counter = 0; // A counter to track when to spawn next
-
-        this.amount = amount; // The number of monsters to spawn
-
-    }
-
-    update(gameState: tGameState) {
-
-        if (this.amount === 0) {
-
-            return false;
-
-        }
-
-        if (this.counter >= this.interval) {
-
-            this.counter = 0; // Reset the counter
-
-            this.amount--; // Reduce the amount of monsters left to spawn
-
-            // Spawn a new monster
-            const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
-
-            gameState.monsters.push(new Monster(spawnLocation.x, spawnLocation.y, gameState));
-
-        } else {
-
-            this.counter++;
-
-        }
-
-        return true;
-
-    }
-
+export interface iMonster {
+    x: number,
+    y: number,
+    gameState: tGameState,
+    speed?: number,
+    health?: number,
 }
 
 export default class Monster {
@@ -76,7 +25,7 @@ export default class Monster {
     damageDoneAndQueued: number;
     isDestroyed = false;
 
-    constructor(x: number, y: number, gameState: tGameState, speed = 0.2, health = 100,) {
+    constructor({x, y, gameState, speed = 0.2, health = 100}: iMonster) {
         this.path = dijkstraWithCaching(gameState.gameGrid, {
             x: x,
             y: y
@@ -87,6 +36,12 @@ export default class Monster {
         this.health = health; // Health of the monster, adjust as needed
         this.startingHealth = health;
         this.damageDoneAndQueued = 0;
+    }
+
+    draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+        // Draw the monster using the blue 3D diamond SVG image
+        ctx.drawImage(monsterImage, this.position.x * cellSize, this.position.y * cellSize, cellSize, cellSize);
+
     }
 
     move(gameState: tGameState, cellSize: number): boolean {
@@ -102,21 +57,46 @@ export default class Monster {
                 y: cellSize * this.position.y + headerSize
             };
 
-            const end = energyCirclePosition();
+            const energy = energyCirclePosition();
 
             gameState.particles.push(new Particle({
+                fillStyle: 'rgb(39,192,42)',
+                start: {
                     x: cellSize * this.position.x + headerSize,
                     y: cellSize * this.position.y + headerSize
-                },  gameState.particles.length % 2 ? {
+                },
+                control: gameState.particles.length % 2 ? {
                     x: start.x,
-                    y: end.y
+                    y: energy.y
                 } : {
-                    x: end.x,
+                    x: energy.x,
                     y: start.y
                 },
-                end,
-                10 * gameState.level,
-                10 * gameState.level));
+                end: energy,
+                callback: () => {
+                    gameState.energy += 10 * gameState.level + this.startingHealth;
+                }
+            }));
+
+            const score = scoreCirclePosition();
+            gameState.particles.push(new Particle({
+                fillStyle: 'rgb(172,39,192)',
+                start: {
+                    x: cellSize * this.position.x + headerSize,
+                    y: cellSize * this.position.y + headerSize
+                },
+                control: gameState.particles.length % 2 ? {
+                    x: start.x,
+                    y: score.y
+                } : {
+                    x: score.x,
+                    y: start.y
+                },
+                end: score,
+                callback: () => {
+                    gameState.score += 10 * gameState.level + this.startingHealth;
+                }
+            }));
 
             return false;
 

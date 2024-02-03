@@ -1,5 +1,15 @@
 import headerHeight from "./HeaderHeight";
-import {iTurret} from "./Turret";
+import {
+    eTurretTargetDimensionsLocation,
+    iTurret,
+    tTurretCallable,
+    Turret1,
+    Turret2,
+    Turret3,
+    Turret4,
+    Turret5,
+    Turret6
+} from "./Turret";
 import tGridPosition from "./tGridPosition";
 import GameBodyHeight from "./BodyHeight";
 import canvas from "./Canvas";
@@ -7,139 +17,83 @@ import GameHeaderHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 
 
-// Footer Levels
-export const levelNames: string[] = [
-    'NORMO', 'NORMO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO', 'TOUGHO', 'NORMO', 'FLYBO', 'NORMO', "NORMO BOSS", "NORMO",
-    "BOMBO", "NORMO", 'SWARMO', 'SWARMO BOSS', 'NORMO', 'ZOOMO', 'NORMO', 'FLYBO', 'NORMO', 'BOMBO', 'NORMO', 'TOUGHO',
-    'ZOOMO', 'ZOOMO BOSS', 'NORMO', 'SWARMO', 'CHAMPO', 'TOUGHO BOSS', 'NORMO', 'IRONO', 'SWARMO', 'NORMO', 'ZOOMO', 'NORMO',
-    'TOUGHO', 'FLYBO', 'FLYBO BOSS', 'NORMO', 'CHAMPO', 'BOMBO', 'BOMBO BOSS', 'NORMO', 'IRONO', 'BOMBO', 'NORMO', 'SWARMO',
-    'CHAMPO', 'NORMO', 'IRONO', 'IRONO BOSS', 'NORMO', 'SWARMO', 'ZOOMO', 'TOUGHO', 'FLYBO', 'BOMBO', 'CHOMPO', 'IRONO',
-    'NORMO', 'NORMO', 'AWESOMEO BOSS',
-];
+type tDictionary = { [key: string]: string };
 
-const footerLevelBarHeight = () => GameFooterHeight() * .15;
-const turretSectionHeight = () => GameFooterHeight() * .85;
+let dictionaryLookupCache: tDictionary;
+
+function randomizeObjectKeys(obj: {[key: string]: any}) {
+    function shuffleArray(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    const keys = Object.keys(obj);
+
+    shuffleArray(keys);
+
+    const randomizedObj : {[key:string]: any} = {};
+
+    keys.forEach(key => {
+        randomizedObj[key] = obj[key]; // Reconstruct the object with shuffled keys
+    });
+
+    return randomizedObj;
+
+}
+
+// Footer Levels
+export const dictionary: () => tDictionary = () => {
+
+    // todo - fetch https://raw.githubusercontent.com/matthewreagan/WebstersEnglishDictionary/master/dictionary.json
+
+    if (undefined === dictionaryLookupCache) {
+
+        dictionaryLookupCache = {}
+
+        fetch('https://raw.githubusercontent.com/matthewreagan/WebstersEnglishDictionary/master/dictionary.json')
+            .then(response => response.json())
+            .then(data => dictionaryLookupCache = randomizeObjectKeys(data))
+            .catch(error => console.error('Error fetching dictionary', error));
+
+    }
+
+    return dictionaryLookupCache
+
+}
+
+function wrapText(context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+    const words = text.split(' ');
+    let line = '';
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    context.fillText(line, x, y);
+}
+
+export const footerLevelBarHeight = () => GameFooterHeight() * .15;
+export const turretSectionHeight = () => GameFooterHeight() * .85;
 
 export function GameFooterHeight() {
     return window.innerHeight * .25;
 } // Example height for the footer
 
 
-const OneThirdFooter = () => canvas.width / 3;
+export const OneThirdFooter = () => canvas.width / 3;
 
 export interface iTurretInfo extends tGridPosition, iTurret {
     w: number,
     h: number,
     fillStyle: string
-}
-
-
-export enum eTurretTargetDimensionsLocation {
-    GAME,
-    FOOTER
-}
-
-export enum eTurretTargetDimensionsType {
-
-}
-
-type tTurretCallable = (location: eTurretTargetDimensionsLocation) => iTurretInfo;
-
-export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 1 : OneThird / 6,
-        h: forGame ? 1 : OneThird / 6,
-        fillStyle: 'rgb(39,192,42)',
-        range: 5,
-        damage: 10,
-        cooldown: 10,
-        cost: 10
-    }
-}
-
-export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird + OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 1 : OneThird / 6,
-        h: forGame ? 1 : OneThird / 6,
-        fillStyle: 'rgb(211,5,5)',
-        range: 10,
-        damage: 100,
-        cooldown: 9,
-        cost: 100
-    }
-
-}
-
-export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird + 2 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 2 : OneThird / 6,
-        h: forGame ? 2 : OneThird / 6,
-        fillStyle: 'rgb(192,172,39)',
-        range: 5,
-        damage: 200,
-        cooldown: 8,
-        cost: 1000
-    }
-}
-
-export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird + 3 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 3 : OneThird / 6,
-        h: forGame ? 3 : OneThird / 6,
-        fillStyle: 'rgb(157,156,156)',
-        range: 30,
-        damage: 10000,
-        cooldown: 20,
-        cost: 10000
-    }
-}
-
-export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird + 4 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: OneThird / 6,
-        h: OneThird / 6,
-        fillStyle: 'rgb(0,207,250)',
-        range: 40,
-        damage: 2000,
-        cooldown: 3,
-        cost: 20000
-    }
-}
-
-export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneThird + 5 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 3 : OneThird / 6,
-        h: forGame ? 3 : OneThird / 6,
-        fillStyle: 'rgb(232,122,54)',
-        range: 50,
-        damage: 10000,
-        cooldown: 0,
-        cost: 500000
-    }
 }
 
 
@@ -162,8 +116,19 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     ctx.fillRect(0, 0, canvas.width, footerLevelBarHeight());
 
+
+    const fullDictionary = dictionary();
+
+    const allLevels = Object.keys(fullDictionary);
+
     // Draw the buttons
-    levelNames.forEach((button, index) => {
+    allLevels.forEach((button, index) => {
+
+        if (10 < Math.abs(gameState.level - index + 1)) {
+
+            return
+
+        }
 
         const x = (canvas.width / 2) + (100 * index) - (100 * gameState.level);
 
@@ -200,7 +165,13 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 14px Arial';
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 2);
+    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 5);
+
+    const currentLevel = allLevels[gameState.level - 1] ?? 'Loading!';
+
+    ctx.fillText('Level name: ' + currentLevel, OneThird / 2, footerHeight * 2 / 5);
+
+    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, footerHeight * 3 / 5, OneThird, 20);
 
     // Draw turrets in footer turret section
     ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color

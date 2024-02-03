@@ -28,7 +28,7 @@ export const scoreCirclePosition = () => ({x: boxWidth() * 3.5, y: boxTextHeight
 
 let lastLog = -1
 
-export function secondsElapsed(gameState: tGameState) {
+export function elapsedTime(gameState: tGameState, inSeconds: boolean = true) {
 
     const endTime = new Date();
 
@@ -37,6 +37,11 @@ export function secondsElapsed(gameState: tGameState) {
     // strip the ms
     timeDiff /= 1000;
 
+    if (false === inSeconds) {
+
+        return timeDiff;
+
+    }
 
     const seconds = Math.round(timeDiff);
 
@@ -57,7 +62,7 @@ export function secondsElapsed(gameState: tGameState) {
 
 }
 
-function formatNumber(num: number) : string{
+function formatNumber(num: number): string {
     if (num >= 1000000) {
         return (num / 1000000).toFixed(1) + 'M';
     } else if (num >= 10000) {
@@ -82,7 +87,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: any) {
 
     ctx.font = '20px Arial';
 
-    const timeElapsed = secondsElapsed(gameState);
+    const timeElapsed = elapsedTime(gameState);
 
     const waveCircle = waveCirclePosition();
 

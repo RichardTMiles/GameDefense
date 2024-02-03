@@ -82,7 +82,7 @@ export default function DrawGameGrid(ctx: CanvasRenderingContext2D, gameState: t
                     break;
                 case 3:
                     // Draw orb
-                    ctx.fillStyle = '#d30505'; // Black
+                    ctx.fillStyle = '#05add3'; // Black
                     ctx.fillRect(cellX, cellY, cellSize, cellSize);
                     ctx.fillStyle = '#27c02a';
                     ctx.beginPath();

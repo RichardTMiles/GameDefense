@@ -1,6 +1,6 @@
 import cellSize from "./CellSize";
 import Particle, {Point} from "./Particle";
-import {energyCirclePosition, secondsElapsed} from "./Header";
+import {energyCirclePosition, scoreCirclePosition, elapsedTime} from "./Header";
 import CellSize from "./CellSize";
 import {tGameState} from "./InitialState";
 
@@ -23,27 +23,52 @@ let timeBonusesGiven = 0;
 
 let timeBonus = -1;
 
-export function timeBonusParticleBurst(start: Point, end: Point, gameState: tGameState) {
+export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
 
     timeBonusesGiven++;
 
+    const energy: Point = energyCirclePosition()
+    const score: Point = scoreCirclePosition()
     const cellSize = CellSize(gameState);
-
     const amount = Math.max(50, 2 * gameState.level);
 
     for (let i = 0; i < amount; i++) {
 
         gameState.particles.push(new Particle({
-                x: start.x ,
+            fillStyle: 'rgb(39,192,42)',
+            callback(): void {
+                gameState.energy += 10 * gameState.level;
+            },
+            start: {
+                x: start.x,
                 y: start.y + (cellSize * 9),
-            }, i % 2 ? {
+            }, control: i % 2 ? {
+                x: start.x + (Math.random() * 20 - 10) * cellSize,
+                y: energy.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
+            } : {
+                x: energy.x + (Math.random() * 20 - 10) * cellSize,
+                y: start.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
+            },
+            end: energy
+        }));
+
+        gameState.particles.push(new Particle({
+            fillStyle: 'rgb(0,207,250)',
+            callback(): void {
+                gameState.score += 10 * gameState.level;
+            },
+            start: {
+                x: start.x,
+                y: start.y + (cellSize * 9),
+            }, control: i % 2 ? {
                 x: start.x + (Math.random() * 20 - 10) * cellSize,
                 y: start.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
             } : {
-                x: end.x + (Math.random() * 20 - 10) * cellSize,
+                x: score.x + (Math.random() * 20 - 10) * cellSize,
                 y: start.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
             },
-            end, 100 * gameState.level, 2 * gameState.level));
+            end: score
+        }));
 
     }
 
@@ -72,7 +97,7 @@ export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameS
 
     const currentTime = Date.now(); // Get current time to create the oscillation effect
 
-    const seconds = secondsElapsed(gameState); // Assuming SecondsElapsed is defined elsewhere
+    const seconds = elapsedTime(gameState); // Assuming SecondsElapsed is defined elsewhere
 
     const elapsedTimeBonus = timeBonus === seconds ? false : 0 === seconds % 14 + timeBonusesGiven; // Assuming SecondsElapsed is defined elsewhere
 
@@ -121,7 +146,7 @@ export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameS
 
         if (elapsedTimeBonus) {
 
-            timeBonusParticleBurst({x: orbX, y: orbY}, energyCirclePosition(), gameState);
+            timeBonusParticleBurst({x: orbX, y: orbY}, gameState);
 
         }
 
