@@ -151,38 +151,38 @@ export default function Game() {
 
 }
 
+// Scroll function to update offsetX
+export const scrollGridX = (amount: number) => {
+
+    gameState.offsetX += amount;
+
+    // Optionally add limits to prevent scrolling too far left or right
+    gameState.offsetX = Math.max(0, Math.min(gameState.offsetX,
+        CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
+
+    Game();
+
+}
+
+export const scrollGridY = (amount: number) => {
+
+    // comment this out to allow vertical scrolling
+    if (gameState.offsetY + amount !== 0) {
+
+        return;
+
+    }
+
+    gameState.offsetY += amount;
+
+    // Optionally add limits to prevent scrolling too far left or right
+    gameState.offsetY = Math.max(0, Math.min(gameState.offsetY, CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
+
+    Game();
+
+}
+
 canvas.addEventListener('wheel', function (event) {
-
-    // Scroll function to update offsetX
-    const scrollGridX = (amount: number) => {
-
-        gameState.offsetX += amount;
-
-        // Optionally add limits to prevent scrolling too far left or right
-        gameState.offsetX = Math.max(0, Math.min(gameState.offsetX,
-            CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
-
-        Game();
-
-    }
-
-    const scrollGridY = (amount: number) => {
-
-        // comment this out to allow vertical scrolling
-        if (gameState.offsetY + amount !== 0) {
-
-            return;
-
-        }
-
-        gameState.offsetY += amount;
-
-        // Optionally add limits to prevent scrolling too far left or right
-        gameState.offsetY = Math.max(0, Math.min(gameState.offsetY, CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
-
-        Game();
-
-    }
 
     // Use event.deltaY for vertical mouse wheel event to scroll horizontally
     if (event.deltaX) {
@@ -202,79 +202,77 @@ canvas.addEventListener('wheel', function (event) {
 // Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
 canvas.addEventListener('click', function (event) {
 
-        const rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
 
-        const x = event.clientX - rect.left;
+    const x = event.clientX - rect.left;
 
-        const y = event.clientY - rect.top;
+    const y = event.clientY - rect.top;
 
-        const headerHeight = GameHeaderHeight();
+    const headerHeight = GameHeaderHeight();
 
-        if (y < headerHeight) {
+    if (y < headerHeight) {
 
-            console.log('Clicked on the header');
+        console.log('Clicked on the header');
 
-            return;
+        return;
 
-        }
+    }
 
-        const footerHeight = GameFooterHeight();
+    const footerHeight = GameFooterHeight();
 
-        if (y > window.innerHeight - footerHeight) {
+    if (y > window.innerHeight - footerHeight) {
 
-            handleFooterClick(gameState, {x, y});
+        handleFooterClick(gameState, {x, y});
 
-            return;
+        return;
 
-        }
+    }
 
-        const gameGridPosition = getGameGridPosition(x, y);
+    const gameGridPosition = getGameGridPosition(x, y);
 
-        // Place turret if the cell is free
-        if (gameGridPosition) {
+    // Place turret if the cell is free
+    if (gameGridPosition) {
 
-            if (isSpaceAvailable(gameGridPosition.x, gameGridPosition.y, gameState.selectedTurret.w, gameState.selectedTurret.h, gameState)) {
+        if (isSpaceAvailable(gameGridPosition.x, gameGridPosition.y, gameState.selectedTurret.w, gameState.selectedTurret.h, gameState)) {
 
-                const selectedTurret = gameState.selectedTurret;
+            const selectedTurret = gameState.selectedTurret;
 
 
-                if (gameState.energy < selectedTurret.cost) {
+            if (gameState.energy < selectedTurret.cost) {
 
-                    alert('Not enough energy to place a turret. Requires (' + selectedTurret.cost + ') energy. You have (' + gameState.energy + ') energy.');
+                alert('Not enough energy to place a turret. Requires (' + selectedTurret.cost + ') energy. You have (' + gameState.energy + ') energy.');
 
-                    console.warn('Not enough energy to place a turret');
+                console.warn('Not enough energy to place a turret');
 
-                    return;
-
-                }
-
-                gameState.energy -= selectedTurret.cost;
-
-                const newTurret = new Turret({
-                    ...selectedTurret,
-                    x: gameGridPosition.x,
-                    y: gameGridPosition.y,
-                    gameState: gameState
-                });
-
-                gameState.turrets.push(newTurret);
-
-            } else {
-
-                console.warn('Cell is not free');
+                return;
 
             }
 
-            return;
+            gameState.energy -= selectedTurret.cost;
+
+            const newTurret = new Turret({
+                ...selectedTurret,
+                x: gameGridPosition.x,
+                y: gameGridPosition.y,
+                gameState: gameState
+            });
+
+            gameState.turrets.push(newTurret);
+
+        } else {
+
+            console.warn('Cell is not free');
 
         }
 
-        // this should never happen
-        console.error('Out of bounds', x, y);
+        return;
 
     }
-)
-;
+
+    // this should never happen
+    console.error('Out of bounds', x, y);
+
+});
 
 document.addEventListener('keydown', function (event) {
 
@@ -317,3 +315,37 @@ canvas.addEventListener('mousemove', (event) => {
     gameState.mousePosition = {x: mouseX, y: mouseY}
 });
 
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener('touchstart', function (event) {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+    // Prevent default scrolling behavior on touch devices
+    event.preventDefault();
+}, {passive: false});
+
+canvas.addEventListener('touchmove', function (event) {
+    const touchEndX = event.touches[0].clientX;
+    const touchEndY = event.touches[0].clientY;
+
+    // Calculate the difference in touch position
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Update the touch start position for the next move
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+
+    // Use the scroll functions to update the game state based on the touch movement
+    scrollGridX(deltaX);
+    scrollGridY(deltaY);
+
+    // Prevent default scrolling behavior on touch devices
+    event.preventDefault();
+}, {passive: false});
+
+// Prevent default behavior for touchend as well
+canvas.addEventListener('touchend', function (event) {
+    event.preventDefault();
+}, {passive: false});

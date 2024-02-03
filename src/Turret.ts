@@ -1,4 +1,5 @@
 // Turret class
+import canvas from "./Canvas";
 import CellSize from "./CellSize";
 import {footerLevelBarHeight, iTurretInfo, OneThirdFooter, turretSectionHeight} from "./Footer";
 import {getGameState} from "./Game";
@@ -28,13 +29,12 @@ export enum eTurretTargetDimensionsType {
 export type tTurretCallable = (location: eTurretTargetDimensionsLocation) => iTurretInfo;
 
 export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 1 : OneThird / 6,
-        h: forGame ? 1 : OneThird / 6,
+        x: 0,
+        y: footerLevelBarHeight(),
+        w: forGame ? 1 : canvas.width / 6,
+        h: forGame ? 1 : turretSectionHeight(),
         fillStyle: 'rgb(172,39,192)',
         range: 10,
         damage: 50,
@@ -44,13 +44,13 @@ export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
+    const OneSixth = canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 2 : OneThird / 6,
-        h: forGame ? 2 : OneThird / 6,
+        x: OneSixth,
+        y: footerLevelBarHeight(),
+        w: forGame ? 2 : OneSixth,
+        h: forGame ? 2 : turretSectionHeight(),
         fillStyle: 'rgb(211,5,5)',
         range: 12,
         damage: 100,
@@ -61,13 +61,13 @@ export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
+    const OneSixth = canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + 2 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 3 : OneThird / 6,
-        h: forGame ? 2 : OneThird / 6,
+        x: OneSixth + OneSixth,
+        y: footerLevelBarHeight(),
+        w: forGame ? 3 : OneSixth,
+        h: forGame ? 2 : turretSectionHeight(),
         fillStyle: 'rgb(192,172,39)',
         range: 15,
         damage: 200,
@@ -77,13 +77,13 @@ export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
+    const OneSixth = canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + 3 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 3 : OneThird / 6,
-        h: forGame ? 3 : OneThird / 6,
+        x: OneSixth + 2 * OneSixth,
+        y: footerLevelBarHeight(),
+        w: forGame ? 3 : OneSixth,
+        h: forGame ? 3 : turretSectionHeight(),
         fillStyle: 'rgb(157,156,156)',
         range: 17,
         damage: 1000,
@@ -93,13 +93,13 @@ export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
+    const OneSixth = canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + 4 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 4 : OneThird / 6,
-        h: forGame ? 4 : OneThird / 6,
+        x: OneSixth + 3 * OneSixth,
+        y: footerLevelBarHeight(),
+        w: forGame ? 4 : OneSixth,
+        h: forGame ? 4 : turretSectionHeight(),
         fillStyle: 'rgb(0,207,250)',
         range: 22,
         damage: 2000,
@@ -109,13 +109,13 @@ export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneThird = OneThirdFooter();
+    const OneSixth = canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
-        x: OneThird + 5 * OneThird / 6,
-        y: footerLevelBarHeight() + turretSectionHeight() * .3,
-        w: forGame ? 5 : OneThird / 6,
-        h: forGame ? 5 : OneThird / 6,
+        x: OneSixth + 4 * OneSixth,
+        y: footerLevelBarHeight(),
+        w: forGame ? 5 : OneSixth,
+        h: forGame ? 5 : turretSectionHeight(),
         fillStyle: 'rgb(232,122,54)',
         range: 30,
         damage: 10000,

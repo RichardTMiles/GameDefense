@@ -1,3 +1,4 @@
+import {formatNumber} from "./Header";
 import headerHeight from "./HeaderHeight";
 import {
     eTurretTargetDimensionsLocation,
@@ -21,18 +22,19 @@ type tDictionary = { [key: string]: string };
 
 let dictionaryLookupCache: tDictionary;
 
-function randomizeObjectKeys(obj: {[key: string]: any}) {
+function randomizeObjectKeys(obj: { [key: string]: any }) {
     function shuffleArray(array: any[]) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
+
     const keys = Object.keys(obj);
 
     shuffleArray(keys);
 
-    const randomizedObj : {[key:string]: any} = {};
+    const randomizedObj: { [key: string]: any } = {};
 
     keys.forEach(key => {
         randomizedObj[key] = obj[key]; // Reconstruct the object with shuffled keys
@@ -80,8 +82,8 @@ function wrapText(context: CanvasRenderingContext2D, text: string, x: number, y:
     context.fillText(line, x, y);
 }
 
-export const footerLevelBarHeight = () => GameFooterHeight() * .15;
-export const turretSectionHeight = () => GameFooterHeight() * .85;
+export const footerLevelBarHeight = () => GameFooterHeight() * .5;
+export const turretSectionHeight = () => GameFooterHeight() * .5;
 
 export function GameFooterHeight() {
     return window.innerHeight * .25;
@@ -121,6 +123,8 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     const allLevels = Object.keys(fullDictionary);
 
+    const levelBarHeight = footerLevelBarHeight();
+
     // Draw the buttons
     allLevels.forEach((button, index) => {
 
@@ -136,7 +140,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.fillStyle = buttonActive ? '#64c027' : '#ac27c0';
 
-        ctx.fillRect(x, 0, 99, footerLevelBarHeight());
+        ctx.fillRect(x, 0, 99, levelBarHeight);
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
@@ -146,7 +150,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.font = 'bold 14px Arial';
 
-        ctx.fillText(button, x + 50, 23);
+        ctx.fillText(button, x + 50, levelBarHeight / 2);
 
     });
 
@@ -154,7 +158,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     // Draw other footer elements like game stats
     ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
-    ctx.fillRect(0, 0, OneThird, footerHeight);
+    ctx.fillRect(0, 0, OneThird, levelBarHeight);
 
     // You can also add images/icons by loading them and drawing them onto the canvas
     ctx.fillStyle = 'rgba(199,19,19,0.19)'; // Text color
@@ -163,15 +167,12 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     // Draw the wave strength
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = 'bold 3em Arial';
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-    ctx.fillText("Wave Strength: " + gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0), OneThird / 2, footerHeight / 5);
 
     const currentLevel = allLevels[gameState.level - 1] ?? 'Loading!';
 
-    ctx.fillText('Level name: ' + currentLevel, OneThird / 2, footerHeight * 2 / 5);
-
-    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, footerHeight * 3 / 5, OneThird, 20);
+    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, levelBarHeight * .2, OneThird, 60 );
 
     // Draw turrets in footer turret section
     ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color
@@ -208,19 +209,18 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillRect(turret6.x, turret6.y, turret6.w, turret6.h);
 
     // Draw turrets in footer
-    ctx.fillStyle = 'rgb(157,156,156)'; // Text color
-    ctx.fillRect(OneThird * 2, 0, OneThird, footerHeight);
-
+    ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
+    ctx.fillRect(OneThird * 2, 0, OneThird, levelBarHeight);
     const centerAlign = OneThird * 2 + OneThird / 2
-
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = 'bold 3em Arial';
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-    ctx.fillText("Damage: " + gameState.selectedTurret.damage, centerAlign, footerHeight * 2 / 6);
-    ctx.fillText("Range: " + gameState.selectedTurret.range, centerAlign, footerHeight * 3 / 6);
-    ctx.fillText("Cost: " + gameState.selectedTurret.cost, centerAlign, footerHeight * 4 / 6);
-    ctx.fillText("W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, footerHeight * 5 / 6);
+
+    wrapText(ctx, "Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
+        + gameState.selectedTurret.range + "; Cost: " + formatNumber(gameState.selectedTurret.cost)
+        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, levelBarHeight * .2, OneThird, 60);
+
     ctx.restore();
 
 }
