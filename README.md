@@ -1,6 +1,6 @@
 # 🚀 Welcome to your new awesome project!
 
-[Play online](https://richardtmiles.github.io/OrbDefense/)
+[Play online](https://richardtmiles.github.io/GameDefense/)
 
 First, install the necessary dependencies using:
 
