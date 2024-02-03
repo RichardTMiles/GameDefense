@@ -1,4 +1,5 @@
-import {formatNumber} from "./Header";
+import {getGameState} from "./Game";
+import {elapsedTime, formatNumber} from "./Header";
 import headerHeight from "./HeaderHeight";
 import {
     eTurretTargetDimensionsLocation,
@@ -64,22 +65,41 @@ export const dictionary: () => tDictionary = () => {
 
 }
 
-function wrapText(context: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+function wrapText(context: CanvasRenderingContext2D, text: string, x: number, initialY: number, maxWidth: number, lineHeight: number, maxHeight: number, scrollSpeed: number) {
     const words = text.split(' ');
     let line = '';
+    let lines = []; // Array to store each line of text
+
+    // First pass: calculate lines and total height
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = context.measureText(testLine);
         const testWidth = metrics.width;
         if (testWidth > maxWidth && n > 0) {
-            context.fillText(line, x, y);
+            lines.push({text: line, y: 0}); // Store line and its initial y position
             line = words[n] + ' ';
-            y += lineHeight;
         } else {
             line = testLine;
         }
     }
-    context.fillText(line, x, y);
+    lines.push({text: line, y: 0}); // Add the last line
+
+    // Calculate current scroll position based on elapsed time, ensuring text restarts once it scrolls off
+    const time = elapsedTime(getGameState(), false); // Assuming this function is defined elsewhere
+
+    let scrollOffset = (scrollSpeed * time) % (maxHeight);
+
+    let currentY = initialY - scrollOffset;
+
+    // Second pass: render lines based on current scroll position
+    for (let i = 0; i < lines.length; i++) {
+        lines[i].y = currentY + i * lineHeight; // Calculate y position for each line
+
+        // Only draw the line if it's within the viewable area
+        if (lines[i].y >= initialY && lines[i].y < initialY + maxHeight) {
+            context.fillText(lines[i].text, x, lines[i].y);
+        }
+    }
 }
 
 export const footerLevelBarHeight = () => GameFooterHeight() * .5;
@@ -134,13 +154,15 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         }
 
-        const x = (canvas.width / 2) + (100 * index) - (100 * gameState.level);
+        const oneThird = OneThirdFooter();
+
+        const x = oneThird + (oneThird / 2 * index) - (oneThird / 2 * (gameState.level - 1));
 
         const buttonActive = (index + 1) === gameState.level;
 
         ctx.fillStyle = buttonActive ? '#64c027' : '#ac27c0';
 
-        ctx.fillRect(x, 0, 99, levelBarHeight);
+        ctx.fillRect(x, 0, canvas.width / 6, levelBarHeight);
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
@@ -148,9 +170,9 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.textBaseline = 'middle';
 
-        ctx.font = 'bold 14px Arial';
+        ctx.font = 'bold 3em Arial';
 
-        ctx.fillText(button, x + 50, levelBarHeight / 2);
+        ctx.fillText(button, x + canvas.width / 12, levelBarHeight / 2);
 
     });
 
@@ -172,11 +194,24 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     const currentLevel = allLevels[gameState.level - 1] ?? 'Loading!';
 
-    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, levelBarHeight * .2, OneThird, 60 );
+    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, levelBarHeight * .2, OneThird, 60, turretSectionHeight(), 20);
 
     // Draw turrets in footer turret section
     ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color
     ctx.fillRect(OneThird, footerLevelBarHeight(), OneThird, turretSectionHeight());
+
+    // Draw turrets in footer
+    ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
+    ctx.fillRect(OneThird * 2, 0, OneThird, levelBarHeight);
+    const centerAlign = OneThird * 2 + OneThird / 2
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 3em Arial';
+    ctx.fillStyle = 'rgb(255,255,255)'; // Text color
+
+    wrapText(ctx, "Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
+        + gameState.selectedTurret.range + "; Cost: " + formatNumber(gameState.selectedTurret.cost)
+        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, levelBarHeight * .2, OneThird, 60, turretSectionHeight(), 0);
 
     // Turret 1
     const turret1 = Turret1(eTurretTargetDimensionsLocation.FOOTER);
@@ -208,18 +243,6 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillStyle = turret6.fillStyle; // Text color
     ctx.fillRect(turret6.x, turret6.y, turret6.w, turret6.h);
 
-    // Draw turrets in footer
-    ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
-    ctx.fillRect(OneThird * 2, 0, OneThird, levelBarHeight);
-    const centerAlign = OneThird * 2 + OneThird / 2
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = 'bold 3em Arial';
-    ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-
-    wrapText(ctx, "Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
-        + gameState.selectedTurret.range + "; Cost: " + formatNumber(gameState.selectedTurret.cost)
-        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, levelBarHeight * .2, OneThird, 60);
 
     ctx.restore();
 

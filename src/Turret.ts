@@ -304,8 +304,6 @@ export class Turret {
         let baseX = this.centerX * cellSize - cellSize / 2;
         let baseY = this.centerY * cellSize - cellSize / 2;
 
-        console.log(this.centerX, this.centerY)
-
         let baseWidth = cellSize;
         let baseHeight = cellSize * 0.6; // Making the base a bit shorter than a full cell
 
@@ -373,7 +371,7 @@ export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridP
         ctx.fill();
 
         // Draw the placement box for the turret itself
-        ctx.strokeStyle = 'red'; // Red border for the placement box
+        ctx.strokeStyle = gameState.selectedTurret.fillStyle; // Red border for the placement box
         ctx.strokeRect(x * cellSize, y * cellSize, turret.w * cellSize, turret.h * cellSize);
     }
 }
