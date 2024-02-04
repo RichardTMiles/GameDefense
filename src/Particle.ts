@@ -1,3 +1,4 @@
+import iEntity from "./interfaces/iEntity";
 import FPS from "./FPS";
 import {tGameState} from "./InitialState";
 import Bezier from "./Bezier";
@@ -16,7 +17,7 @@ export interface tParticle {
     fillStyle?: string;
 }
 
-export default class Particle {
+export default class Particle implements iEntity {
 
     speed: number;
     size: number;
@@ -24,7 +25,7 @@ export default class Particle {
     endPosition: Point;
     arcPoints: Point[];
     currentPointIndex: number;
-    callback?: () => void;
+    callback?: (gameState:tGameState) => void;
     fillStyle: string;
 
     constructor({start, control,callback, end, fillStyle = 'rgb(39,192,42)'}: tParticle) {
@@ -39,8 +40,16 @@ export default class Particle {
         this.callback = callback;
     }
 
+    draw(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.arc(this.currentPosition.x, this.currentPosition.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.fillStyle;
+        ctx.fill();
+    }
+
+
     // Update the particle's position to the next point along the arc
-    updatePosition(): boolean {
+    move(gameState: tGameState): boolean {
 
         // Increment currentPointIndex by speed
         this.currentPointIndex += this.speed;
@@ -55,17 +64,9 @@ export default class Particle {
         }
 
         // Additional logic here for what happens when the arc is completed
-        this.callback?.()
+        this.callback?.(gameState)
 
         return false;
-
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.beginPath();
-        ctx.arc(this.currentPosition.x, this.currentPosition.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.fillStyle;
-        ctx.fill();
     }
 
 }

@@ -1,6 +1,6 @@
-import {getGameState} from "./Game";
-import {elapsedTime, formatNumber} from "./Header";
-import headerHeight from "./HeaderHeight";
+import {dictionary} from "./Dictionary";
+import wrapText from "./WrapText";
+import {formatNumber} from "./Header";
 import {
     eTurretTargetDimensionsLocation,
     iTurret,
@@ -19,98 +19,16 @@ import GameHeaderHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 
 
-type tDictionary = { [key: string]: string };
-
-let dictionaryLookupCache: tDictionary;
-
-function randomizeObjectKeys(obj: { [key: string]: any }) {
-    function shuffleArray(array: any[]) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    const keys = Object.keys(obj);
-
-    shuffleArray(keys);
-
-    const randomizedObj: { [key: string]: any } = {};
-
-    keys.forEach(key => {
-        randomizedObj[key] = obj[key]; // Reconstruct the object with shuffled keys
-    });
-
-    return randomizedObj;
-
-}
-
-// Footer Levels
-export const dictionary: () => tDictionary = () => {
-
-    // todo - fetch https://raw.githubusercontent.com/matthewreagan/WebstersEnglishDictionary/master/dictionary.json
-
-    if (undefined === dictionaryLookupCache) {
-
-        dictionaryLookupCache = {}
-
-        fetch('https://raw.githubusercontent.com/matthewreagan/WebstersEnglishDictionary/master/dictionary.json')
-            .then(response => response.json())
-            .then(data => dictionaryLookupCache = randomizeObjectKeys(data))
-            .catch(error => console.error('Error fetching dictionary', error));
-
-    }
-
-    return dictionaryLookupCache
-
-}
-
-function wrapText(context: CanvasRenderingContext2D, text: string, x: number, initialY: number, maxWidth: number, lineHeight: number, maxHeight: number, scrollSpeed: number) {
-    const words = text.split(' ');
-    let line = '';
-    let lines = []; // Array to store each line of text
-
-    // First pass: calculate lines and total height
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const metrics = context.measureText(testLine);
-        const testWidth = metrics.width;
-        if (testWidth > maxWidth && n > 0) {
-            lines.push({text: line, y: 0}); // Store line and its initial y position
-            line = words[n] + ' ';
-        } else {
-            line = testLine;
-        }
-    }
-    lines.push({text: line, y: 0}); // Add the last line
-
-    // Calculate current scroll position based on elapsed time, ensuring text restarts once it scrolls off
-    const time = elapsedTime(getGameState(), false); // Assuming this function is defined elsewhere
-
-    let scrollOffset = (scrollSpeed * time) % (maxHeight);
-
-    let currentY = initialY - scrollOffset;
-
-    // Second pass: render lines based on current scroll position
-    for (let i = 0; i < lines.length; i++) {
-        lines[i].y = currentY + i * lineHeight; // Calculate y position for each line
-
-        // Only draw the line if it's within the viewable area
-        if (lines[i].y >= initialY && lines[i].y < initialY + maxHeight) {
-            context.fillText(lines[i].text, x, lines[i].y);
-        }
-    }
-}
-
 export const footerLevelBarHeight = () => GameFooterHeight() * .5;
 export const turretSectionHeight = () => GameFooterHeight() * .5;
 
 export function GameFooterHeight() {
-    return window.innerHeight * .25;
+    return canvas.height * .25;
 } // Example height for the footer
 
 
 export const OneThirdFooter = () => canvas.width / 3;
+export const OneHalfFooter = () => canvas.width / 2;
 
 export interface iTurretInfo extends tGridPosition, iTurret {
     w: number,
@@ -138,12 +56,19 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     ctx.fillRect(0, 0, canvas.width, footerLevelBarHeight());
 
-
     const fullDictionary = dictionary();
 
     const allLevels = Object.keys(fullDictionary);
 
     const levelBarHeight = footerLevelBarHeight();
+
+    const oneThird = OneThirdFooter();
+
+    const oneHalf = OneHalfFooter();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 1.5em Arial';
 
     // Draw the buttons
     allLevels.forEach((button, index) => {
@@ -154,9 +79,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         }
 
-        const oneThird = OneThirdFooter();
-
-        const x = oneThird + (oneThird / 2 * index) - (oneThird / 2 * (gameState.level - 1));
+        const x = (oneThird / 2 * index) - (oneThird / 2 * (gameState.level - 1));
 
         const buttonActive = (index + 1) === gameState.level;
 
@@ -166,52 +89,26 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
-        ctx.textAlign = 'center';
-
-        ctx.textBaseline = 'middle';
-
-        ctx.font = 'bold 3em Arial';
-
-        ctx.fillText(button, x + canvas.width / 12, levelBarHeight / 2);
+        ctx.fillText(button, x + canvas.width / 12, levelBarHeight / 2, canvas.width / 6 - (canvas.width / 6 * .1));
 
     });
 
-    const OneThird = OneThirdFooter();
 
-    // Draw other footer elements like game stats
-    ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
-    ctx.fillRect(0, 0, OneThird, levelBarHeight);
-
-    // You can also add images/icons by loading them and drawing them onto the canvas
-    ctx.fillStyle = 'rgba(199,19,19,0.19)'; // Text color
-    ctx.fillRect(OneThird, 0, OneThird, footerHeight);
-
-    // Draw the wave strength
+    // Turret Damage info
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = 'bold 3em Arial';
-    ctx.fillStyle = 'rgb(255,255,255)'; // Text color
-
-    const currentLevel = allLevels[gameState.level - 1] ?? 'Loading!';
-
-    wrapText(ctx, fullDictionary[currentLevel] ?? '', OneThird / 2, levelBarHeight * .2, OneThird, 60, turretSectionHeight(), 20);
-
-    // Draw turrets in footer turret section
-    ctx.fillStyle = 'rgba(19,82,199,0.56)'; // Text color
-    ctx.fillRect(OneThird, footerLevelBarHeight(), OneThird, turretSectionHeight());
-
-    // Draw turrets in footer
+    ctx.font = 'bold 1.5em Arial';
     ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
-    ctx.fillRect(OneThird * 2, 0, OneThird, levelBarHeight);
-    const centerAlign = OneThird * 2 + OneThird / 2
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = 'bold 3em Arial';
+    ctx.fillRect(oneHalf, 0, oneHalf, levelBarHeight);
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
-    wrapText(ctx, "Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
+    ctx.fillText("Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
         + gameState.selectedTurret.range + "; Cost: " + formatNumber(gameState.selectedTurret.cost)
-        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h, centerAlign, levelBarHeight * .2, OneThird, 60, turretSectionHeight(), 0);
+        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h,
+        oneHalf + oneHalf / 2,
+        levelBarHeight * .5,
+        oneHalf - (oneHalf * .1)
+    );
 
     // Turret 1
     const turret1 = Turret1(eTurretTargetDimensionsLocation.FOOTER);

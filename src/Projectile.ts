@@ -1,9 +1,10 @@
+import iEntity from "./interfaces/iEntity";
 import {tGameState} from "./InitialState";
 import Monster from "./Monster";
 import GamePosition from "./Position";
 
 
-export default class Projectile {
+export default class Projectile implements iEntity {
     x: number;
     y: number;
     target: Monster;
@@ -11,6 +12,7 @@ export default class Projectile {
     damage: number;
     isDestroyed = false;
     fillStyle: string;
+    private cellSize = 0;
 
     constructor(startX: number, startY: number, target: Monster, speed: number, damage: number, fillStyle: string = 'rgb(211,5,5)') {
         this.x = startX;
@@ -22,20 +24,22 @@ export default class Projectile {
         this.fillStyle = fillStyle;
     }
 
-    draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+    draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        ctx.arc(this.x * cellSize, this.y * cellSize, 5, 0, Math.PI * 2);
+        ctx.arc(this.x * this.cellSize, this.y * this.cellSize, 5, 0, Math.PI * 2);
         ctx.fillStyle = this.fillStyle;
         ctx.fill();
     }
 
-    move(): boolean {
+    move(gameState: tGameState): boolean {
 
         if (this.isDestroyed || undefined === this.target || this.target.isDestroyed) {
 
             return false;
 
         }
+
+        this.cellSize = gameState.cellSize;
 
         // Calculate direction towards the target
         const dirX = this.target.position.x - this.x;

@@ -13,18 +13,31 @@ const spawnLocations = [
     {x: 1, y: 35},
 ]
 
+interface iSpawner {
+    interval: number;
+    amount: number;
+    health: number;
+    speed: number;
+}
+
 export default class Spawner {
     private interval: number;
     private counter: number;
     private amount: number;
+    private health: number;
+    private speed: number;
 
-    constructor(interval: number, amount: number) {
+    constructor({interval, amount, health, speed }: iSpawner) {
 
         this.interval = interval; // The interval in frames between spawns
 
         this.counter = 0; // A counter to track when to spawn next
 
         this.amount = amount; // The number of monsters to spawn
+
+        this.health = health; // The health of the monsters to spawn
+
+        this.speed = speed; // The speed of the monsters to spawn
 
     }
 
@@ -46,9 +59,10 @@ export default class Spawner {
             const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
 
             gameState.monsters.push(new Monster({
-                health: 10 * gameState.level * (gameState.level / 2),
+                health: this.health,
                 x: spawnLocation.x,
                 y: spawnLocation.y,
+                speed: this.speed,
                 gameState
             }));
 

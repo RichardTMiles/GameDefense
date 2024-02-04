@@ -1,4 +1,4 @@
+import canvas from "./Canvas";
 
 
-
-export default () : number => window.innerHeight * .10; // Example height for the header
+export default () : number => canvas.height * .10; // Example height for the header

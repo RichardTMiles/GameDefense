@@ -1,153 +1,149 @@
-import {getGameGridPosition, isSpaceAvailable} from "./Position";
-import monsterImage from "./assets/svg/MonsterSVG";
+import Alert from "./Alert";
+import canvas from "./Canvas";
+import CellSize from "./CellSize";
+import Footer, {GameFooterHeight, handleFooterClick} from "./Footer";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
-import {createAndShowModal} from "./Modal";
-import Spawner from "./Spawner";
-import {InitialGameState} from "./InitialState";
-import {showTurretRadius, Turret} from "./Turret";
-import Footer, {
-    GameFooterHeight, handleFooterClick, dictionary
-} from "./Footer";
-import CellSize from "./CellSize";
+import Header, {elapsedTime} from "./Header";
 import GameHeaderHeight from "./HeaderHeight";
+import {InitialGameState, tGameState} from "./InitialState";
+import iEntity from "./interfaces/iEntity";
+import {createAndShowModal} from "./Modal";
+import {getGameGridPosition, isSpaceAvailable} from "./Position";
+import Spawner from "./Spawner";
 import {DrawGameTargets} from "./Targets";
-import Header from "./Header";
-import canvas from "./Canvas";
+import {showTurretRadius, Turret} from "./Turret";
 
-const ctx = canvas.getContext('2d')!;
+const context = canvas.getContext('2d')!;
 
 export function getCanvasContext(): CanvasRenderingContext2D {
-    return ctx;
+    return context;
 }
 
 // Game state
-let gameState = InitialGameState()
+let gameState: tGameState = InitialGameState(context)
 
 export function getGameState() {
     return gameState;
 }
 
-export function setGameState(state: typeof gameState) {
-    gameState = state;
+function handleIEntity(entity: iEntity): boolean {
+
+    if (!entity.move(gameState)) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
+
+        return false;
+
+    }
+
+    entity.draw(context);
+
+    return true;
 }
 
-// Function to create a radial gradient for orbs
+
 // Game rendering function
+// the oder of the rendering is important
+// everything will be 'stacked' on top of each other
 export default function Game() {
 
     // Clear the entire canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Save the current context state (with no translations)
-    ctx.save();
+    context.save();
 
+    // update the canvas size each frame, this handles window resizing
     canvas.height = window.innerHeight;
 
     canvas.width = window.innerWidth;
 
-    const cellSize = CellSize(gameState);
+    // cell size is dynamic based on the canvas size
+    gameState.cellSize = CellSize(gameState);
 
-    Header(ctx, gameState);
+    // this will update the game state with the current and elapsed time
+    elapsedTime(gameState, false);
+
+    // draw header
+    Header(context, gameState);
 
     // draw footer
-    Footer(ctx, gameState)
-
+    Footer(context, gameState)
 
     // move the grid context to the "Game Grid" position
-    ctx.save();
+    context.save();
 
-    // Translate the context for horizontal scrolling of the game grid
-    ctx.translate(-gameState.offsetX, gameState.offsetY + GameHeaderHeight());//headerHeight
+    // Translate the (x,y) context for horizontal scrolling of the game grid. We will handle scrolling in the game not
+    // the browser
+    context.translate(-gameState.offsetX, gameState.offsetY + GameHeaderHeight());//headerHeight
 
-    DrawGameGrid(ctx, gameState);
+    // game grid
+    DrawGameGrid(context, gameState);
 
-    // game objectives
-    DrawGameTargets(ctx, gameState);
+    // draw game objectives, the monsters will be targeting these locations with a pathfinding algorithm
+    DrawGameTargets(context, gameState);
 
+    // if any levels have been passed, add more spawners
     if (gameState.processedLevel < gameState.level) {
 
         gameState.processedLevel++;
 
-        gameState.spawners.push(new Spawner(100 / gameState.level, gameState.level * 5));
+        gameState.spawners.push(new Spawner(
+            0 === gameState.level % 10
+                ? {
+                    interval: 0,
+                    amount: Math.min(gameState.level / 2, 10),
+                    speed: .01 * gameState.level + .2,
+                    health: 1000 * gameState.level,
+                }
+                : {
+                    interval: 100 / gameState.level,
+                    amount: gameState.level * 5,
+                    speed: .2 + gameState.level * .0002,
+                    health: 100 * gameState.level * (gameState.level / 2),
+                }
+        ));
 
     }
 
-    // Update turrets and draw them
-    for (const turret of gameState.turrets) {
-
-        turret.update(gameState.monsters, gameState);
-
-        turret.draw(ctx, gameState, cellSize);
-
-    }
-
-    // remove projectile from game state - remove any destroyed projectiles so were not running this loop often
-    gameState.projectiles = gameState.projectiles.filter(projectile => {
-
-        if (!projectile.move()) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
-
-            return false;
-
-        }
-
-        projectile.draw(ctx, cellSize);
-
-        return true;
-
-    }) ?? [];
-
-    gameState.monsters = gameState.monsters.filter(monster => {
-
-        const cellSize = CellSize(gameState); // Assuming you have a function to get cell size
-
-        // Existing code to move the monster
-        if (false === monster.move(gameState, cellSize)) {
-
-            return false;
-
-        }
-
-        // Draw the monster using the blue 3D diamond SVG image
-        monster.draw(ctx, cellSize);
-
-        return true
-
-    }) ?? [];
-
+    // spawners are passive and do not get drawn, they only effect the state of the game by adding monsters
     gameState.spawners = gameState.spawners.filter(spawner => spawner.update(gameState));
 
-    // this may or may not show the turret radius, depending on the mouse position
-    showTurretRadius(ctx, gameState.mousePosition);
+    // Update turrets and draw them; turrets don't get removed (filtered) from the game state
+    gameState.turrets.forEach(turret => handleIEntity(turret))
 
-    ctx.restore();
+    // filter projectiles from game state - remove any destroyed projectiles so were not running this loop often
+    gameState.projectiles = gameState.projectiles.filter(projectile => handleIEntity(projectile)) ?? [];
 
-    gameState.particles = gameState.particles.filter(particle => {
+    // filter monsters from game state - remove any destroyed monsters so were not running this loop often
+    gameState.monsters = gameState.monsters.filter(monster => handleIEntity(monster)) ?? [];
 
-        if (particle.updatePosition()) {
+    // filter alerts from game state - remove any destroyed alerts so were not running this loop often
+    gameState.alerts = gameState.alerts.filter(alert => handleIEntity(alert))
 
-            particle.draw(ctx);
+    // The current mouse location may or may not show the turret radius, depending on the mouse position
+    showTurretRadius(context, gameState.mousePosition);
 
-            return true;
+    // Restore the context to the state before we translated it (x,y) for the game grid
+    context.restore();
 
-        }
+    // particle effects are drawn using a Bézier curve and a random control point
+    gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
 
-        return false;
-
-    });
-
+    // add a level advancement and winning condition
     if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
 
-        if (dictionary.length === gameState.level) {
+        if (100 === gameState.level) {
 
-            alert('Congratulations, you\'ve won!');
+            gameState.alerts.push(new Alert({
+                message: 'WINNER!',
+                seconds: 20,
+            }));
 
         }
 
         gameState.level++;
 
     }
-
 
 }
 
@@ -240,7 +236,10 @@ canvas.addEventListener('click', function (event) {
 
             if (gameState.energy < selectedTurret.cost) {
 
-                alert('Not enough energy to place a turret. Requires (' + selectedTurret.cost + ') energy. You have (' + gameState.energy + ') energy.');
+                gameState.alerts.push(new Alert({
+                    message: 'Not enough energy to place a turret',
+                    seconds: 5,
+                }));
 
                 console.warn('Not enough energy to place a turret');
 

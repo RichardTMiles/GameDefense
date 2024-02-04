@@ -1,11 +1,10 @@
-import {getGameState} from "./Game";
 import {GameFooterHeight} from "./Footer";
-import {tGameState} from "./InitialState";
 import GameHeaderHeight from "./HeaderHeight";
+import {tGameState} from "./InitialState";
+export const GameBodyHeight = () => window.innerHeight - (GameHeaderHeight() + GameFooterHeight());
 
-const CellSize = (gameState: tGameState = null) => {
-    gameState = getGameState()
-    return (window.innerHeight - GameHeaderHeight() - GameFooterHeight()) / gameState.gameGrid.length;
+const CellSize = (gameState: tGameState) => {
+    return (gameState.context.canvas.height - GameHeaderHeight() - GameFooterHeight()) / gameState.gameGrid.length;
 }
 
 export default CellSize

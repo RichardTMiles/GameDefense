@@ -1,3 +1,4 @@
+import iEntity from "./interfaces/iEntity";
 import monsterImage from "./assets/svg/MonsterSVG";
 import GameHeaderHeight from "./HeaderHeight";
 import {energyCirclePosition, scoreCirclePosition} from "./Header";
@@ -15,7 +16,7 @@ export interface iMonster {
     health?: number,
 }
 
-export default class Monster {
+export default class Monster implements iEntity {
     path: tGridPosition[];
     pathIndex: number;
     position: tGridPosition;
@@ -24,6 +25,7 @@ export default class Monster {
     startingHealth: number;
     damageDoneAndQueued: number;
     isDestroyed = false;
+    private cellSize = 0;
 
     constructor({x, y, gameState, speed = 0.2, health = 100}: iMonster) {
         this.path = dijkstraWithCaching(gameState.gameGrid, {
@@ -38,13 +40,17 @@ export default class Monster {
         this.damageDoneAndQueued = 0;
     }
 
-    draw(ctx: CanvasRenderingContext2D, cellSize: number) {
+    draw(ctx: CanvasRenderingContext2D) {
         // Draw the monster using the blue 3D diamond SVG image
-        ctx.drawImage(monsterImage, this.position.x * cellSize, this.position.y * cellSize, cellSize, cellSize);
+        ctx.drawImage(monsterImage, this.position.x * this.cellSize, this.position.y * this.cellSize, this.cellSize, this.cellSize);
 
     }
 
-    move(gameState: tGameState, cellSize: number): boolean {
+    move(gameState: tGameState): boolean {
+
+        const cellSize: number = gameState.cellSize;
+
+        this.cellSize = cellSize;
 
         if (this.health <= 0) {
 

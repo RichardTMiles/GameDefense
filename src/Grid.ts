@@ -1,5 +1,7 @@
+import BodyHeight from "./BodyHeight";
+import canvas from "./Canvas";
 import gameCellSize from "./CellSize";
-import GameHeaderHeight from "./HeaderHeight";
+import headerHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 
 export type TwoDimensionalGrid = number[][];
@@ -51,9 +53,14 @@ export const GameGrid2D: TwoDimensionalGrid = [
 
 const borderWidth = 1; // You can adjust the thickness of the border here
 
-export default function DrawGameGrid(ctx: CanvasRenderingContext2D, gameState: tGameState){
+export default function DrawGameGrid(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
-    const cellSize= gameCellSize(gameState)
+    ctx.fillStyle = "rgb(0,0,0)"
+
+    const cellSize = gameCellSize(gameState)
+
+    // were already translated under the header
+    ctx.fillRect(0, 0, gameState.gameGrid[0].length * cellSize, BodyHeight());
 
     for (let y = 0; y < gameState.gameGrid.length; y++) {
 

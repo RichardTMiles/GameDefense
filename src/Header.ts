@@ -1,3 +1,4 @@
+import {getGameState} from "./Game";
 import headerHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
@@ -17,35 +18,37 @@ export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: numbe
 
 
 const textPadding = 10;
-const boxWidth = () => canvas.width / 6;
-const boxTextHeight = () => Math.min(boxWidth(), GameHeaderHeight() / 2);
+const boxWidth = () => canvas.width / 5 - canvas.width / 5 / 2;
+const boxcenter = () => Math.min(boxWidth(), GameHeaderHeight() / 2);
+
+const boxPadding = () => (canvas.width - boxWidth() * 5) / 5;
+
 
 export const waveCirclePosition = () => ({
-    x: boxWidth(),
-    y: boxTextHeight(),
+    x: boxcenter() + boxPadding(),
+    y: boxcenter(),
 });
 
 export const activeEnemyHealthCirclePosition = () => ({
-    x: boxWidth() * 2,
-    y: boxTextHeight(),
+    x: boxcenter() * 3 + boxPadding(),
+    y: boxcenter(),
 });
 export const timeCirclePosition = () => ({
-    x: boxWidth() * 3,
-    y: boxTextHeight(),
+    x: boxcenter() * 5 + boxPadding(),
+    y: boxcenter(),
 });
 export const energyCirclePosition = () => ({
-    x: boxWidth() * 4,
-    y: boxTextHeight(),
+    x: boxcenter() * 7 + boxPadding(),
+    y: boxcenter(),
 });
 export const scoreCirclePosition = () => ({
-    x: boxWidth() * 5,
-    y: boxTextHeight(),
+    x: boxcenter() * 9 + boxPadding(),
+    y: boxcenter(),
 });
-
 
 let lastLog = -1
 
-export function elapsedTime(gameState: tGameState, inSeconds: boolean = true) {
+export function elapsedTime(gameState: tGameState = getGameState(), inSeconds: boolean = true) {
 
     const endTime = new Date();
 
@@ -54,11 +57,7 @@ export function elapsedTime(gameState: tGameState, inSeconds: boolean = true) {
     // strip the ms
     timeDiff /= 1000;
 
-    if (false === inSeconds) {
-
-        return timeDiff;
-
-    }
+    gameState.elapsedTime = timeDiff;
 
     const seconds = Math.round(timeDiff);
 
@@ -71,6 +70,14 @@ export function elapsedTime(gameState: tGameState, inSeconds: boolean = true) {
         console.log('gameState', gameState);
 
         console.groupEnd()
+
+    }
+
+    gameState.elapsedTimeSeconds = seconds;
+
+    if (false === inSeconds) {
+
+        return timeDiff;
 
     }
 
@@ -102,7 +109,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     const headerHeight = GameHeaderHeight(); // Example height for the header
 
     // Draw header
-    ctx.fillStyle = '#444'; // Dark gray background for header
+    ctx.fillStyle = 'rgba(255,0,255,0.17)'; // Dark gray background for header
 
     ctx.fillRect(0, 0, canvas.width, headerHeight);
 
@@ -123,38 +130,45 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     const waveStrengthCircle = activeEnemyHealthCirclePosition();
 
-    drawGradientCircleHeader(ctx, waveCircle.x, waveCircle.y, waveCircle.y, 'rgba(255,255,255,0)', 'rgb(215,103,33)');
+    const radius = waveCircle.y;
+    const headerTextY = scoreCircle.y + scoreCircle.y / 2;
+    ctx.textAlign = 'center';
 
-    drawGradientCircleHeader(ctx, timeCircle.x, timeCircle.y, timeCircle.y, 'rgba(255,255,255,0)', 'rgb(255,0,0)');
 
-    drawGradientCircleHeader(ctx, energyCircle.x, energyCircle.y, energyCircle.y, 'rgba(255,255,255,0)', 'rgb(31,152,0)');
+    drawGradientCircleHeader(ctx, energyCircle.x, energyCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(172,39,192)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText(formatNumber(gameState.energy), energyCircle.x, energyCircle.y, radius);
+    ctx.fillText('Energy', energyCircle.x, headerTextY, radius);
 
-    drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, scoreCircle.y, 'rgba(255,255,255,0)', 'rgb(197,185,47)');
+    drawGradientCircleHeader(ctx, waveCircle.x, waveCircle.y, radius, 'rgba(255,255,255,0)', 'rgba(215,103,33,0.62)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText('Wave', waveCircle.x, headerTextY, radius);
+    ctx.fillText(gameState.level.toString(), waveCircle.x, waveCircle.y, radius);
 
-    drawGradientCircleHeader(ctx, waveStrengthCircle.x, waveStrengthCircle.y, waveStrengthCircle.y, 'rgba(255,255,255,0)', 'rgb(100,255,214)');
+
+    drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(39,192,42)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText('Score', scoreCircle.x, headerTextY, radius);
+    ctx.fillText(formatNumber(gameState.score), scoreCircle.x, scoreCircle.y, radius);
+
+    drawGradientCircleHeader(ctx, timeCircle.x, timeCircle.y, radius, 'rgba(255,255,255,0)', 'rgba(0,0,0,0.37)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText('Time', timeCircle.x, headerTextY, radius);
+    ctx.fillText(timeElapsed.toString(), timeCircle.x, timeCircle.y, radius);
+
+    drawGradientCircleHeader(ctx, waveStrengthCircle.x, waveStrengthCircle.y, radius, 'rgba(255,255,255,0)', 'rgba(100,255,214,0.55)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText('Strength', waveStrengthCircle.x, headerTextY, radius);
+    ctx.fillText(formatNumber(gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0)), waveStrengthCircle.x, waveStrengthCircle.y, radius);
 
 
     // Set style for numbers within the circles
-    ctx.fillStyle = 'white'; // Black text color
 
-    ctx.textAlign = 'center';
 
     // Draw numbers inside circles
-    ctx.fillText(gameState.level.toString(), waveCircle.x, waveCircle.y);
-    ctx.fillText(timeElapsed.toString(), timeCircle.x, timeCircle.y);
-    ctx.fillText(formatNumber(gameState.energy), energyCircle.x, energyCircle.y);
-    ctx.fillText(formatNumber(gameState.score), scoreCircle.x, scoreCircle.y);
-    ctx.fillText(formatNumber(gameState.monsters.reduce((previousValue, currentValue) => previousValue + currentValue.health, 0)), waveStrengthCircle.x, waveStrengthCircle.y);
 
 
     // Set style for descriptive text
-    ctx.fillStyle = '#fff'; // White text color
-    const headerTextY = scoreCircle.y + scoreCircle.y / 2;
-    ctx.fillText('Energy', energyCircle.x, headerTextY);
-    ctx.fillText('Score', scoreCircle.x, headerTextY);
-    ctx.fillText('Wave', waveCircle.x, headerTextY);
-    ctx.fillText('Time', timeCircle.x, headerTextY);
-    ctx.fillText('Strength', waveStrengthCircle.x, headerTextY);
 
     displayFPS(ctx);
 

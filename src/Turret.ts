@@ -1,4 +1,5 @@
 // Turret class
+import iEntity from "./interfaces/iEntity";
 import canvas from "./Canvas";
 import CellSize from "./CellSize";
 import {footerLevelBarHeight, iTurretInfo, OneThirdFooter, turretSectionHeight} from "./Footer";
@@ -35,7 +36,7 @@ export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocati
         y: footerLevelBarHeight(),
         w: forGame ? 1 : canvas.width / 6,
         h: forGame ? 1 : turretSectionHeight(),
-        fillStyle: 'rgb(172,39,192)',
+        fillStyle: 'rgba(0,0,0,1)',
         range: 10,
         damage: 50,
         cooldown: 9,
@@ -149,7 +150,7 @@ export interface iTurret {
     targetType?: eTurretTargetType;
 }
 
-export class Turret {
+export class Turret implements iEntity {
     x: number;
     y: number;
     centerX: number;
@@ -163,6 +164,8 @@ export class Turret {
     cost: number;
     private timer: number;
     targetType: eTurretTargetType;
+    private cellSize: number;
+    private gameState: tGameState;
 
     constructor({
                     x,
@@ -190,7 +193,7 @@ export class Turret {
                 const gridX = x + offsetX;
                 const gridY = y + offsetY;
 
-                // Check bounds to avoid accessing outside of the grid
+                // Check bounds to avoid accessing outside the grid
                 if (gridY >= 0 && gridY < gameState.gameGrid.length && gridX >= 0 && gridX < gameState.gameGrid[gridY].length) {
                     gameState.gameGrid[gridY][gridX] = 3; // Update the grid to indicate a turret is placed
                 }
@@ -269,7 +272,6 @@ export class Turret {
 
         if (this.timer >= this.cooldown) {
 
-
             const projectile = new Projectile(this.centerX, this.centerY, target, 0.5, this.damage); // Speed and damage
 
             gameState.projectiles.push(projectile);
@@ -280,7 +282,9 @@ export class Turret {
 
     }
 
-    update(monsters: Monster[], gameState: tGameState) {
+    move(gameState: tGameState) : boolean {
+
+        this.gameState = gameState;
 
         if (this.cooldown > this.timer) {
 
@@ -288,7 +292,7 @@ export class Turret {
 
         }
 
-        let target = this.findTarget(monsters);
+        let target = this.findTarget(gameState.monsters);
 
         if (target) {
 
@@ -296,9 +300,14 @@ export class Turret {
 
         }
 
+        return true;
+
     }
 
-    draw(ctx: CanvasRenderingContext2D, gameState: tGameState, cellSize: number) {
+    draw(ctx: CanvasRenderingContext2D) {
+
+        const gameState = this.gameState
+        const cellSize = gameState.cellSize;
 
         // Base position and dimensions
         let baseX = this.centerX * cellSize - cellSize / 2;
