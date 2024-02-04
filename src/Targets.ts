@@ -1,4 +1,3 @@
-import cellSize from "./CellSize";
 import Particle, {Point} from "./Particle";
 import {energyCirclePosition, scoreCirclePosition, elapsedTime} from "./Header";
 import CellSize from "./CellSize";
@@ -6,18 +5,6 @@ import {tGameState} from "./InitialState";
 
 // Define the positions of the orbs
 // If you have specific positions for the orbs
-import tGridPosition from "./tGridPosition";
-
-const Targets = [
-    {x: 60, y: 17, destroyed: false},
-    {x: 93, y: 17, destroyed: false},
-    {x: 139, y: 17, destroyed: false},
-    {x: 156, y: 4, destroyed: false},
-    {x: 169, y: 4, destroyed: false},
-];
-
-
-export default Targets;
 
 let timeBonusesGiven = 0;
 
@@ -33,6 +20,9 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
     const amount = Math.max(50, 2 * gameState.level);
 
     for (let i = 0; i < amount; i++) {
+
+        start.x -= gameState.offsetX
+        start.y -= gameState.offsetY
 
         gameState.particles.push(new Particle({
             fillStyle: 'rgb(39,192,42)',
@@ -75,7 +65,7 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
 }
 
 // Function to create a radial gradient for orbs
-function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color1: string = 'rgb(172,39,192)', color2: string = 'rgba(39, 66, 66, .8)') {
+export function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color1: string = 'rgb(172,39,192)', color2: string = 'rgba(39, 66, 66, .8)') {
 
     // Create a radial gradient (inner circle to outer circle)
     let gradient = ctx.createRadialGradient(x, y, radius * 0.5, x, y, radius);
@@ -83,15 +73,18 @@ function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, 
     // Add color stops
     gradient.addColorStop(0, color1); // white center
 
-    gradient.addColorStop(1, color2); // fading to transparent
+    // fading to transparent
+    gradient.addColorStop(1, color2);
 
     return gradient;
 
 }
 
-export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameState) {
+export function DrawGameTargets(gameState: tGameState) {
 
-    const cellSize = CellSize(gameState);
+    const ctx = gameState.context;
+
+    const cellSize = gameState.cellSize;
 
     const orbRadius = cellSize * 4; // Adjust the radius of the orbs here
 
@@ -103,18 +96,16 @@ export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameS
 
     gameState.gameTargets.forEach((target, index) => {
 
-        const orbX = target.x * cellSize - cellSize / 2;
+        const orbX = target.x * cellSize + cellSize / 2;
 
         // Base orbY position
-        let orbY = target.y * cellSize;
+        let orbY = target.y * cellSize + cellSize / 2;
 
-        const baseOffset = orbRadius / 3;
-
-        ctx.fillStyle = createOrbGradient(ctx, orbX, orbY + baseOffset, orbRadius / 2, 'rgb(172,39,192)', 'rgb(100,225,100)'); // Assuming createOrbGradient is defined elsewhere
+        ctx.fillStyle = createOrbGradient(ctx, orbX, orbY, orbRadius / 2, 'rgb(172,39,192)', 'rgb(100,225,100)'); // Assuming createOrbGradient is defined elsewhere
 
         ctx.beginPath();
 
-        ctx.arc(orbX, orbY + baseOffset, orbRadius / 2, 0, Math.PI * 2);
+        ctx.arc(orbX, orbY, orbRadius / 2, 0, Math.PI * 2);
 
         ctx.fill();
 
@@ -136,11 +127,11 @@ export function DrawGameTargets(ctx: CanvasRenderingContext2D, gameState: tGameS
         orbY += verticalOffset;
 
         // Draw the orb with its oscillating position
-        ctx.fillStyle = createOrbGradient(ctx, orbX, orbY, orbRadius); // Assuming createOrbGradient is defined elsewhere
+        ctx.fillStyle = createOrbGradient(ctx, orbX, orbY - cellSize * 2, orbRadius); // Assuming createOrbGradient is defined elsewhere
 
         ctx.beginPath();
 
-        ctx.arc(orbX, orbY, orbRadius, 0, Math.PI * 2);
+        ctx.arc(orbX, orbY - cellSize * 2, orbRadius, 0, Math.PI * 2);
 
         ctx.fill();
 

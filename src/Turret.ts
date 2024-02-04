@@ -1,5 +1,5 @@
 // Turret class
-import iEntity from "./interfaces/iEntity";
+import Entity, {iEntityConstructorProps} from "./Entity";
 import canvas from "./Canvas";
 import CellSize from "./CellSize";
 import {footerLevelBarHeight, iTurretInfo, OneThirdFooter, turretSectionHeight} from "./Footer";
@@ -150,9 +150,7 @@ export interface iTurret {
     targetType?: eTurretTargetType;
 }
 
-export class Turret implements iEntity {
-    x: number;
-    y: number;
+export class Turret extends Entity {
     centerX: number;
     centerY: number;
     w: number;
@@ -164,8 +162,6 @@ export class Turret implements iEntity {
     cost: number;
     private timer: number;
     targetType: eTurretTargetType;
-    private cellSize: number;
-    private gameState: tGameState;
 
     constructor({
                     x,
@@ -179,7 +175,8 @@ export class Turret implements iEntity {
                     h,
                     gameState,
                     targetType = eTurretTargetType.OLDEST
-                }: iTurret & { gameState: tGameState }) {
+                }: iTurret & iEntityConstructorProps) {
+        super({x, y, gameState});
         this.x = x;
         this.centerX = x + w / 2
         this.y = y;
@@ -272,7 +269,15 @@ export class Turret implements iEntity {
 
         if (this.timer >= this.cooldown) {
 
-            const projectile = new Projectile(this.centerX, this.centerY, target, 0.5, this.damage); // Speed and damage
+            const projectile = new Projectile({
+                startX: 0,
+                startY: 0,
+                x:this.centerX,
+                y:this.centerY,
+                target,
+                speed:0.5,
+                damage:this.damage
+            }); // Speed and damage
 
             gameState.projectiles.push(projectile);
 
@@ -282,9 +287,9 @@ export class Turret implements iEntity {
 
     }
 
-    move(gameState: tGameState) : boolean {
+    move() : boolean {
 
-        this.gameState = gameState;
+        const gameState = this.gameState;
 
         if (this.cooldown > this.timer) {
 
@@ -304,7 +309,9 @@ export class Turret implements iEntity {
 
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw() {
+
+        const ctx = this.gameState.context;
 
         const gameState = this.gameState
         const cellSize = gameState.cellSize;

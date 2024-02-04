@@ -1,4 +1,4 @@
-import iEntity from "./interfaces/iEntity";
+import Entity from "./Entity";
 import monsterImage from "./assets/svg/MonsterSVG";
 import GameHeaderHeight from "./HeaderHeight";
 import {energyCirclePosition, scoreCirclePosition} from "./Header";
@@ -16,7 +16,7 @@ export interface iMonster {
     health?: number,
 }
 
-export default class Monster implements iEntity {
+export default class Monster extends Entity {
     path: tGridPosition[];
     pathIndex: number;
     position: tGridPosition;
@@ -28,6 +28,7 @@ export default class Monster implements iEntity {
     private cellSize = 0;
 
     constructor({x, y, gameState, speed = 0.2, health = 100}: iMonster) {
+        super({x, y, gameState});
         this.path = dijkstraWithCaching(gameState.gameGrid, {
             x: x,
             y: y
@@ -40,13 +41,16 @@ export default class Monster implements iEntity {
         this.damageDoneAndQueued = 0;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw() {
+        const ctx = this.gameState.context;
         // Draw the monster using the blue 3D diamond SVG image
         ctx.drawImage(monsterImage, this.position.x * this.cellSize, this.position.y * this.cellSize, this.cellSize, this.cellSize);
 
     }
 
-    move(gameState: tGameState): boolean {
+    move(): boolean {
+
+        const gameState = this.gameState;
 
         const cellSize: number = gameState.cellSize;
 
@@ -59,18 +63,15 @@ export default class Monster implements iEntity {
             const headerSize = GameHeaderHeight()
 
             const start = {
-                x: cellSize * this.position.x + headerSize,
-                y: cellSize * this.position.y + headerSize
+                x: cellSize * this.position.x - gameState.offsetX,
+                y: cellSize * this.position.y + headerSize - gameState.offsetY
             };
 
             const energy = energyCirclePosition();
 
             gameState.particles.push(new Particle({
                 fillStyle: 'rgb(39,192,42)',
-                start: {
-                    x: cellSize * this.position.x + headerSize,
-                    y: cellSize * this.position.y + headerSize
-                },
+                start: start,
                 control: gameState.particles.length % 2 ? {
                     x: start.x,
                     y: energy.y
@@ -87,10 +88,7 @@ export default class Monster implements iEntity {
             const score = scoreCirclePosition();
             gameState.particles.push(new Particle({
                 fillStyle: 'rgb(172,39,192)',
-                start: {
-                    x: cellSize * this.position.x + headerSize,
-                    y: cellSize * this.position.y + headerSize
-                },
+                start: start,
                 control: gameState.particles.length % 2 ? {
                     x: start.x,
                     y: score.y

@@ -1,4 +1,4 @@
-import iEntity from "./interfaces/iEntity";
+import Entity, {iEntityConstructorProps} from "./Entity";
 import FPS from "./FPS";
 import {tGameState} from "./InitialState";
 import Bezier from "./Bezier";
@@ -17,19 +17,26 @@ export interface tParticle {
     fillStyle?: string;
 }
 
-export default class Particle implements iEntity {
-
+export default class Particle extends Entity {
     speed: number;
     size: number;
     currentPosition: Point;
     endPosition: Point;
     arcPoints: Point[];
     currentPointIndex: number;
-    callback?: (gameState:tGameState) => void;
+    callback?: (gameState: tGameState) => void;
     fillStyle: string;
 
-    constructor({start, control,callback, end, fillStyle = 'rgb(39,192,42)'}: tParticle) {
-        this.currentPosition = {x: start.x, y: start.y};
+    constructor({
+                    start,
+                    control,
+                    callback,
+                    end,
+                    gameState,
+                    fillStyle = 'rgb(39,192,42)'
+                }: tParticle & iEntityConstructorProps) {
+        super({x: start.x, y: start.y, gameState});
+        this.currentPosition = {x: this.x, y: this.y};
         this.endPosition = {x: end.x, y: end.y};
         this.speed = .5 + Math.random() * 2; // Random speed for variation
         this.size = 3 + Math.random() * 2; // Random size for variation
@@ -40,7 +47,8 @@ export default class Particle implements iEntity {
         this.callback = callback;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw() {
+        const ctx = this.gameState.context;
         ctx.beginPath();
         ctx.arc(this.currentPosition.x, this.currentPosition.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.fillStyle;
@@ -49,7 +57,7 @@ export default class Particle implements iEntity {
 
 
     // Update the particle's position to the next point along the arc
-    move(gameState: tGameState): boolean {
+    move(): boolean {
 
         // Increment currentPointIndex by speed
         this.currentPointIndex += this.speed;
@@ -64,7 +72,7 @@ export default class Particle implements iEntity {
         }
 
         // Additional logic here for what happens when the arc is completed
-        this.callback?.(gameState)
+        this.callback?.(this.gameState)
 
         return false;
     }

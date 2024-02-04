@@ -1,35 +1,32 @@
-import {tGameState} from "./InitialState";
-import iEntity from "./interfaces/iEntity";
-import {elapsedTime} from "./Header";
+import Entity, {iEntityConstructorProps} from "./Entity";
 
 interface iAlert {
     message: string;
     seconds: number;
 }
 
-export default class Alert implements iEntity {
+export default class Alert extends Entity {
     private alertBoxVisible: boolean = true;
     private startTime: number = 0;
     message: string;
     seconds: number;
-    private gameState: tGameState;
 
 
-    constructor({message, seconds}: iAlert) {
+    constructor({message, seconds, gameState}: iAlert & iEntityConstructorProps) {
+        super({gameState});
         this.message = message;
         this.seconds = seconds;
     }
 
-    move(gameState: tGameState): boolean {
-        this.gameState ??= gameState;
+    move(): boolean {
         if (0 === this.startTime) {
-            this.startTime = gameState.elapsedTime;
+            this.startTime = this.gameState.elapsedTime;
         }
         return this.alertBoxVisible
     }
 
-    draw(ctx: CanvasRenderingContext2D): void {
-
+    draw(): void {
+        const ctx: CanvasRenderingContext2D = this.gameState.context;
         if (!this.alertBoxVisible) {
 
             return;

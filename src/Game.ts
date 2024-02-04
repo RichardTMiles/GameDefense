@@ -1,3 +1,4 @@
+import Entity from "./Entity";
 import {updateDimensions} from "./updateDimensions";
 import {scrollGridX, scrollGridY} from "./Scroll";
 import Alert from "./Alert";
@@ -8,7 +9,6 @@ import DrawGameGrid from "./Grid";
 import Header, {elapsedTime} from "./Header";
 import GameHeaderHeight from "./HeaderHeight";
 import {InitialGameState, tGameState} from "./InitialState";
-import iEntity from "./interfaces/iEntity";
 import {createAndShowModal} from "./Modal";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import Spawner from "./Spawner";
@@ -24,15 +24,15 @@ export function getGameState() {
     return gameState;
 }
 
-function handleIEntity(entity: iEntity): boolean {
+function handleIEntity(entity: Entity): boolean {
 
-    if (!entity.move(gameState)) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
+    if (!entity.move()) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
 
         return false;
 
     }
 
-    entity.draw(context);
+    entity.draw();
 
     return true;
 }
@@ -54,9 +54,6 @@ export default function Game() {
     // this will update the game state with the current and elapsed time
     elapsedTime(gameState, false);
 
-    // particle effects are drawn using a Bézier curve and a random control point
-    gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
-
     // add a level advancement and winning condition
     if (0 === gameState.monsters.length
         && 0 === gameState.spawners.length) {
@@ -66,6 +63,7 @@ export default function Game() {
             gameState.alerts.push(new Alert({
                 message: 'WINNER! You have completed 100 levels! How far can you go?',
                 seconds: 10,
+                gameState
             }));
 
         }
@@ -88,14 +86,14 @@ export default function Game() {
     context.save();
 
     // Translate the (x,y) context for horizontal scrolling of the game grid. We will handle scrolling in the game not
-    // the browser
+    // the browser. Don't ask me why x is negative??
     context.translate(-gameState.offsetX, gameState.offsetY + GameHeaderHeight());//headerHeight
 
     // game grid
     DrawGameGrid(context, gameState);
 
     // draw game objectives, the monsters will be targeting these locations with a pathfinding algorithm
-    DrawGameTargets(context, gameState);
+    DrawGameTargets(gameState);
 
     // if any levels have been passed, add more spawners
     if (gameState.processedLevel < gameState.level) {
@@ -140,8 +138,6 @@ export default function Game() {
 
     // Restore the context to the state before we translated it (x,y) for the game grid
     context.restore();
-
-
     // \END GAME GRID
 
     // draw header
@@ -150,9 +146,10 @@ export default function Game() {
     // draw footer
     Footer(context, gameState)
 
+    // particle effects are drawn using a Bézier curve and a random control point
+    gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
 
 }
-
 
 
 canvas.addEventListener('wheel', function (event) {
@@ -237,7 +234,7 @@ canvas.addEventListener('click', function (event) {
 
         } else {
 
-            console.warn('Cell is not free');
+            console.warn('Cell is not free', x / gameState.cellSize, y / gameState.cellSize, gameState);
 
         }
 

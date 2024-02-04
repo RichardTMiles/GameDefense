@@ -1,12 +1,19 @@
-import iEntity from "./interfaces/iEntity";
+import Entity, {iEntityConstructorProps} from "./Entity";
 import {tGameState} from "./InitialState";
 import Monster from "./Monster";
 import GamePosition from "./Position";
 
 
-export default class Projectile implements iEntity {
-    x: number;
-    y: number;
+interface iProjectile {
+    startX: number;
+    startY: number;
+    target: Monster;
+    speed: number;
+    damage: number;
+    fillStyle?: string;
+}
+
+export default class Projectile extends Entity {
     target: Monster;
     speed: number;
     damage: number;
@@ -14,9 +21,10 @@ export default class Projectile implements iEntity {
     fillStyle: string;
     private cellSize = 0;
 
-    constructor(startX: number, startY: number, target: Monster, speed: number, damage: number, fillStyle: string = 'rgb(211,5,5)') {
-        this.x = startX;
-        this.y = startY;
+    constructor({x, y, target, speed, damage, fillStyle = 'rgb(185,66,66)'} : iProjectile & iEntityConstructorProps) {
+        super({x: x, y: y, gameState: target.gameState});
+        this.x = x;
+        this.y = y;
         this.target = target;
         this.speed = speed;
         this.damage = damage;
@@ -24,14 +32,15 @@ export default class Projectile implements iEntity {
         this.fillStyle = fillStyle;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw() {
+        const ctx = this.gameState.context;
         ctx.beginPath();
         ctx.arc(this.x * this.cellSize, this.y * this.cellSize, 5, 0, Math.PI * 2);
         ctx.fillStyle = this.fillStyle;
         ctx.fill();
     }
 
-    move(gameState: tGameState): boolean {
+    move(): boolean {
 
         if (this.isDestroyed || undefined === this.target || this.target.isDestroyed) {
 
@@ -39,7 +48,7 @@ export default class Projectile implements iEntity {
 
         }
 
-        this.cellSize = gameState.cellSize;
+        this.cellSize = this.gameState.cellSize;
 
         // Calculate direction towards the target
         const dirX = this.target.position.x - this.x;

@@ -1,6 +1,6 @@
 import BodyHeight from "./BodyHeight";
 import HeaderHeight from "./HeaderHeight";
-import iEntity from "./interfaces/iEntity";
+import Entity, {iEntityConstructorProps} from "./Entity";
 import WrapText from "./WrapText";
 
 
@@ -56,18 +56,21 @@ interface iDictionary {
     definition: string;
 }
 
-export default class Dictionary implements iEntity {
+export default class Dictionary extends Entity {
     word: string;
     definition: string;
     closed: boolean = false;
 
-    constructor({word, definition}: iDictionary) {
+    constructor({word, definition, gameState}: iDictionary & iEntityConstructorProps) {
+        super({gameState, x: 0, y: 0});
         this.word = word;
         this.definition = definition;
         console.log('Dictionary');
     }
 
-    draw(context: CanvasRenderingContext2D): void {
+    draw(): void {
+
+        const context = this.gameState.context;
 
         // draw a transparent box over the game to show the definition
         context.fillStyle = 'rgba(255, 255, 255, 0.5)';
@@ -85,7 +88,7 @@ export default class Dictionary implements iEntity {
 
 
     }
-    move(_gameState: any): boolean {
+    move(): boolean {
         return !this.closed;
     }
 
