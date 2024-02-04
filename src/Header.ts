@@ -1,10 +1,8 @@
 import {getGameState} from "./Game";
-import headerHeight from "./HeaderHeight";
 import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
 import canvas from "./Canvas";
-import CellSize from "./CellSize";
-import GameHeaderHeight from "./HeaderHeight";
+import HeaderHeight from "./HeaderHeight";
 
 export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, colorStart: string, colorEnd: string) {
     let gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
@@ -17,33 +15,29 @@ export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: numbe
 }
 
 
-const textPadding = 10;
-const boxWidth = () => canvas.width / 5 - canvas.width / 5 / 2;
-const boxcenter = () => Math.min(boxWidth(), GameHeaderHeight() / 2);
-
-const boxPadding = () => (canvas.width - boxWidth() * 5) / 5;
-
+// the box full width - half to get the center
+const boxWidth = () => canvas.width / 10
 
 export const waveCirclePosition = () => ({
-    x: boxcenter() + boxPadding(),
-    y: boxcenter(),
+    x: boxWidth(),
+    y: HeaderHeight() / 2,
 });
 
 export const activeEnemyHealthCirclePosition = () => ({
-    x: boxcenter() * 3 + boxPadding(),
-    y: boxcenter(),
+    x: boxWidth() * 3,
+    y: HeaderHeight() / 2,
 });
 export const timeCirclePosition = () => ({
-    x: boxcenter() * 5 + boxPadding(),
-    y: boxcenter(),
+    x: boxWidth() * 5,
+    y: HeaderHeight() / 2,
 });
 export const energyCirclePosition = () => ({
-    x: boxcenter() * 7 + boxPadding(),
-    y: boxcenter(),
+    x: boxWidth() * 7,
+    y: HeaderHeight() / 2,
 });
 export const scoreCirclePosition = () => ({
-    x: boxcenter() * 9 + boxPadding(),
-    y: boxcenter(),
+    x: boxWidth() * 9,
+    y: HeaderHeight() / 2,
 });
 
 let lastLog = -1
@@ -106,7 +100,7 @@ export function formatNumber(num: number): string {
 
 export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
-    const headerHeight = GameHeaderHeight(); // Example height for the header
+    const headerHeight = HeaderHeight(); // Example height for the header
 
     // Draw header
     ctx.fillStyle = 'rgba(255,0,255,0.17)'; // Dark gray background for header
@@ -146,7 +140,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillText(gameState.level.toString(), waveCircle.x, waveCircle.y, radius);
 
 
-    drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(39,192,42)');
+    drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(37,108,38)');
     ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
     ctx.fillText('Score', scoreCircle.x, headerTextY, radius);
     ctx.fillText(formatNumber(gameState.score), scoreCircle.x, scoreCircle.y, radius);
