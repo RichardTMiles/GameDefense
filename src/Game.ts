@@ -54,34 +54,6 @@ export default function Game() {
     // this will update the game state with the current and elapsed time
     elapsedTime(gameState, false);
 
-    // add a level advancement and winning condition
-    if (0 === gameState.monsters.length
-        && 0 === gameState.spawners.length) {
-
-        if (100 === gameState.level) {
-
-            gameState.alerts.push(new Alert({
-                message: 'WINNER! You have completed 100 levels! How far can you go?',
-                seconds: 10,
-                gameState
-            }));
-
-        }
-
-        // Movable objects should be completed and removed from the game state before we advance the level
-        // It is tempting to add gameState.alerts.length to the list, but I don't want a hidden way to pause the game
-        if (0 === gameState.monsters.length
-            && 0 === gameState.spawners.length
-            && 0 === gameState.particles.length
-            && 0 === gameState.projectiles.length
-            && 100 !== gameState.level) {
-
-            gameState.level++;
-
-        }
-
-    }
-
     // move the grid context to the "Game Grid" position
     context.save();
 
@@ -148,6 +120,34 @@ export default function Game() {
 
     // particle effects are drawn using a Bézier curve and a random control point
     gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
+
+    // add a level advancement and winning condition
+    if (0 === gameState.monsters.length
+        && 0 === gameState.spawners.length) {
+
+        if (100 === gameState.level) {
+
+            gameState.alerts.push(new Alert({
+                message: 'WINNER! You have completed 100 levels! How far can you go?',
+                seconds: 10,
+                gameState
+            }));
+
+        }
+
+        // Movable objects should be completed and removed from the game state before we advance the level
+        // It is tempting to add gameState.alerts.length to the list, but I don't want a hidden way to pause the game
+        if (0 === gameState.monsters.length
+            && 0 === gameState.spawners.length
+            && 0 === gameState.particles.length
+            && 0 === gameState.projectiles.length
+            && 100 !== gameState.level) {
+
+            gameState.level++;
+
+        }
+
+    }
 
 }
 

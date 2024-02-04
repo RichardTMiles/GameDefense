@@ -6,33 +6,28 @@ import {tGameState} from "./InitialState";
 // Define the positions of the orbs
 // If you have specific positions for the orbs
 
-let timeBonusesGiven = 0;
-
-let timeBonus = -1;
-
 export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
-
-    timeBonusesGiven++;
 
     const energy: Point = energyCirclePosition()
     const score: Point = scoreCirclePosition()
     const cellSize = CellSize(gameState);
     const amount = Math.max(50, 2 * gameState.level);
 
-    for (let i = 0; i < amount; i++) {
+    start.x -= gameState.offsetX;
 
-        start.x -= gameState.offsetX
-        start.y -= gameState.offsetY
+    start.y -= gameState.offsetY;
+
+    start.y += cellSize * 9
+
+    for (let i = 0; i < amount; i++) {
 
         gameState.particles.push(new Particle({
             fillStyle: 'rgb(39,192,42)',
             callback(): void {
                 gameState.energy += 10 * gameState.level;
             },
-            start: {
-                x: start.x,
-                y: start.y + (cellSize * 9),
-            }, control: i % 2 ? {
+            start,
+            control: i % 2 ? {
                 x: start.x + (Math.random() * 20 - 10) * cellSize,
                 y: energy.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
             } : {
@@ -47,10 +42,8 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
             callback(): void {
                 gameState.score += 10 * gameState.level;
             },
-            start: {
-                x: start.x,
-                y: start.y + (cellSize * 9),
-            }, control: i % 2 ? {
+            start,
+            control: i % 2 ? {
                 x: start.x + (Math.random() * 20 - 10) * cellSize,
                 y: start.y + (Math.random() * 10 - 5) * cellSize + (cellSize * 20)
             } : {
@@ -80,6 +73,8 @@ export function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: n
 
 }
 
+let levelBonusGiven = -1;
+
 export function DrawGameTargets(gameState: tGameState) {
 
     const ctx = gameState.context;
@@ -92,7 +87,13 @@ export function DrawGameTargets(gameState: tGameState) {
 
     const seconds = elapsedTime(gameState); // Assuming SecondsElapsed is defined elsewhere
 
-    const elapsedTimeBonus = timeBonus === seconds ? false : 0 === seconds % 14 + timeBonusesGiven; // Assuming SecondsElapsed is defined elsewhere
+    const levelBonus = levelBonusGiven < gameState.level
+
+    if (levelBonus) {
+
+        levelBonusGiven++;
+
+    }
 
     gameState.gameTargets.forEach((target, index) => {
 
@@ -135,19 +136,13 @@ export function DrawGameTargets(gameState: tGameState) {
 
         ctx.fill();
 
-        if (elapsedTimeBonus) {
+        if (levelBonus) {
 
             timeBonusParticleBurst({x: orbX, y: orbY}, gameState);
 
         }
 
     });
-
-    if (elapsedTimeBonus) {
-
-        timeBonus = seconds;
-
-    }
 
 }
 

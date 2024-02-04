@@ -41,7 +41,7 @@ export default class Particle extends Entity {
         this.speed = .5 + Math.random() * 2; // Random speed for variation
         this.size = 3 + Math.random() * 2; // Random size for variation
         const fps = FPS();
-        this.arcPoints = Bezier(this.currentPosition, control, this.endPosition, fps < 30 ? 100 / fps : 50);
+        this.arcPoints = Bezier(this.currentPosition, control, this.endPosition, fps < 30 ? 50 : 100);
         this.currentPointIndex = 0;
         this.fillStyle = fillStyle;
         this.callback = callback;
