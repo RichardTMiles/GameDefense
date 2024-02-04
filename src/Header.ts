@@ -16,6 +16,7 @@ export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: numbe
 
 
 // the box full width - half to get the center
+// NOTE- the below is derived from the equation = canvas.width / 5 - (canvas.width / 5 / 2);
 const boxWidth = () => canvas.width / 10
 
 export const waveCirclePosition = () => ({
@@ -103,7 +104,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     const headerHeight = HeaderHeight(); // Example height for the header
 
     // Draw header
-    ctx.fillStyle = 'rgba(255,0,255,0.17)'; // Dark gray background for header
+    ctx.fillStyle = 'rgba(96,6,96,0.9)'; // Dark gray background for header
 
     ctx.fillRect(0, 0, canvas.width, headerHeight);
 

@@ -1,6 +1,7 @@
+import {updateDimensions} from "./updateDimensions";
+import {scrollGridX, scrollGridY} from "./Scroll";
 import Alert from "./Alert";
 import canvas from "./Canvas";
-import CellSize from "./CellSize";
 import Footer, {GameFooterHeight, handleFooterClick} from "./Footer";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
@@ -15,10 +16,6 @@ import {DrawGameTargets} from "./Targets";
 import {showTurretRadius, Turret} from "./Turret";
 
 const context = canvas.getContext('2d')!;
-
-export function getCanvasContext(): CanvasRenderingContext2D {
-    return context;
-}
 
 // Game state
 let gameState: tGameState = InitialGameState(context)
@@ -52,22 +49,40 @@ export default function Game() {
     // Save the current context state (with no translations)
     context.save();
 
-    // update the canvas size each frame, this handles window resizing
-    canvas.height = window.innerHeight;
-
-    canvas.width = window.innerWidth;
-
-    // cell size is dynamic based on the canvas size
-    gameState.cellSize = CellSize(gameState);
+    updateDimensions(gameState);
 
     // this will update the game state with the current and elapsed time
     elapsedTime(gameState, false);
 
-    // draw header
-    Header(context, gameState);
+    // particle effects are drawn using a Bézier curve and a random control point
+    gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
 
-    // draw footer
-    Footer(context, gameState)
+    // add a level advancement and winning condition
+    if (0 === gameState.monsters.length
+        && 0 === gameState.spawners.length) {
+
+        if (100 === gameState.level) {
+
+            gameState.alerts.push(new Alert({
+                message: 'WINNER! You have completed 100 levels! How far can you go?',
+                seconds: 10,
+            }));
+
+        }
+
+        // Movable objects should be completed and removed from the game state before we advance the level
+        // It is tempting to add gameState.alerts.length to the list, but I don't want a hidden way to pause the game
+        if (0 === gameState.monsters.length
+            && 0 === gameState.spawners.length
+            && 0 === gameState.particles.length
+            && 0 === gameState.projectiles.length
+            && 100 !== gameState.level) {
+
+            gameState.level++;
+
+        }
+
+    }
 
     // move the grid context to the "Game Grid" position
     context.save();
@@ -126,57 +141,19 @@ export default function Game() {
     // Restore the context to the state before we translated it (x,y) for the game grid
     context.restore();
 
-    // particle effects are drawn using a Bézier curve and a random control point
-    gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
 
-    // add a level advancement and winning condition
-    if (0 === gameState.monsters.length && 0 === gameState.spawners.length) {
+    // \END GAME GRID
 
-        if (100 === gameState.level) {
+    // draw header
+    Header(context, gameState);
 
-            gameState.alerts.push(new Alert({
-                message: 'WINNER!',
-                seconds: 20,
-            }));
+    // draw footer
+    Footer(context, gameState)
 
-        }
-
-        gameState.level++;
-
-    }
 
 }
 
-// Scroll function to update offsetX
-export const scrollGridX = (amount: number) => {
 
-    gameState.offsetX += amount;
-
-    // Optionally add limits to prevent scrolling too far left or right
-    gameState.offsetX = Math.max(0, Math.min(gameState.offsetX,
-        CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
-
-    Game();
-
-}
-
-export const scrollGridY = (amount: number) => {
-
-    // comment this out to allow vertical scrolling
-    if (gameState.offsetY + amount !== 0) {
-
-        return;
-
-    }
-
-    gameState.offsetY += amount;
-
-    // Optionally add limits to prevent scrolling too far left or right
-    gameState.offsetY = Math.max(0, Math.min(gameState.offsetY, CellSize(gameState) * gameState.gameGrid[0].length - window.innerWidth));
-
-    Game();
-
-}
 
 canvas.addEventListener('wheel', function (event) {
 
@@ -189,7 +166,7 @@ canvas.addEventListener('wheel', function (event) {
 
     if (event.deltaY) {
 
-        scrollGridY(event.deltaY)
+        scrollGridY(-event.deltaY)
 
     }
 
@@ -312,7 +289,7 @@ canvas.addEventListener('mousemove', (event) => {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     gameState.mousePosition = {x: mouseX, y: mouseY}
-});
+}, {passive: true});
 
 let touchStartX = 0;
 let touchStartY = 0;
@@ -322,7 +299,7 @@ canvas.addEventListener('touchstart', function (event) {
     touchStartY = event.touches[0].clientY;
     // Prevent default scrolling behavior on touch devices
     event.preventDefault();
-}, {passive: false});
+}, {passive: true});
 
 canvas.addEventListener('touchmove', function (event) {
     const touchEndX = event.touches[0].clientX;
@@ -337,14 +314,14 @@ canvas.addEventListener('touchmove', function (event) {
     touchStartY = touchEndY;
 
     // Use the scroll functions to update the game state based on the touch movement
-    scrollGridX(deltaX);
+    scrollGridX(-deltaX);
     scrollGridY(deltaY);
 
     // Prevent default scrolling behavior on touch devices
-    event.preventDefault();
-}, {passive: false});
+}, {passive: true});
 
 // Prevent default behavior for touchend as well
 canvas.addEventListener('touchend', function (event) {
     event.preventDefault();
-}, {passive: false});
+}, {passive: true});
+

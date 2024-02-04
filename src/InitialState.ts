@@ -1,4 +1,4 @@
-import CellSize from "./CellSize";
+import {updateDimensions} from "./updateDimensions";
 import Alert from "./Alert";
 import {iTurretInfo} from "./Footer";
 import tGridPosition from "./tGridPosition";
@@ -11,6 +11,7 @@ import {GameGrid2D} from "./Grid";
 import Particle from "./Particle";
 
 export type tGameState = {
+    switchXY: boolean;
     elapsedTime: number;
     elapsedTimeSeconds: number;
     context: CanvasRenderingContext2D;
@@ -35,6 +36,7 @@ export type tGameState = {
     selectedTurret: iTurretInfo | null;
 }
 
+
 export const InitialGameState = (context: CanvasRenderingContext2D): tGameState => {
 
     const initialState: tGameState = {
@@ -44,6 +46,7 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
         cellSize: 0,
         alerts: [],
         particles: [], // This will hold particle objects
+        switchXY: false,
         gameGrid: GameGrid2D,
         gameTargets: Targets,
         offsetX: 0, // This will be used to scroll the grid horizontally
@@ -62,7 +65,7 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
         selectedTurret: Turret1(eTurretTargetDimensionsLocation.GAME)
     }
 
-    initialState.cellSize = CellSize(initialState);
+    updateDimensions(initialState);
 
     return initialState;
 
