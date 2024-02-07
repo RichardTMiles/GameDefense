@@ -2,17 +2,6 @@ import {tGameState} from "./InitialState";
 import Monster from "./Monster";
 
 
-const spawnLocations = [
-    {x: 1, y: 1},
-    {x: 1, y: 10},
-    {x: 1, y: 11},
-    {x: 1, y: 12},
-    {x: 1, y: 24},
-    {x: 1, y: 25},
-    {x: 1, y: 34},
-    {x: 1, y: 35},
-]
-
 interface iSpawner {
     interval: number;
     amount: number;
@@ -56,7 +45,12 @@ export default class Spawner {
             this.amount--; // Reduce the amount of monsters left to spawn
 
             // Spawn a new monster
-            const spawnLocation = spawnLocations[Math.floor(Math.random() * spawnLocations.length)];
+            const spawnLocation = gameState.spawnLocations[Math.floor(Math.random() * gameState.spawnLocations.length)];
+
+            if (!spawnLocation) {
+                console.error("No spawn location found", gameState.spawnLocations);
+                return false;
+            }
 
             gameState.monsters.push(new Monster({
                 health: this.health,

@@ -24,6 +24,7 @@ export type tGameState = {
     particles: Particle[];
     turrets: Turret[];
     gameTargets: (tGridPosition & { destroyed: boolean })[];
+    spawnLocations: (tGridPosition)[];
     score: number;
     offsetX: number;
     offsetY: number;
@@ -48,6 +49,7 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
         switchXY: false,
         gameGrid: GameGrid2D,
         gameTargets: [],
+        spawnLocations: [],
         offsetX: 0, // This will be used to scroll the grid horizontally
         offsetY: 0, // This will be used to scroll the grid vertically
         level: 1,
@@ -66,12 +68,25 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
 
     updateDimensions(initialState);
 
+    const gameHeightY = initialState.gameGrid.length;
+    const gameWidthX = initialState.gameGrid[0].length;
+
     // Create the game targets
-    for (let y = 0; y < initialState.gameGrid.length; y++) {
+    for (let y = 0; y < gameHeightY; y++) {
 
-        for (let x = 0; x < initialState.gameGrid[y].length; x++) {
+        for (let x = 0; x < gameWidthX; x++) {
 
-            if (isCenterOf5x5GridOf0s(x,y, initialState.gameGrid)) {
+            if (((0 === x || gameWidthX - 1 === x)
+                    || (0 === y || gameHeightY - 1 === y))
+                && initialState.gameGrid[y][x] === 0) {
+
+                console.log('spawnLocations', x, y)
+
+                initialState.spawnLocations.push({x, y});
+
+            }
+
+            if (isCenterOf5x5GridOf0s(x, y, initialState.gameGrid)) {
 
                 initialState.gameTargets.push({x, y, destroyed: false});
 

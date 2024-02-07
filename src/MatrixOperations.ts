@@ -27,10 +27,3 @@ export function rotateMatrix90Clockwise<T>(matrix: T[][]): T[][] {
 
 }
 
-function rotatePoint270Clockwise(x: number, y: number) {
-    return {
-        x: y,  // New x is the original y
-        y: -x  // New y is -1 times the original x
-    };
-}
-

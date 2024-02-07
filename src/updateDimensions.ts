@@ -1,7 +1,26 @@
+import Entity from "./Entity";
 import CellSize from "./CellSize";
 import {tGameState} from "./InitialState";
 import {rotateMatrix90Clockwise} from "./MatrixOperations";
 import {gameBodyTotalYScroll} from "./Scroll";
+
+function switchGameEntitiesXY(gameState: tGameState) {
+    //const switchXY = (entity: Entity) => entity.switchXY();
+
+    gameState.gameTargets.forEach(target => {
+        console.log({
+            ...target,
+            x: target.y,
+            y: target.x,
+        })
+        return {
+            ...target,
+            x: target.y,
+            y: target.x,
+        }
+    });
+
+}
 
 export function updateDimensions(gameState: tGameState): void {
 
@@ -28,13 +47,13 @@ export function updateDimensions(gameState: tGameState): void {
 
             console.log('switchXY scroll 2 bottom', gameState, gameBodyTotalYScroll(gameState))
 
+            switchGameEntitiesXY(gameState)
+
+            return;
+
         }
 
-        return;
-
-    }
-
-    if (gameState.switchXY) {
+    } else if (gameState.switchXY) {
 
         gameState.offsetY = 0;
 
@@ -45,6 +64,12 @@ export function updateDimensions(gameState: tGameState): void {
         console.log('switchXY 00', gameState)
 
         gameState.gameGrid = rotateMatrix90Clockwise(gameState.gameGrid);
+
+        CellSize(gameState);
+
+        switchGameEntitiesXY(gameState)
+
+        return;
 
     }
 
