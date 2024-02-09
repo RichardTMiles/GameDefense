@@ -2,7 +2,7 @@
 import Game from "./Game";
 
 
-let fpsInterval = 1000 / 35; // 30 FPS
+let fpsInterval = 1000 / 35; // 35 FPS
 
 let then = 0;
 

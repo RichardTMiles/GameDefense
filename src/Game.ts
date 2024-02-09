@@ -84,7 +84,7 @@ export default function Game() {
                     interval: 100 / gameState.level,
                     amount: gameState.level * 5,
                     speed: .2 + gameState.level * .0002,
-                    health: 100 * gameState.level * (gameState.level / 2),
+                    health: 100 * gameState.level * (gameState.level  / 2),
                 }
         ));
 

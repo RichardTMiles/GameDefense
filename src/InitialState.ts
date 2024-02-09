@@ -69,6 +69,7 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
     updateDimensions(initialState);
 
     const gameHeightY = initialState.gameGrid.length;
+
     const gameWidthX = initialState.gameGrid[0].length;
 
     // Create the game targets
@@ -79,8 +80,6 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
             if (((0 === x || gameWidthX - 1 === x)
                     || (0 === y || gameHeightY - 1 === y))
                 && initialState.gameGrid[y][x] === 0) {
-
-                console.log('spawnLocations', x, y)
 
                 initialState.spawnLocations.push({x, y});
 
