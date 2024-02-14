@@ -250,16 +250,6 @@ canvas.addEventListener('click', function (event) {
 
             if (existingTurret) {
 
-                if (existingTurret.level > existingTurret.upgrades.length) {
-
-                    console.log('Turret is already at max level', existingTurret);
-
-                    return;
-
-                }
-
-                console.log('Turret is already at max level', existingTurret);
-
                 existingTurret.upgrade();
 
             }

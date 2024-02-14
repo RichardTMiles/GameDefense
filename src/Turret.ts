@@ -1,4 +1,5 @@
 // Turret class
+import Alert from "./Alert";
 import tGridPosition from "./tGridPosition";
 import Entity, {iEntityConstructorProps} from "./Entity";
 
@@ -104,7 +105,30 @@ export class Turret extends Entity implements iTurret {
     }
 
     upgrade() {
+
+
+        if (this.level > this.upgrades.length) {
+
+            console.log('Turret is already at max level', this);
+
+            return;
+
+        }
+
         const upgrade = this.upgrades[this.level - 1];
+
+        if (this.gameState.energy < this.upgrades[this.level - 1].cost) {
+
+            // add new alert
+            this.gameState.alerts.push(new Alert({
+               message: "Not enough energy to upgrade turret",
+               seconds: 4
+            }))
+
+            return;
+
+        }
+
         this.range = upgrade.range;
         this.damage = upgrade.damage;
         this.cooldown = upgrade.cooldown;
