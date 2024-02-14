@@ -84,6 +84,7 @@ export class Turret extends Entity implements iTurret {
         this.damage = turretInfo.damage;
         this.speed = turretInfo.speed;
         this.upgrades = turretInfo.upgrades;
+        this.cost = turretInfo.cost;
 
 
         // Dynamically update the grid based on the w and h
@@ -103,12 +104,12 @@ export class Turret extends Entity implements iTurret {
     }
 
     upgrade() {
-        this.level++;
         const upgrade = this.upgrades[this.level - 1];
         this.range = upgrade.range;
         this.damage = upgrade.damage;
         this.cooldown = upgrade.cooldown;
         this.speed = upgrade.speed;
+        this.level++;
     }
 
 

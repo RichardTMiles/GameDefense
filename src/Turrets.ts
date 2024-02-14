@@ -108,9 +108,9 @@ export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocati
         h: forGame ? 2 : turretSectionHeight(),
         fillStyle: 'rgb(192,172,39)',
         range: 15,
-        damage: 200,
+        damage: 450,
         cooldown: 8,
-        cost: 1e6,
+        cost: 1e5,
         speed: 1,
         upgrades: [
             {
@@ -143,7 +143,7 @@ export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocati
         range: 17,
         damage: 1000,
         cooldown: 20,
-        cost: 4e8,
+        cost: 8e5,
         speed: 2,
         upgrades: [
             {
@@ -176,7 +176,7 @@ export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocati
         range: 22,
         damage: 2000,
         cooldown: 3,
-        cost: 5e10,
+        cost: 1.5e6,
         speed: 1,
         upgrades: [
             {
@@ -210,7 +210,7 @@ export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocati
         range: 30,
         damage: 1e6,
         cooldown: 0,
-        cost: 6e12,
+        cost: 4e6,
         speed: 1,
         upgrades: [
             {

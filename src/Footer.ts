@@ -85,7 +85,7 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     });
 
-    const selectedTurret = gameState.selectedTurret;
+    const selectedTurret = gameState.hoveredTurret ?? gameState.selectedTurret;
 
     // Turret Damage info
     ctx.textAlign = 'center';

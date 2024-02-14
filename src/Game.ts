@@ -236,6 +236,34 @@ canvas.addEventListener('click', function (event) {
 
             gameState.turrets.push(newTurret);
 
+        } else if (gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] === 3) { // we just clicked on an existing turret
+
+            console.log('Turret already placed here');
+
+            // Check if the space belongs to an already placed turret
+            const existingTurret = gameState.turrets.find(t =>
+                gameGridPosition.x >= t.x &&
+                gameGridPosition.x < t.x + t.w &&
+                gameGridPosition.y >= t.y &&
+                gameGridPosition.y < t.y + t.h
+            );
+
+            if (existingTurret) {
+
+                if (existingTurret.level > existingTurret.upgrades.length) {
+
+                    console.log('Turret is already at max level', existingTurret);
+
+                    return;
+
+                }
+
+                console.log('Turret is already at max level', existingTurret);
+
+                existingTurret.upgrade();
+
+            }
+
         } else {
 
             console.warn('Cell is not free', x / gameState.cellSize, y / gameState.cellSize, gameState);

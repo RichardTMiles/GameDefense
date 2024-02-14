@@ -1,3 +1,4 @@
+import FPS from "./FPS";
 import Alert from "./Alert";
 import {tGameState} from "./InitialState";
 
@@ -33,7 +34,7 @@ export default function Tutorial(gameState: tGameState) {
 
             case 'spaceBar':
 
-                if (gameState.alerts.length > 0 || gameState.elapsedTimeSeconds < 10) {
+                if (gameState.alerts.length > 0 || gameState.elapsedTimeSeconds < 10 || FPS() < 30) {
                     return;
                 }
 

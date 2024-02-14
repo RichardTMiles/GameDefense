@@ -36,7 +36,8 @@ export type tGameState = {
     energy: number;
     status: string;
     mousePosition: tGridPosition;
-    selectedTurret: iTurret | null; // @link https://stackoverflow.com/questions/36871057/does-typescript-support-subset-types
+    selectedTurret: iTurret;
+    hoveredTurret: Turret | null;
 }
 
 
@@ -70,7 +71,8 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
         spawners: [], // This will hold spawner objects to systematically spawn monsters
         status: 'playing', // playing, won, or lost,
         mousePosition: {x: 0, y: 0},
-        selectedTurret: Turret1(eTurretTargetDimensionsLocation.GAME)
+        selectedTurret: Turret1(eTurretTargetDimensionsLocation.GAME),
+        hoveredTurret: null,
     }
 
     updateDimensions(initialState);
