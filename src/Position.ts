@@ -44,6 +44,7 @@ export function isSpaceAvailable(gridX: number, gridY: number, w: number, h: num
             if (checkY >= gameState.gameGrid.length || checkX >= gameState.gameGrid[0].length) {
                 return false; // Part of the turret would be outside the grid
             }
+
             // Check if the space is not available (not marked as '2')
             if (gameState.gameGrid[checkY][checkX] !== 2) {
                 return false; // The space is not available for turret placement
@@ -51,4 +52,8 @@ export function isSpaceAvailable(gridX: number, gridY: number, w: number, h: num
         }
     }
     return true; // The entire area is available
+}
+
+export function isGridSpaceTakenWithTurret(gridX: number, gridY: number, gameState: tGameState = getGameState()): boolean {
+    return gameState.gameGrid[gridY][gridX] === 3;
 }

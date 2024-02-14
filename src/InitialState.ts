@@ -1,8 +1,8 @@
 import {updateDimensions} from "./updateDimensions";
 import Alert from "./Alert";
-import {iTurretInfo} from "./Footer";
 import tGridPosition from "./tGridPosition";
-import {eTurretTargetDimensionsLocation, Turret, Turret1} from "./Turret";
+import {eTurretTargetDimensionsLocation, Turret1} from "./Turrets";
+import {iTurret, Turret} from "./Turret";
 import Monster from "./Monster";
 import Spawner from "./Spawner";
 import Projectile from "./Projectile";
@@ -10,6 +10,9 @@ import {GameGrid2D, isCenterOf5x5GridOf0s} from "./Grid";
 import Particle from "./Particle";
 
 export type tGameState = {
+    tutorial: {
+        [key: string]: boolean
+    };
     switchXY: boolean;
     elapsedTime: number;
     elapsedTimeSeconds: number;
@@ -33,13 +36,17 @@ export type tGameState = {
     energy: number;
     status: string;
     mousePosition: tGridPosition;
-    selectedTurret: iTurretInfo | null;
+    selectedTurret: iTurret | null; // @link https://stackoverflow.com/questions/36871057/does-typescript-support-subset-types
 }
 
 
 export const InitialGameState = (context: CanvasRenderingContext2D): tGameState => {
 
     const initialState: tGameState = {
+        tutorial: {
+            welcome: false,
+            spaceBar: false,
+        },
         context: context,
         elapsedTime: 0,
         elapsedTimeSeconds: 0,

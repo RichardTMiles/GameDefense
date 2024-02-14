@@ -1,3 +1,5 @@
+import Tutorial from "./Tutorial";
+import showTurretRadius from "./showTurretRadius";
 import Entity from "./Entity";
 import {updateDimensions} from "./updateDimensions";
 import {scrollGridX, scrollGridY} from "./Scroll";
@@ -13,7 +15,7 @@ import {createAndShowModal} from "./Modal";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import Spawner from "./Spawner";
 import {DrawGameTargets} from "./Targets";
-import {showTurretRadius, Turret} from "./Turret";
+import {Turret} from "./Turret";
 
 const context = canvas.getContext('2d')!;
 
@@ -54,6 +56,8 @@ export default function Game() {
     // this will update the game state with the current and elapsed time
     elapsedTime(gameState, false);
 
+    Tutorial(gameState);
+
     // move the grid context to the "Game Grid" position
     context.save();
 
@@ -77,14 +81,14 @@ export default function Game() {
                 ? {
                     interval: 0,
                     amount: Math.min(gameState.level / 2, 10),
-                    speed: .01 * gameState.level + .2,
+                    speed: .01 * (gameState.level / 10),
                     health: 1000 * gameState.level,
                 }
                 : {
                     interval: 100 / gameState.level,
                     amount: gameState.level * 5,
                     speed: .2 + gameState.level * .0002,
-                    health: 100 * gameState.level * (gameState.level  / 2),
+                    health: 100 * gameState.level * (gameState.level / 2),
                 }
         ));
 
@@ -257,12 +261,22 @@ document.addEventListener('keydown', function (event) {
 
             console.warn('FPS is too low to continue');
 
+            gameState.alerts.push(new Alert({
+                message: 'Your FPS being < 30 is too low to continue',
+                seconds: 5,
+            }))
+
             return;
 
         }
 
-        // Your code here
-        console.log('Spacebar was pressed');
+        gameState.level++;
+
+        gameState.alerts.push(new Alert({
+            message: 'The space bar was pressed! Spawning wave (' + gameState.level + ') early!',
+            seconds: 5,
+            fillStyle: 'rgb(0, 255, 0)',
+        }))
 
         gameState.level++;
 

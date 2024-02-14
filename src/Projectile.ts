@@ -21,7 +21,7 @@ export default class Projectile extends Entity {
     fillStyle: string;
     private cellSize = 0;
 
-    constructor({x, y, target, speed, damage, fillStyle = 'rgb(185,66,66)'} : iProjectile & iEntityConstructorProps) {
+    constructor({x, y, target, speed, damage, fillStyle = 'rgba(185,66,66,0.82)'} : iProjectile & iEntityConstructorProps) {
         super({x: x, y: y, gameState: target.gameState});
         this.x = x;
         this.y = y;

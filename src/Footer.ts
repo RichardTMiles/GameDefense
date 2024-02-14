@@ -1,17 +1,16 @@
 import {dictionary} from "./Dictionary";
-import wrapText from "./WrapText";
 import {formatNumber} from "./Header";
 import {
     eTurretTargetDimensionsLocation,
-    iTurret,
     tTurretCallable,
     Turret1,
     Turret2,
     Turret3,
     Turret4,
     Turret5,
-    Turret6
-} from "./Turret";
+    Turret6,
+} from "./Turrets";
+
 import tGridPosition from "./tGridPosition";
 import GameBodyHeight from "./BodyHeight";
 import canvas from "./Canvas";
@@ -29,13 +28,6 @@ export function GameFooterHeight() {
 
 export const OneThirdFooter = () => canvas.width / 3;
 export const OneHalfFooter = () => canvas.width / 2;
-
-export interface iTurretInfo extends tGridPosition, iTurret {
-    w: number,
-    h: number,
-    fillStyle: string
-}
-
 
 export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
@@ -93,22 +85,44 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     });
 
+    const selectedTurret = gameState.selectedTurret;
 
     // Turret Damage info
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = 'bold 1.5em Arial';
-    ctx.fillStyle = gameState.selectedTurret.fillStyle; // Text color
+    ctx.fillStyle = selectedTurret.fillStyle; // Text color
     ctx.fillRect(oneHalf, 0, oneHalf, levelBarHeight);
     ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
-    ctx.fillText("Damage: " + formatNumber(gameState.selectedTurret.damage) + "; Range: "
-        + gameState.selectedTurret.range + "; Cost: " + formatNumber(gameState.selectedTurret.cost)
-        + ";  W: " + gameState.selectedTurret.w + "; H:" + gameState.selectedTurret.h,
+    selectedTurret.level ??= 1
+
+    const nextUpgrade = selectedTurret.upgrades[selectedTurret.level - 1]
+
+
+    ctx.fillText(
+        "Cost: " + formatNumber(selectedTurret.cost)
+        + "; Damage: " + formatNumber(selectedTurret.damage)
+        + "; Range: " + selectedTurret.range
+        + "; Speed: " + selectedTurret.speed
+        + "; Cooldown: " + selectedTurret.cooldown
+        + "; W: " + selectedTurret.w
+        + "; H: " + selectedTurret.h
+        + "; Level: " + selectedTurret.level,
         oneHalf + oneHalf / 2,
-        levelBarHeight * .5,
+        levelBarHeight * .25,
         oneHalf - (oneHalf * .1)
     );
+
+    if (undefined !== nextUpgrade) {
+
+        ctx.fillText("Upgrade Cost: " + selectedTurret.upgrades[selectedTurret.level - 1].cost,
+            oneHalf + oneHalf / 2,
+            levelBarHeight * .75,
+            oneHalf - (oneHalf * .1)
+        );
+
+    }
 
     // Turret 1
     const turret1 = Turret1(eTurretTargetDimensionsLocation.FOOTER);

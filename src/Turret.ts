@@ -1,131 +1,15 @@
 // Turret class
+import tGridPosition from "./tGridPosition";
 import Entity, {iEntityConstructorProps} from "./Entity";
-import canvas from "./Canvas";
-import CellSize from "./CellSize";
-import {footerLevelBarHeight, iTurretInfo, OneThirdFooter, turretSectionHeight} from "./Footer";
-import {getGameState} from "./Game";
+
 import {elapsedTime} from "./Header";
 import {tGameState} from "./InitialState";
 import Monster from "./Monster";
-import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import Projectile from "./Projectile";
-import tGridPosition from "./tGridPosition";
-
-export enum eTurretTargetType {
-    OLDEST,
-    NEWEST,
-    CLOSEST,
-}
-
-
-export enum eTurretTargetDimensionsLocation {
-    GAME,
-    FOOTER
-}
-
-export enum eTurretTargetDimensionsType {
-
-}
-
-export type tTurretCallable = (location: eTurretTargetDimensionsLocation) => iTurretInfo;
-
-export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: 0,
-        y: footerLevelBarHeight(),
-        w: forGame ? 1 : canvas.width / 6,
-        h: forGame ? 1 : turretSectionHeight(),
-        fillStyle: 'rgba(0,0,0,1)',
-        range: 10,
-        damage: 50,
-        cooldown: 9,
-        cost: 50
-    }
-}
-
-export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneSixth = canvas.width / 6;
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneSixth,
-        y: footerLevelBarHeight(),
-        w: forGame ? 2 : OneSixth,
-        h: forGame ? 2 : turretSectionHeight(),
-        fillStyle: 'rgb(211,5,5)',
-        range: 12,
-        damage: 100,
-        cooldown: 7,
-        cost: 300
-    }
-
-}
-
-export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneSixth = canvas.width / 6;
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneSixth + OneSixth,
-        y: footerLevelBarHeight(),
-        w: forGame ? 3 : OneSixth,
-        h: forGame ? 2 : turretSectionHeight(),
-        fillStyle: 'rgb(192,172,39)',
-        range: 15,
-        damage: 200,
-        cooldown: 8,
-        cost: 1000
-    }
-}
-
-export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneSixth = canvas.width / 6;
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneSixth + 2 * OneSixth,
-        y: footerLevelBarHeight(),
-        w: forGame ? 3 : OneSixth,
-        h: forGame ? 3 : turretSectionHeight(),
-        fillStyle: 'rgb(157,156,156)',
-        range: 17,
-        damage: 1000,
-        cooldown: 20,
-        cost: 10000
-    }
-}
-
-export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneSixth = canvas.width / 6;
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneSixth + 3 * OneSixth,
-        y: footerLevelBarHeight(),
-        w: forGame ? 4 : OneSixth,
-        h: forGame ? 4 : turretSectionHeight(),
-        fillStyle: 'rgb(0,207,250)',
-        range: 22,
-        damage: 2000,
-        cooldown: 3,
-        cost: 40000
-    }
-}
-
-export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurretInfo => {
-    const OneSixth = canvas.width / 6;
-    const forGame = location === eTurretTargetDimensionsLocation.GAME;
-    return {
-        x: OneSixth + 4 * OneSixth,
-        y: footerLevelBarHeight(),
-        w: forGame ? 5 : OneSixth,
-        h: forGame ? 5 : turretSectionHeight(),
-        fillStyle: 'rgb(232,122,54)',
-        range: 30,
-        damage: 10000,
-        cooldown: 0,
-        cost: 500000
-    }
-}
+import {eTurretTargetType} from "./Turrets";
 
 function calculateOpacity(time: number) {
+
     // Adjust the speed of the opacity change here. Higher values will make the opacity change faster.
     const speedFactor = 2 * Math.PI / 5; // Complete a cycle every 5 seconds
 
@@ -136,57 +20,75 @@ function calculateOpacity(time: number) {
     return (Math.sin(timeFactor) + 1) / 2;
 }
 
+interface iTurretUpgrade {
+    cost: number;
+    range: number;
+    damage: number;
+    cooldown: number;
+    speed: number;
+}
+
+
 export interface iTurret {
+    level?: number;
     x: number;
     y: number;
     w: number;
     h: number;
     cost: number;
+    speed: number;
     range: number;
     damage: number;
     fillStyle: string;
     cooldown?: number;
     direction?: tGridPosition;
     targetType?: eTurretTargetType;
+    upgrades: iTurretUpgrade[];
 }
 
-export class Turret extends Entity {
-    centerX: number;
-    centerY: number;
+export class Turret extends Entity implements iTurret {
+    x: number;
+    y: number;
     w: number;
     h: number;
+    cx: number;
+    cy: number;
+    cost: number;
+    speed: number;
     range: number;
     damage: number;
-    cooldown: number;
     fillStyle: string;
-    cost: number;
-    private timer: number;
+    cooldown?: number;
+    upgrades: iTurretUpgrade[];
+    level: number = 1;
     targetType: eTurretTargetType;
+    private timer: number = 0;
 
     constructor({
                     x,
                     y,
-                    fillStyle,
-                    range,
-                    cost,
-                    damage,
-                    cooldown = 10,
-                    w,
-                    h,
                     gameState,
-                    targetType = eTurretTargetType.OLDEST
+                    ...turretInfo
                 }: iTurret & iEntityConstructorProps) {
         super({x, y, gameState});
         this.x = x;
-        this.centerX = x + w / 2
         this.y = y;
-        this.centerY = y + h / 2;
-        this.w = w;
-        this.h = h;
+        this.cx = x + turretInfo.w / 2;
+        this.cy = y + turretInfo.h / 2;
+        this.w = turretInfo.w;
+        this.h = turretInfo.h;
+        this.targetType = eTurretTargetType.CLOSEST;
+        this.cooldown = turretInfo.cooldown
+        this.fillStyle = turretInfo.fillStyle;
+        this.range = turretInfo.range;
+        this.damage = turretInfo.damage;
+        this.speed = turretInfo.speed;
+        this.upgrades = turretInfo.upgrades;
+
 
         // Dynamically update the grid based on the w and h
-        for (let offsetY = 0; offsetY < h; offsetY++) {
-            for (let offsetX = 0; offsetX < w; offsetX++) {
+        for (let offsetY = 0; offsetY < this.h; offsetY++) {
+            for (let offsetX = 0; offsetX < this.w; offsetX++) {
                 const gridX = x + offsetX;
                 const gridY = y + offsetY;
 
@@ -197,13 +99,16 @@ export class Turret extends Entity {
             }
         }
 
-        this.range = range; // radius
-        this.damage = damage;
-        this.cooldown = cooldown;
-        this.cost = cost;
-        this.fillStyle = fillStyle;
-        this.targetType = targetType; // Default direction
-        this.timer = 0;
+
+    }
+
+    upgrade() {
+        this.level++;
+        const upgrade = this.upgrades[this.level - 1];
+        this.range = upgrade.range;
+        this.damage = upgrade.damage;
+        this.cooldown = upgrade.cooldown;
+        this.speed = upgrade.speed;
     }
 
 
@@ -237,9 +142,9 @@ export class Turret extends Entity {
 
             }
 
-            let dx = this.centerX - monster.position.x;
+            let dx = this.cx - monster.position.x;
 
-            let dy = this.centerY - monster.position.y;
+            let dy = this.cy - monster.position.y;
 
             let dist = Math.sqrt(dx * dx + dy * dy);
 
@@ -272,11 +177,11 @@ export class Turret extends Entity {
             const projectile = new Projectile({
                 startX: 0,
                 startY: 0,
-                x:this.centerX,
-                y:this.centerY,
+                x: this.cx,
+                y: this.cy,
                 target,
-                speed:0.5,
-                damage:this.damage
+                speed: this.speed,
+                damage: this.damage
             }); // Speed and damage
 
             gameState.projectiles.push(projectile);
@@ -287,7 +192,7 @@ export class Turret extends Entity {
 
     }
 
-    move() : boolean {
+    move(): boolean {
 
         const gameState = this.gameState;
 
@@ -317,8 +222,8 @@ export class Turret extends Entity {
         const cellSize = gameState.cellSize;
 
         // Base position and dimensions
-        let baseX = this.centerX * cellSize - cellSize / 2;
-        let baseY = this.centerY * cellSize - cellSize / 2;
+        let baseX = this.cx * cellSize - cellSize / 2;
+        let baseY = this.cy * cellSize - cellSize / 2;
 
         let baseWidth = cellSize;
         let baseHeight = cellSize * 0.6; // Making the base a bit shorter than a full cell
@@ -343,7 +248,7 @@ export class Turret extends Entity {
         // todo - make this opacity arc in and out
         ctx.fillStyle = `rgba(0,0,225, ${opacity})`;
 
-        // Draw the ball on top
+        // Draw the ball on top - this color should change to signal what power level the turret is on
         let ballRadius = cellSize * 0.3; // Adjust size as needed
         ctx.beginPath();
         ctx.arc(baseX + baseWidth / 2, baseY, ballRadius, 0, 2 * Math.PI);
@@ -356,38 +261,4 @@ export class Turret extends Entity {
 
 }
 
-export function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridPosition) {
-    const gameState = getGameState();
 
-    const mouseX = position.x;
-    const mouseY = position.y;
-    const gameGridPosition = getGameGridPosition(mouseX, mouseY);
-
-    if (undefined === gameGridPosition) {
-        return;
-    }
-
-    const {x, y} = gameGridPosition;
-    const cellSize = CellSize(gameState);
-
-    // Assuming gameState.selectedTurret is correctly initialized
-    const turret = gameState.selectedTurret;
-    // Adjust to draw the turret placement box with mouse in the upper left
-    if (isSpaceAvailable(x, y, turret.w, turret.h, gameState)) {
-        // Show the turret's effective range
-        const turretRadius = turret.range * cellSize;
-        // Calculate the center based on the full turret size
-        const centerX = x * cellSize + turret.w * cellSize / 2;
-        const centerY = y * cellSize + turret.h * cellSize / 2;
-
-        // Draw the turret radius
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, turretRadius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.15)'; // Semi-transparent fill for the radius
-        ctx.fill();
-
-        // Draw the placement box for the turret itself
-        ctx.strokeStyle = gameState.selectedTurret.fillStyle; // Red border for the placement box
-        ctx.strokeRect(x * cellSize, y * cellSize, turret.w * cellSize, turret.h * cellSize);
-    }
-}
