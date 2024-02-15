@@ -98,7 +98,8 @@ export default function Game() {
     gameState.spawners = gameState.spawners.filter(spawner => spawner.update(gameState));
 
     // Update turrets and draw them; turrets don't get removed (filtered) from the game state
-    gameState.turrets.forEach(turret => handleIEntity(turret))
+    gameState.turrets.forEach(turret => handleIEntity(turret));
+    gameState.turrets.forEach(turret => turret.showLevelColor());
 
     // filter projectiles from game state - remove any destroyed projectiles so were not running this loop often
     gameState.projectiles = gameState.projectiles.filter(projectile => handleIEntity(projectile)) ?? [];
@@ -136,6 +137,8 @@ export default function Game() {
                 seconds: 10,
                 gameState
             }));
+
+            console.log(gameState)
 
         }
 

@@ -1,4 +1,5 @@
 // Turret class
+import updateColorToRGBA from "./updateColorToRGBA";
 import Alert from "./Alert";
 import tGridPosition from "./tGridPosition";
 import Entity, {iEntityConstructorProps} from "./Entity";
@@ -9,7 +10,7 @@ import Monster from "./Monster";
 import Projectile from "./Projectile";
 import {eTurretTargetType} from "./Turrets";
 
-function calculateOpacity(time: number) {
+function calculateOpacity(time: number, index: number) {
 
     // Adjust the speed of the opacity change here. Higher values will make the opacity change faster.
     const speedFactor = 2 * Math.PI / 5; // Complete a cycle every 5 seconds
@@ -18,7 +19,8 @@ function calculateOpacity(time: number) {
     const timeFactor = time * speedFactor;
 
     // Calculate opacity using the sine wave, adjusted to oscillate between 0 and 1
-    return (Math.sin(timeFactor) + 1) / 2;
+    return (Math.sin(timeFactor + index) + 1) / 2;
+
 }
 
 interface iTurretUpgrade {
@@ -64,6 +66,7 @@ export class Turret extends Entity implements iTurret {
     level: number = 1;
     targetType: eTurretTargetType;
     private timer: number = 0;
+    private key: number = 0;
 
     constructor({
                     x,
@@ -86,6 +89,7 @@ export class Turret extends Entity implements iTurret {
         this.speed = turretInfo.speed;
         this.upgrades = turretInfo.upgrades;
         this.cost = turretInfo.cost;
+        this.key = gameState.turrets.length;
 
 
         // Dynamically update the grid based on the w and h
@@ -121,8 +125,8 @@ export class Turret extends Entity implements iTurret {
 
             // add new alert
             this.gameState.alerts.push(new Alert({
-               message: "Not enough energy to upgrade turret",
-               seconds: 4
+                message: "Not enough energy to upgrade turret",
+                seconds: 4
             }))
 
             return;
@@ -213,6 +217,7 @@ export class Turret extends Entity implements iTurret {
 
             // Reset cooldown
             this.timer = 0; // Cooldown period for 60 frames, for example
+
         }
 
     }
@@ -264,23 +269,53 @@ export class Turret extends Entity implements iTurret {
 
         // Draw the rectangular part of the base
         ctx.fillStyle = this.fillStyle;         // Turret color
+
         ctx.fillRect(baseX, baseY, baseWidth, baseHeight);
 
-        const timeDiff = elapsedTime(gameState, false);
 
-        const opacity = calculateOpacity(timeDiff);
+        //ctx.drawImage(TurretImages.TurretOneImage, baseX, baseY, baseWidth * 2, baseHeight * 2);
+
+    }
+
+    showLevelColor() {
+        const ctx = this.gameState.context;
+
+        const gameState = this.gameState
+        const cellSize = gameState.cellSize;
+        const baseWidth = cellSize;
+
+        // Base position and dimensions
+        const baseX = this.cx * cellSize - cellSize / 2;
+        const baseY = this.cy * cellSize - cellSize / 2;
+
+
+        const timeDiff = elapsedTime(this.gameState, false);
+
+        // make opacity arc in and out
+        // if level is max make opacity 1
+        const opacity = this.level > this.upgrades.length ? 1 : calculateOpacity(timeDiff, this.key);
 
         // todo - make this opacity arc in and out
-        ctx.fillStyle = `rgba(0,0,225, ${opacity})`;
+        ctx.fillStyle = updateColorToRGBA((() => {
+            switch (this.level) {
+                case 1:
+                    return 'rgba(0,0,225)'
+                case 2:
+                    return 'rgb(64,225,0)'
+                case 3:
+                    return 'rgb(199,19,19)'
+                case 4:
+                    return 'rgb(255,255,255)'
+                default:
+                    return 'rgb(170,0,96)'
+            }
+        })(), opacity);
 
         // Draw the ball on top - this color should change to signal what power level the turret is on
         let ballRadius = cellSize * 0.3; // Adjust size as needed
         ctx.beginPath();
         ctx.arc(baseX + baseWidth / 2, baseY, ballRadius, 0, 2 * Math.PI);
         ctx.fill();
-
-        //ctx.drawImage(TurretImages.TurretOneImage, baseX, baseY, baseWidth * 2, baseHeight * 2);
-
 
     }
 
