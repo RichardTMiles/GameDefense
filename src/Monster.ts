@@ -29,16 +29,27 @@ export default class Monster extends Entity {
 
     constructor({x, y, gameState, speed = 0.2, health = 100}: iMonster) {
         super({x, y, gameState});
-        this.path = dijkstraWithCaching(gameState.gameGrid, {
-            x: x,
-            y: y
-        }, gameState.gameTargets.find(orb => orb.destroyed === false));
-        this.pathIndex = 0; // Start at the first point of the path
-        this.position = {x: x, y: y}; // Current position of the monster
+        this.getPath();
         this.speed = speed; // Speed of the monster, adjust as needed
         this.health = health; // Health of the monster, adjust as needed
         this.startingHealth = health;
         this.damageDoneAndQueued = 0;
+    }
+
+    getPath(){
+        this.path = dijkstraWithCaching(this.gameState.gameGrid, {
+            x: this.x,
+            y: this.y
+        }, this.gameState.gameTargets.find(target => target.destroyed === false));
+        this.pathIndex = 0; // Start at the first point of the path
+        this.position = {x: this.x, y: this.y}; // Current position of the monster
+    }
+
+    switchXY() {
+        this.x = this.position.x;
+        this.y = this.position.y;
+        super.switchXY();
+        this.getPath();
     }
 
     draw() {

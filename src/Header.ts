@@ -87,20 +87,27 @@ export function elapsedTime(gameState: tGameState = getGameState(), inSeconds: b
 }
 
 export function formatNumber(num: number): string {
-    if (num >= 1000000000) {
-        return (num / 1000000000).toFixed(1) + 'B';
+    if (num >= 1.0e15) {
+        return (num / 1.0e15).toFixed(1) + 'Q';
     }
 
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1.0e12) {
+        return (num / 1.0e12).toFixed(1) + 'T';
     }
 
-    if (num >= 10000) {
-        return (num / 1000).toFixed(1) + 'k';
+    if (num >= 1.0e9) {
+        return (num / 1.0e9).toFixed(1) + 'B';
+    }
+
+    if (num >= 1.0e6) {
+        return (num / 1.0e6).toFixed(1) + 'M';
+    }
+
+    if (num >= 1.0e3) {
+        return (num / 1.0e3).toFixed(1) + 'k';
     }
 
     return num.toString();
-
 }
 
 

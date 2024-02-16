@@ -1,9 +1,9 @@
 import {isCenterOf5x5GridOf0s} from "Grid";
 import Entity from "./Entity";
 import CellSize from "./CellSize";
-import {tGameState} from "./InitialState";
-import {rotateMatrix90Clockwise, rotateMatrix90CounterClockwise} from "./MatrixOperations";
-import {gameBodyTotalYScroll} from "./Scroll";
+import {tGameState} from "InitialState";
+import {rotateMatrix90Clockwise, rotateMatrix90CounterClockwise} from "MatrixOperations";
+import {gameBodyTotalYScroll} from "Scroll";
 
 
 // these operations are in context of 0,0 being top left after the rotation. Thus, after grid rotation and translation
@@ -35,6 +35,8 @@ function switchGameEntitiesXY(gameState: tGameState) {
     gameState.turrets.forEach(turret => turret.switchXY())
 
     gameState.monsters.forEach(monster => monster.switchXY())
+
+    gameState.projectiles.forEach(projectile => projectile.switchXY())
 
 }
 
