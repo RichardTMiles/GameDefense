@@ -1,6 +1,8 @@
-<img width="1792" alt="Screenshot 2024-02-15 at 11 14 55 PM" src="https://github.com/RichardTMiles/GameDefense/assets/9538357/508fa728-ac10-4c12-83ed-d3ea46c6f563"># 🚀 Welcome to your new awesome project!
+# 🚀 Welcome to your new awesome project!
 
 [Play online](https://richardtmiles.github.io/GameDefense/)
+
+<img width="1792" alt="Screenshot 2024-02-15 at 11 14 45 PM" src="https://github.com/RichardTMiles/GameDefense/assets/9538357/ee60b59e-c239-42b3-adce-aedfbe23d896">
 
 
 ## Tutorial 
