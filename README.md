@@ -2,7 +2,7 @@
 
 [Play online](https://richardtmiles.github.io/GameDefense/)
 
-<img width="1792" alt="Screenshot 2024-02-15 at 11 14 45 PM" src="https://github.com/RichardTMiles/GameDefense/assets/9538357/ee60b59e-c239-42b3-adce-aedfbe23d896">
+<img width="1792" alt="Screenshot 2024-02-15 at 11 24 04 PM" src="https://github.com/RichardTMiles/GameDefense/assets/9538357/8c4f5ca1-0ec1-432b-9433-747c695c7d81">
 
 
 ## Tutorial 
