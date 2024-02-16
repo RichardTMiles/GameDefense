@@ -1,4 +1,4 @@
-import {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 import {elapsedTime} from "./Header";
 
 

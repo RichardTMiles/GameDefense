@@ -1,6 +1,6 @@
 // this essentially sets up a singly linked list
 import {tGameState} from "./InitialState";
-import {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 import HeaderHeight from "./HeaderHeight";
 import CellSize from "./CellSize";
 import tGridPosition from "./tGridPosition";

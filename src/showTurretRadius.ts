@@ -1,13 +1,19 @@
 import CellSize from "./CellSize";
-import {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 import {getGameGridPosition, isGridSpaceTakenWithTurret, isSpaceAvailable} from "./Position";
 import tGridPosition from "./tGridPosition";
 
 export default function showTurretRadius(ctx: CanvasRenderingContext2D, position: tGridPosition) {
+
     const gameState = getGameState()
+
     const { selectedTurret, turrets, energy } = gameState;
+
     const gameGridPosition = getGameGridPosition(position.x, position.y);
-    if (!gameGridPosition) return;
+
+    if (!gameGridPosition) {
+        return;
+    }
 
     const cellSize = CellSize(gameState);
     const drawRadius = (centerX : number, centerY: number, radius: number, fillStyle: string) => {

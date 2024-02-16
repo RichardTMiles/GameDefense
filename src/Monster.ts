@@ -1,11 +1,11 @@
-import Entity from "./Entity";
-import monsterImage from "./assets/svg/MonsterSVG";
+import Entity from "Entity";
+import monsterImage from "assets/svg/MonsterSVG";
 import GameHeaderHeight from "./HeaderHeight";
-import {energyCirclePosition, scoreCirclePosition} from "./Header";
-import Particle from "./Particle";
-import {tGameState} from "./InitialState";
-import tGridPosition from "./tGridPosition";
-import {dijkstraWithCaching} from "./Dijkstra";
+import {energyCirclePosition, scoreCirclePosition} from "Header";
+import Particle from "Particle";
+import {tGameState} from "InitialState";
+import tGridPosition from "tGridPosition";
+import {dijkstraWithCaching} from "Dijkstra";
 
 
 export interface iMonster {
@@ -62,9 +62,10 @@ export default class Monster extends Entity {
 
             const headerSize = GameHeaderHeight()
 
+            // the particle effect will automatically handle the x and y offset
             const start = {
-                x: cellSize * this.position.x - gameState.offsetX,
-                y: cellSize * this.position.y + headerSize - gameState.offsetY
+                x: cellSize * this.position.x,
+                y: cellSize * this.position.y + headerSize
             };
 
             const energy = energyCirclePosition();

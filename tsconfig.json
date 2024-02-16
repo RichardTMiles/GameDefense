@@ -5,8 +5,12 @@
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
-    "sourceRoot": ".",
+    "baseUrl": "./",
+    "sourceRoot": "src/",
     "sourceMap": true,
+    "paths": {
+      "*": ["src/*"]
+    }
   },
   "files": ["src/index.ts"]
 }

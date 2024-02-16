@@ -13,10 +13,6 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
     const cellSize = CellSize(gameState);
     const amount = Math.max(50, 2 * gameState.level);
 
-    start.x -= gameState.offsetX;
-
-    start.y -= gameState.offsetY;
-
     start.y += cellSize * 9
 
     for (let i = 0; i < amount; i++) {

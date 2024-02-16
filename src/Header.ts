@@ -1,4 +1,4 @@
-import {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
 import canvas from "./Canvas";

@@ -1,4 +1,4 @@
-import {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 import {tGameState} from "./InitialState";
 
 
@@ -20,18 +20,23 @@ export default abstract class Entity {
     }
 
 
-
-    rotatePoint90Clockwise(x: number, y:number) {
-        const M = this.gameState.gameGrid[0].length;
-        //const N = this.gameState.gameGrid.length;
-
-        // For a 90 degree clockwise rotation, the new x is the original y
-        // And the new y is M minus the original x minus 1 (due to zero-indexing)
-        return { x: y, y: (M - 1) - x };
-    }
-
-
     abstract move(): boolean;
 
     abstract draw(): void;
 }
+
+
+
+export function handleIEntity(entity: Entity): boolean {
+
+    if (!entity.move()) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
+
+        return false;
+
+    }
+
+    entity.draw();
+
+    return true;
+}
+

@@ -1,14 +1,14 @@
 // Start the game loop
-import Game from "./Game";
+import GameDefense from "./GameDefense";
 
 
 let fpsInterval = 1000 / 35; // 35 FPS
 
 let then = 0;
 
-function gameLoop(now:number) {
+console.log('GameDefense', GameDefense);
 
-    requestAnimationFrame(gameLoop);
+async function gameLoop(now: number) {
 
     then = then || now;
 
@@ -18,9 +18,21 @@ function gameLoop(now:number) {
 
         then = now - (elapsed % fpsInterval);
 
-        Game();
+        try {
+
+            await GameDefense();
+
+        } catch (e) {
+
+            console.error(e);
+
+            return;
+
+        }
 
     }
+
+    requestAnimationFrame(gameLoop);
 
 }
 

@@ -1,49 +1,39 @@
-import Tutorial from "./Tutorial";
-import showTurretRadius from "./showTurretRadius";
-import Entity from "./Entity";
-import {updateDimensions} from "./updateDimensions";
-import {scrollGridX, scrollGridY} from "./Scroll";
+import MouseEvents from "MouseEvents";
 import Alert from "./Alert";
 import canvas from "./Canvas";
+import {handleIEntity} from "./Entity";
 import Footer, {GameFooterHeight, handleFooterClick} from "./Footer";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
 import Header, {elapsedTime} from "./Header";
 import GameHeaderHeight from "./HeaderHeight";
-import {InitialGameState, tGameState} from "./InitialState";
+import {eGameDisplayState, InitialGameState, tGameState} from "./InitialState";
+import MainMenu from "./MainMenu";
 import {createAndShowModal} from "./Modal";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
+import {scrollGridX, scrollGridY} from "./Scroll";
+import showTurretRadius from "./showTurretRadius";
 import Spawner from "./Spawner";
 import {DrawGameTargets} from "./Targets";
 import {Turret} from "./Turret";
+import Tutorial from "./Tutorial";
+import {updateDimensions} from "./updateDimensions";
 
 const context = canvas.getContext('2d')!;
 
 // Game state
-let gameState: tGameState = InitialGameState(context)
+let gameState: tGameState = InitialGameState(context);
+
+export function startNewGame() {
+    gameState = InitialGameState(context);
+    gameState.gameDisplayState = eGameDisplayState.GAME;
+}
 
 export function getGameState() {
     return gameState;
 }
 
-function handleIEntity(entity: Entity): boolean {
-
-    if (!entity.move()) { // If the projectile is destroyed, it will be removed by the filter next iteration of game loop
-
-        return false;
-
-    }
-
-    entity.draw();
-
-    return true;
-}
-
-
-// Game rendering function
-// the oder of the rendering is important
-// everything will be 'stacked' on top of each other
-export default function Game() {
+function gamePlay() {
 
     // Clear the entire canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -51,11 +41,9 @@ export default function Game() {
     // Save the current context state (with no translations)
     context.save();
 
-    updateDimensions(gameState);
-
-    // this will update the game state with the current and elapsed time
     elapsedTime(gameState, false);
 
+    // controls alert ordering for tutorial
     Tutorial(gameState);
 
     // move the grid context to the "Game Grid" position
@@ -128,14 +116,20 @@ export default function Game() {
     // particle effects are drawn using a Bézier curve and a random control point
     gameState.particles = gameState.particles.filter(particle => handleIEntity(particle));
 
+    if (0 === gameState.gameTargets.length) {
+
+        gameState.gameDisplayState = eGameDisplayState.GAME_OVER;
+
+    }
+
     // add a level advancement and winning condition
     if (0 === gameState.monsters.length
         && 0 === gameState.spawners.length) {
 
-        if (100 === gameState.level) {
+        if (101 === gameState.level) {
 
             gameState.alerts.push(new Alert({
-                message: 'WINNER! You have completed 100 levels! How far can you go?',
+                message: 'WINNER! You have completed 100 levels! Leaderboards coming soon :) How far can you go?',
                 seconds: 10,
                 gameState
             }));
@@ -161,7 +155,47 @@ export default function Game() {
 }
 
 
+// Game rendering function
+// the oder of the rendering is important
+// everything will be 'stacked' on top of each other
+export default async function GameDefense() {
+
+    updateDimensions(gameState);
+
+    // this will update the game state with the current and elapsed time
+    switch (gameState.gameDisplayState) {
+        default:
+            console.error('Unknown game display state', gameState.gameDisplayState);
+            return;
+        case eGameDisplayState.PAUSED:
+            console.log('Game is paused');
+            while (gameState.gameDisplayState === eGameDisplayState.PAUSED) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            return;
+        case eGameDisplayState.MAIN_MENU:
+            MainMenu(gameState);
+            return;
+        case eGameDisplayState.GAME_OVER:
+            console.log('Game over');
+            createAndShowModal('Game Over! You ' + gameState.status + '!', gameState);
+            while (gameState.gameDisplayState === eGameDisplayState.GAME_OVER) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            return;
+        case eGameDisplayState.GAME:
+            gamePlay()
+            return;
+    }
+
+}
+
+
 canvas.addEventListener('wheel', function (event) {
+
+    if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
+        return;
+    }
 
     // Use event.deltaY for vertical mouse wheel event to scroll horizontally
     if (event.deltaX) {
@@ -178,103 +212,13 @@ canvas.addEventListener('wheel', function (event) {
 
 }, {passive: true});
 
-// Turret placement (example on grid click, extend with dragDropState for actual drag & drop)
-canvas.addEventListener('click', function (event) {
 
-    const rect = canvas.getBoundingClientRect();
-
-    const x = event.clientX - rect.left;
-
-    const y = event.clientY - rect.top;
-
-    const headerHeight = GameHeaderHeight();
-
-    if (y < headerHeight) {
-
-        console.log('Clicked on the header');
-
-        return;
-
-    }
-
-    const footerHeight = GameFooterHeight();
-
-    if (y > window.innerHeight - footerHeight) {
-
-        handleFooterClick(gameState, {x, y});
-
-        return;
-
-    }
-
-    const gameGridPosition = getGameGridPosition(x, y);
-
-    // Place turret if the cell is free
-    if (gameGridPosition) {
-
-        if (isSpaceAvailable(gameGridPosition.x, gameGridPosition.y, gameState.selectedTurret.w, gameState.selectedTurret.h, gameState)) {
-
-            const selectedTurret = gameState.selectedTurret;
-
-
-            if (gameState.energy < selectedTurret.cost) {
-
-                gameState.alerts.push(new Alert({
-                    message: 'Not enough energy to place a turret',
-                    seconds: 5,
-                }));
-
-                console.warn('Not enough energy to place a turret');
-
-                return;
-
-            }
-
-            gameState.energy -= selectedTurret.cost;
-
-            const newTurret = new Turret({
-                ...selectedTurret,
-                x: gameGridPosition.x,
-                y: gameGridPosition.y,
-                gameState: gameState
-            });
-
-            gameState.turrets.push(newTurret);
-
-        } else if (gameState.gameGrid[gameGridPosition.y][gameGridPosition.x] === 3) { // we just clicked on an existing turret
-
-            console.log('Turret already placed here');
-
-            // Check if the space belongs to an already placed turret
-            const existingTurret = gameState.turrets.find(t =>
-                gameGridPosition.x >= t.x &&
-                gameGridPosition.x < t.x + t.w &&
-                gameGridPosition.y >= t.y &&
-                gameGridPosition.y < t.y + t.h
-            );
-
-            if (existingTurret) {
-
-                existingTurret.upgrade();
-
-            }
-
-        } else {
-
-            console.warn('Cell is not free', x / gameState.cellSize, y / gameState.cellSize, gameState);
-
-        }
-
-        return;
-
-    }
-
-    // this should never happen
-    console.error('Out of bounds', x, y);
-
-});
 
 document.addEventListener('keydown', function (event) {
+
+    if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
+        return;
+    }
 
     console.log('Keydown event', event.code);
 
@@ -303,57 +247,8 @@ document.addEventListener('keydown', function (event) {
 
     }
 
-    // note - good 4 testing renderGame()
-
-    // be sure to render the final game board before exiting, aka don't change the order of these two lines
-    if (gameState.status !== 'playing') {
-
-        createAndShowModal('Game Over! You ' + gameState.status + '!', gameState);
-
-        return;
-
-    }
-
 }, {passive: true});
 
-canvas.addEventListener('mousemove', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    gameState.mousePosition = {x: mouseX, y: mouseY}
-}, {passive: true});
+MouseEvents()
 
-let touchStartX = 0;
-let touchStartY = 0;
-
-canvas.addEventListener('touchstart', function (event) {
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-    // Prevent default scrolling behavior on touch devices
-    event.preventDefault();
-}, {passive: true});
-
-canvas.addEventListener('touchmove', function (event) {
-    const touchEndX = event.touches[0].clientX;
-    const touchEndY = event.touches[0].clientY;
-
-    // Calculate the difference in touch position
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    // Update the touch start position for the next move
-    touchStartX = touchEndX;
-    touchStartY = touchEndY;
-
-    // Use the scroll functions to update the game state based on the touch movement
-    scrollGridX(-deltaX);
-    scrollGridY(deltaY);
-
-    // Prevent default scrolling behavior on touch devices
-}, {passive: true});
-
-// Prevent default behavior for touchend as well
-canvas.addEventListener('touchend', function (event) {
-    event.preventDefault();
-}, {passive: true});
 

@@ -2,7 +2,7 @@ import {tGameState} from "./InitialState";
 import {GameBodyHeight} from "./CellSize";
 
 // Scroll function to update offsetX
-import Game, {getGameState} from "./Game";
+import {getGameState} from "./GameDefense";
 
 export const scrollGridX = (amount: number) => {
 
@@ -13,8 +13,6 @@ export const scrollGridX = (amount: number) => {
     // Optionally add limits to prevent scrolling too far left or right
     gameState.offsetX = Math.max(0, Math.min(gameState.offsetX,
         gameState.cellSize * gameState.gameGrid[0].length - window.innerWidth));
-
-    Game();
 
 }
 
@@ -42,7 +40,5 @@ export const scrollGridY = (amount: number) => {
 
 
     }
-
-    Game();
 
 }

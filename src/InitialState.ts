@@ -9,10 +9,20 @@ import Projectile from "./Projectile";
 import {GameGrid2D, isCenterOf5x5GridOf0s} from "./Grid";
 import Particle from "./Particle";
 
+
+export enum eGameDisplayState {
+    MAIN_MENU,
+    GAME,
+    GAME_OVER,
+    PAUSED,
+}
+
 export type tGameState = {
+    gameDisplayState: eGameDisplayState;
     tutorial: {
         [key: string]: boolean
     };
+    ticks: number;
     switchXY: boolean;
     elapsedTime: number;
     elapsedTimeSeconds: number;
@@ -41,13 +51,16 @@ export type tGameState = {
 }
 
 
+
 export const InitialGameState = (context: CanvasRenderingContext2D): tGameState => {
 
     const initialState: tGameState = {
+        gameDisplayState: eGameDisplayState.MAIN_MENU,
         tutorial: {
             welcome: false,
             spaceBar: false,
         },
+        ticks: 0,
         context: context,
         elapsedTime: 0,
         elapsedTimeSeconds: 0,
@@ -104,9 +117,14 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
 
     }
 
-    // sort the game targets by distance from (0,0)
     initialState.gameTargets = initialState.gameTargets.sort((a, b) => {
-        return Math.sqrt(a.x ** 2 + a.y ** 2) - Math.sqrt(b.x ** 2 + b.y ** 2);
+        const aDistance = initialState.spawnLocations.reduce((acc, spawnLocation) => {
+            return acc + Math.sqrt(Math.pow(spawnLocation.x - a.x, 2) + Math.pow(spawnLocation.y - a.y, 2));
+        }, 0);
+        const bDistance = initialState.spawnLocations.reduce((acc, spawnLocation) => {
+            return acc + Math.sqrt(Math.pow(spawnLocation.x - b.x, 2) + Math.pow(spawnLocation.y - b.y, 2));
+        }, 0);
+        return aDistance - bDistance;
     });
 
     return initialState;

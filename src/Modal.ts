@@ -1,3 +1,4 @@
+import {startNewGame} from "./GameDefense";
 import {tGameState} from "./InitialState";
 
 export function createAndShowModal(message : string, gameState : tGameState) {
@@ -37,25 +38,7 @@ export function createAndShowModal(message : string, gameState : tGameState) {
     // Restart button functionality
     restartButton.addEventListener('click', function () {
         // Reset game state
-        gameState.level = 1;
-        gameState.processedLevel = 0;
-        gameState.startTime = (new Date()).getTime();
-        gameState.energy = 0;
-        gameState.score = 0;
-        gameState.turrets = [];
-        gameState.monsters = [];
-        gameState.projectiles = [];
-        gameState.spawners = [];
-        gameState.status = 'playing';
-
-        // Reset any other necessary variables
-        // For example, if you have a variable for player's lives or health, reset it here
-
-        // Hide the modal
-        modal.style.display = 'none';
-
-        // Optionally, reset the canvas or other UI elements
-        // ...
+        startNewGame();
 
     });
 

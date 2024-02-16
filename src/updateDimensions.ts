@@ -22,6 +22,17 @@ function switchGameEntitiesXY(gameState: tGameState) {
 
 }
 
+
+export function rotatePoint90Clockwise(x: number, y:number) {
+    const M = this.gameState.gameGrid[0].length;
+    //const N = this.gameState.gameGrid.length;
+
+    // For a 90 degree clockwise rotation, the new x is the original y
+    // And the new y is M minus the original x minus 1 (due to zero-indexing)
+    return { x: y, y: (M - 1) - x };
+}
+
+
 export function updateDimensions(gameState: tGameState): void {
 
     // update the canvas size each frame, this handles window resizing
@@ -38,6 +49,14 @@ export function updateDimensions(gameState: tGameState): void {
 
             //gameState.gameGrid = rotateMatrix90Clockwise(rotateMatrix90Clockwise(rotateMatrix90Clockwise(gameState.gameGrid)));
             gameState.gameGrid = rotateMatrix90Clockwise(rotateMatrix90Clockwise(rotateMatrix90Clockwise(gameState.gameGrid)));
+
+            gameState.gameTargets = gameState.gameTargets.map(target => {
+                return {
+                    ...target,
+                    x: target.y,
+                    y: target.x,
+                }
+            })
 
             gameState.offsetX = 0;
 
@@ -72,6 +91,8 @@ export function updateDimensions(gameState: tGameState): void {
         return;
 
     }
+
+
 
     CellSize(gameState);
 

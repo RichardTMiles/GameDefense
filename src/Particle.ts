@@ -1,3 +1,4 @@
+import canvas from "Canvas";
 import Entity, {iEntityConstructorProps} from "./Entity";
 import FPS from "./FPS";
 import {tGameState} from "./InitialState";
@@ -11,7 +12,7 @@ export interface Point {
 
 export interface tParticle {
     start: Point;
-    control: Point;
+    control?: Point;
     end: Point;
     callback?: () => void;
     fillStyle?: string;
@@ -50,7 +51,7 @@ export default class Particle extends Entity {
     draw() {
         const ctx = this.gameState.context;
         ctx.beginPath();
-        ctx.arc(this.currentPosition.x, this.currentPosition.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.currentPosition.x - this.gameState.offsetX, this.currentPosition.y - this.gameState.offsetY, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.fillStyle;
         ctx.fill();
     }
