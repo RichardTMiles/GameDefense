@@ -99,6 +99,8 @@ export default function Game() {
 
     // Update turrets and draw them; turrets don't get removed (filtered) from the game state
     gameState.turrets.forEach(turret => handleIEntity(turret));
+
+    // I seperated this so the bodies of the turrets are drawn first and can not override the turret level dot
     gameState.turrets.forEach(turret => turret.showLevelColor());
 
     // filter projectiles from game state - remove any destroyed projectiles so were not running this loop often
@@ -298,8 +300,6 @@ document.addEventListener('keydown', function (event) {
             seconds: 5,
             fillStyle: 'rgb(0, 255, 0)',
         }))
-
-        gameState.level++;
 
     }
 

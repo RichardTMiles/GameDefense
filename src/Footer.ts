@@ -116,7 +116,12 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     if (undefined !== nextUpgrade) {
 
-        ctx.fillText("Upgrade Cost: " + selectedTurret.upgrades[selectedTurret.level - 1].cost,
+        ctx.fillText("Upgrade = { Cost " + formatNumber(nextUpgrade.cost)
+            + ", Damage " + formatNumber(nextUpgrade.damage)
+            + ", Range " + nextUpgrade.range
+            + ", Speed " + nextUpgrade.speed
+            + ", Cooldown " + nextUpgrade.cooldown
+            + ' }',
             oneHalf + oneHalf / 2,
             levelBarHeight * .75,
             oneHalf - (oneHalf * .1)
