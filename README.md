@@ -1,4 +1,4 @@
-# 🚀 Welcome to your new awesome project!
+# 🚀 Welcome to Game Defense!
 
 [Play online](https://richardtmiles.github.io/GameDefense/)
 
