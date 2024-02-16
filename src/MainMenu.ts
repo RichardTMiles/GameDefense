@@ -10,7 +10,7 @@ import {eGameDisplayState, tGameState} from "./InitialState";
 enum eMenuItem {
     START_GAME_DEFENSE,
     TUTORIAL,
-    OPTIONS,
+    //OPTIONS,
     SOURCE_CODE,
     ISSUES,
 }
@@ -22,7 +22,7 @@ interface iMenuItem {
 const menuItems: iMenuItem = {
     [eMenuItem.START_GAME_DEFENSE]: 'Play Game Defense',
     [eMenuItem.TUTORIAL]: 'Tutorial',
-    [eMenuItem.OPTIONS]: 'Options',
+    //[eMenuItem.OPTIONS]: 'Options',
     [eMenuItem.SOURCE_CODE]: 'Source Code',
     [eMenuItem.ISSUES]: 'Report Issue'
 };

@@ -1,3 +1,4 @@
+import Targets from "Targets";
 import {updateDimensions} from "./updateDimensions";
 import Alert from "./Alert";
 import tGridPosition from "./tGridPosition";
@@ -36,7 +37,7 @@ export type tGameState = {
     projectiles: Projectile[];
     particles: Particle[];
     turrets: Turret[];
-    gameTargets: (tGridPosition & { destroyed: boolean })[];
+    gameTargets: Targets[];
     spawnLocations: (tGridPosition)[];
     score: number;
     offsetX: number;
@@ -109,7 +110,7 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
 
             if (isCenterOf5x5GridOf0s(x, y, initialState.gameGrid)) {
 
-                initialState.gameTargets.push({x, y, destroyed: false});
+                initialState.gameTargets.push(new Targets({x, y, gameState: initialState}));
 
             }
 

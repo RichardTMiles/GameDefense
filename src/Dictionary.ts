@@ -56,7 +56,8 @@ interface iDictionary {
     definition: string;
 }
 
-export default class Dictionary extends Entity {
+/*
+export class Definition extends Entity {
     word: string;
     definition: string;
     closed: boolean = false;
@@ -65,7 +66,6 @@ export default class Dictionary extends Entity {
         super({gameState, x: 0, y: 0});
         this.word = word;
         this.definition = definition;
-        console.log('Dictionary');
     }
 
     draw(): void {
@@ -92,4 +92,4 @@ export default class Dictionary extends Entity {
         return !this.closed;
     }
 
-}
+}*/

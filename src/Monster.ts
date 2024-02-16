@@ -128,11 +128,16 @@ export default class Monster extends Entity {
             const finalPath = this.path[this.path.length - 1];
 
             // remove the orbs from the game grid that match this.pathIndex
-            gameState.gameTargets = gameState.gameTargets.map(orb => {
-                if (orb.x === finalPath.x && orb.y === finalPath.y) {
-                    orb.destroyed = true;
+            gameState.gameTargets = gameState.gameTargets.map(target => {
+
+                if (target.x === finalPath.x && target.y === finalPath.y) {
+
+                    target.destroyed = true;
+
                 }
-                return orb;
+
+                return target;
+
             });
 
             if (0 === gameState.gameTargets.length) {

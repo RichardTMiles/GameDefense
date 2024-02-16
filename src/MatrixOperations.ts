@@ -27,3 +27,12 @@ export function rotateMatrix90Clockwise<T>(matrix: T[][]): T[][] {
 
 }
 
+
+export function rotateMatrix90CounterClockwise<T>(matrix: T[][]): T[][] {
+    // Reverse each row for counterclockwise rotation
+    const reversedRows = matrix.map(row => [...row].reverse());
+
+    // Transpose the matrix
+    return reversedRows[0].map((col, i) => reversedRows.map(row => row[i]));
+}
+

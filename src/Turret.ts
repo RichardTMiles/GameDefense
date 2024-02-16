@@ -92,7 +92,7 @@ export class Turret extends Entity implements iTurret {
         this.key = gameState.turrets.length;
 
 
-        // Dynamically update the grid based on the w and h
+        // update the grid based on the w and h to indicate a turret is placed and space is taken
         for (let offsetY = 0; offsetY < this.h; offsetY++) {
             for (let offsetX = 0; offsetX < this.w; offsetX++) {
                 const gridX = x + offsetX;
@@ -105,8 +105,14 @@ export class Turret extends Entity implements iTurret {
             }
         }
 
-
     }
+
+    switchXY() {
+        super.switchXY()
+        this.cx = this.x + this.w / 2;
+        this.cy = this.y + this.h / 2;
+    }
+
 
     upgrade() {
 

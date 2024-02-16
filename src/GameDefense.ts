@@ -2,7 +2,7 @@ import MouseEvents from "MouseEvents";
 import Alert from "./Alert";
 import canvas from "./Canvas";
 import {handleIEntity} from "./Entity";
-import Footer, {GameFooterHeight, handleFooterClick} from "./Footer";
+import Footer from "./Footer";
 import FPS from "./FPS";
 import DrawGameGrid from "./Grid";
 import Header, {elapsedTime} from "./Header";
@@ -10,12 +10,9 @@ import GameHeaderHeight from "./HeaderHeight";
 import {eGameDisplayState, InitialGameState, tGameState} from "./InitialState";
 import MainMenu from "./MainMenu";
 import {createAndShowModal} from "./Modal";
-import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import {scrollGridX, scrollGridY} from "./Scroll";
 import showTurretRadius from "./showTurretRadius";
 import Spawner from "./Spawner";
-import {DrawGameTargets} from "./Targets";
-import {Turret} from "./Turret";
 import Tutorial from "./Tutorial";
 import {updateDimensions} from "./updateDimensions";
 
@@ -59,7 +56,7 @@ function gamePlay() {
     DrawGameGrid(context, gameState);
 
     // draw game objectives, the monsters will be targeting these locations with a pathfinding algorithm
-    DrawGameTargets(gameState);
+    gameState.gameTargets.forEach(turret => handleIEntity(turret));
 
     // if any levels have been passed, add more spawners
     if (gameState.processedLevel < gameState.level) {
@@ -216,7 +213,7 @@ document.addEventListener('keydown', function (event) {
         return;
     }
 
-    console.log('Keydown event', event.code);
+    console.log('Keydown event', event.code, gameState);
 
     if (event.code === 'Space') {
 

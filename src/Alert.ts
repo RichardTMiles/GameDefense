@@ -33,7 +33,9 @@ export default class Alert extends Entity {
     }
 
     draw(): void {
+
         const ctx: CanvasRenderingContext2D = this.gameState.context;
+
         if (!this.alertBoxVisible) {
 
             return;

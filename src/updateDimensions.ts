@@ -1,37 +1,42 @@
+import {isCenterOf5x5GridOf0s} from "Grid";
 import Entity from "./Entity";
 import CellSize from "./CellSize";
 import {tGameState} from "./InitialState";
-import {rotateMatrix90Clockwise} from "./MatrixOperations";
+import {rotateMatrix90Clockwise, rotateMatrix90CounterClockwise} from "./MatrixOperations";
 import {gameBodyTotalYScroll} from "./Scroll";
 
+
+// these operations are in context of 0,0 being top left after the rotation. Thus, after grid rotation and translation
+export function rotatePoint90CounterClockwise(gameState: tGameState, x: number, y: number) {
+    const N = gameState.gameGrid.length;
+    let newX = N - 1 - x;
+    return { x: y, y: newX };
+}
+export function rotatePoint90Clockwise(gameState: tGameState, x: number, y: number) {
+    const M = gameState.gameGrid[0].length;
+    let newY = M - 1 - y;
+    return { x: newY, y: x };
+}
+
+
 function switchGameEntitiesXY(gameState: tGameState) {
-    //const switchXY = (entity: Entity) => entity.switchXY();
 
-    gameState.gameTargets.forEach(target => {
-        console.log({
-            ...target,
-            x: target.y,
-            y: target.x,
-        })
-        return {
-            ...target,
-            x: target.y,
-            y: target.x,
-        }
-    });
+    const switchXY = gameState.switchXY ? rotatePoint90CounterClockwise : rotatePoint90Clockwise;
+
+    gameState.spawnLocations = gameState.spawnLocations.map(spawnLocation => {
+        const { x, y } = switchXY(gameState, spawnLocation.x, spawnLocation.y);
+        spawnLocation.x = x;
+        spawnLocation.y = y;
+        return spawnLocation
+    })
+
+    gameState.gameTargets.forEach(target => target.switchXY())
+
+    gameState.turrets.forEach(turret => turret.switchXY())
+
+    gameState.monsters.forEach(monster => monster.switchXY())
 
 }
-
-
-export function rotatePoint90Clockwise(x: number, y:number) {
-    const M = this.gameState.gameGrid[0].length;
-    //const N = this.gameState.gameGrid.length;
-
-    // For a 90 degree clockwise rotation, the new x is the original y
-    // And the new y is M minus the original x minus 1 (due to zero-indexing)
-    return { x: y, y: (M - 1) - x };
-}
-
 
 export function updateDimensions(gameState: tGameState): void {
 
@@ -48,15 +53,9 @@ export function updateDimensions(gameState: tGameState): void {
             gameState.switchXY = true;
 
             //gameState.gameGrid = rotateMatrix90Clockwise(rotateMatrix90Clockwise(rotateMatrix90Clockwise(gameState.gameGrid)));
-            gameState.gameGrid = rotateMatrix90Clockwise(rotateMatrix90Clockwise(rotateMatrix90Clockwise(gameState.gameGrid)));
+            gameState.gameGrid = rotateMatrix90CounterClockwise(gameState.gameGrid);
 
-            gameState.gameTargets = gameState.gameTargets.map(target => {
-                return {
-                    ...target,
-                    x: target.y,
-                    y: target.x,
-                }
-            })
+            switchGameEntitiesXY(gameState);
 
             gameState.offsetX = 0;
 
@@ -65,8 +64,6 @@ export function updateDimensions(gameState: tGameState): void {
             gameState.offsetY = -gameBodyTotalYScroll(gameState);
 
             console.log('switchXY scroll 2 bottom', gameState, gameBodyTotalYScroll(gameState))
-
-            switchGameEntitiesXY(gameState)
 
             return;
 
@@ -80,19 +77,15 @@ export function updateDimensions(gameState: tGameState): void {
 
         gameState.switchXY = false;
 
-        console.log('switchXY 00', gameState)
-
         gameState.gameGrid = rotateMatrix90Clockwise(gameState.gameGrid);
 
-        CellSize(gameState);
+        switchGameEntitiesXY(gameState);
 
-        switchGameEntitiesXY(gameState)
+        CellSize(gameState);
 
         return;
 
     }
-
-
 
     CellSize(gameState);
 

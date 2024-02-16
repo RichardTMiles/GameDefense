@@ -1,3 +1,4 @@
+import Entity, {iEntityConstructorProps} from "Entity";
 import Particle, {Point} from "./Particle";
 import {energyCirclePosition, scoreCirclePosition, elapsedTime} from "./Header";
 import CellSize from "./CellSize";
@@ -53,7 +54,6 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
 
 }
 
-// Function to create a radial gradient for orbs
 export function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color1: string = 'rgb(172,39,192)', color2: string = 'rgba(39, 66, 66, .8)') {
 
     // Create a radial gradient (inner circle to outer circle)
@@ -69,34 +69,41 @@ export function createOrbGradient(ctx: CanvasRenderingContext2D, x: number, y: n
 
 }
 
-let levelBonusGiven = -1;
+export default class Targets extends Entity {
 
-export function DrawGameTargets(gameState: tGameState) {
+    private levelBonusGiven = -1;
+    public destroyed: boolean = false;
+    private key: number = 0;
 
-    const ctx = gameState.context;
+    constructor({x, y, gameState}: iEntityConstructorProps) {
+        super({gameState, x, y});
+        this.key = gameState.gameTargets.length;
+    }
 
-    const cellSize = gameState.cellSize;
+    move(): boolean {
 
-    const orbRadius = cellSize * 4; // Adjust the radius of the orbs here
-
-    const currentTime = Date.now(); // Get current time to create the oscillation effect
-
-    const seconds = elapsedTime(gameState); // Assuming SecondsElapsed is defined elsewhere
-
-    const levelBonus = levelBonusGiven < gameState.level
-
-    if (levelBonus) {
-
-        levelBonusGiven++;
+        // the targets never move x,y position and never actually get removed from the game state
+        // the oscillation effect is handled in the draw method since it is a visual effect not positional
+        return true;
 
     }
 
-    gameState.gameTargets.forEach((target, index) => {
+    draw() {
 
-        const orbX = target.x * cellSize + cellSize / 2;
+        const gameState = this.gameState;
 
-        // Base orbY position
-        let orbY = target.y * cellSize + cellSize / 2;
+        const ctx = gameState.context;
+
+        const cellSize = gameState.cellSize;
+
+        const orbRadius = cellSize * 4; // Adjust the radius of the orbs here
+
+        const currentTime = Date.now(); // Get current time to create the oscillation effect
+
+        const orbX = this.x * cellSize + cellSize / 2;
+
+        // Base targetY position, this is not the floating target but the base position
+        let orbY = this.y * cellSize + cellSize / 2;
 
         ctx.fillStyle = createOrbGradient(ctx, orbX, orbY, orbRadius / 2, 'rgb(172,39,192)', 'rgb(100,225,100)'); // Assuming createOrbGradient is defined elsewhere
 
@@ -106,7 +113,8 @@ export function DrawGameTargets(gameState: tGameState) {
 
         ctx.fill();
 
-        if (target.destroyed) {
+        // don't show floating target if the target is destroyed
+        if (this.destroyed) {
 
             return;
 
@@ -118,7 +126,7 @@ export function DrawGameTargets(gameState: tGameState) {
         const oscillationSpeed = 0.002; // Speed of oscillation. Adjust as needed.
 
         // Calculate the vertical offset using a sine wave based on the current time
-        const verticalOffset = (index % 2 ? Math.sin(currentTime * oscillationSpeed) : Math.cos(currentTime * oscillationSpeed)) * oscillationAmplitude;
+        const verticalOffset = (this.key % 2 ? Math.sin(currentTime * oscillationSpeed) : Math.cos(currentTime * oscillationSpeed)) * oscillationAmplitude;
 
         // Apply the vertical offset to orbY for the rising and falling effect
         orbY += verticalOffset;
@@ -132,13 +140,20 @@ export function DrawGameTargets(gameState: tGameState) {
 
         ctx.fill();
 
+        const levelBonus = this.levelBonusGiven < gameState.level
+
         if (levelBonus) {
+
+            this.levelBonusGiven++;
 
             timeBonusParticleBurst({x: orbX, y: orbY}, gameState);
 
         }
 
-    });
+    }
 
 }
+
+
+
 

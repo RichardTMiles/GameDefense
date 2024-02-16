@@ -1,3 +1,4 @@
+import {rotatePoint90Clockwise, rotatePoint90CounterClockwise} from "updateDimensions";
 import {getGameState} from "./GameDefense";
 import {tGameState} from "./InitialState";
 
@@ -17,6 +18,14 @@ export default abstract class Entity {
         this.x = x;
         this.y = y;
         this.gameState = gameState;
+    }
+
+    switchXY() {
+        const gameState = this.gameState;
+        const switchXY = gameState.switchXY ? rotatePoint90CounterClockwise : rotatePoint90Clockwise;
+        const {x, y} = switchXY(gameState, this.x, this.y);
+        this.x = x;
+        this.y = y;
     }
 
 
