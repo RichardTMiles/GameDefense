@@ -17,7 +17,7 @@ export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: numbe
 
 // the box full width - half to get the center
 // NOTE- the below is derived from the equation = canvas.width / 5 - (canvas.width / 5 / 2);
-const boxWidth = () => canvas.width / 10
+const boxWidth = () => canvas.width / 12
 
 export const waveCirclePosition = () => ({
     x: boxWidth(),
@@ -32,12 +32,17 @@ export const timeCirclePosition = () => ({
     x: boxWidth() * 5,
     y: HeaderHeight() / 2,
 });
-export const energyCirclePosition = () => ({
+
+export const loopCirclePosition = () => ({
     x: boxWidth() * 7,
     y: HeaderHeight() / 2,
 });
-export const scoreCirclePosition = () => ({
+export const energyCirclePosition = () => ({
     x: boxWidth() * 9,
+    y: HeaderHeight() / 2,
+});
+export const scoreCirclePosition = () => ({
+    x: boxWidth() * 11,
     y: HeaderHeight() / 2,
 });
 
@@ -119,6 +124,8 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
     const timeCircle = timeCirclePosition();
 
+    const LoopCircle = loopCirclePosition();
+
     const energyCircle = energyCirclePosition();
 
     const scoreCircle = scoreCirclePosition();
@@ -140,7 +147,6 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     ctx.fillText('Wave', waveCircle.x, headerTextY, radius);
     ctx.fillText(gameState.level.toString(), waveCircle.x, waveCircle.y, radius);
 
-
     drawGradientCircleHeader(ctx, scoreCircle.x, scoreCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(37,108,38)');
     ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
     ctx.fillText('Score', scoreCircle.x, headerTextY, radius);
@@ -149,7 +155,12 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     drawGradientCircleHeader(ctx, timeCircle.x, timeCircle.y, radius, 'rgba(255,255,255,0)', 'rgba(0,0,0,0.37)');
     ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
     ctx.fillText('Time', timeCircle.x, headerTextY, radius);
-    ctx.fillText(timeElapsed.toString(), timeCircle.x, timeCircle.y, radius);
+    ctx.fillText(formatNumber(timeElapsed), timeCircle.x, timeCircle.y, radius);
+
+    drawGradientCircleHeader(ctx, LoopCircle.x, LoopCircle.y, radius, 'rgba(255,255,255,0)', 'rgb(33,161,189)');
+    ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color
+    ctx.fillText('Loops', LoopCircle.x, headerTextY, radius);
+    ctx.fillText(formatNumber(gameState.ticks), LoopCircle.x, LoopCircle.y, radius);
 
     drawGradientCircleHeader(ctx, waveStrengthCircle.x, waveStrengthCircle.y, radius, 'rgba(255,255,255,0)', 'rgba(100,255,214,0.55)');
     ctx.fillStyle = 'rgba(255,255,255, .5)'; // White text color

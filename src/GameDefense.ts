@@ -35,6 +35,8 @@ export function getGameState() {
 
 function gamePlay() {
 
+    gameState.ticks++;
+
     // Clear the entire canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -123,10 +125,14 @@ function gamePlay() {
     }
 
     // add a level advancement and winning condition
+    // Movable objects should be completed and removed from the game state before we advance the level
+    // It is tempting to add gameState.alerts.length to the list, but I don't want a hidden way to pause the game
     if (0 === gameState.monsters.length
-        && 0 === gameState.spawners.length) {
+        && 0 === gameState.spawners.length
+        && 0 === gameState.particles.length
+        && 0 === gameState.projectiles.length) {
 
-        if (101 === gameState.level) {
+        if (100 === gameState.level) {
 
             gameState.alerts.push(new Alert({
                 message: 'WINNER! You have completed 100 levels! Leaderboards coming soon :) How far can you go?',
@@ -138,19 +144,10 @@ function gamePlay() {
 
         }
 
-        // Movable objects should be completed and removed from the game state before we advance the level
-        // It is tempting to add gameState.alerts.length to the list, but I don't want a hidden way to pause the game
-        if (0 === gameState.monsters.length
-            && 0 === gameState.spawners.length
-            && 0 === gameState.particles.length
-            && 0 === gameState.projectiles.length
-            && 100 !== gameState.level) {
-
-            gameState.level++;
-
-        }
+        gameState.level++;
 
     }
+
 
 }
 
@@ -213,7 +210,6 @@ canvas.addEventListener('wheel', function (event) {
 }, {passive: true});
 
 
-
 document.addEventListener('keydown', function (event) {
 
     if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
@@ -235,6 +231,18 @@ document.addEventListener('keydown', function (event) {
 
             return;
 
+        }
+
+        if (gameState.level === 100) {
+
+            gameState.alerts.push(new Alert({
+                message: 'You are on the final level! Finish this wave to see what your winning score is!',
+                seconds: 5,
+                fillStyle: 'rgb(172,39,192)',
+                gameState
+            }));
+
+            return;
         }
 
         gameState.level++;
