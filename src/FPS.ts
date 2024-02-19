@@ -1,4 +1,4 @@
-import GameDefense from "./GameDefense.ts";
+import State from "./State.ts";
 
 let fps = 60; // Initial assumption
 let frameCount = 0;
@@ -12,10 +12,10 @@ export function displayFPS(ctx: CanvasRenderingContext2D) {
     const fps = FPS();
     // Assuming `ctx` is your canvas 2D context
     ctx.fillStyle = 'rgba(225,225,225,0.15)'; // Choose a text color that contrasts your background
-    ctx.fillRect(GameDefense.canvas.width - 100, 0, 100, 50); // Optional: Draw a background for the FPS text
+    ctx.fillRect(State.canvas.width - 100, 0, 100, 50); // Optional: Draw a background for the FPS text
     ctx.fillStyle = 'black'; // Text color
     ctx.font = '20px Arial';
-    ctx.fillText(`FPS: ${fps}`, GameDefense.canvas.width - 50, 30);
+    ctx.fillText(`FPS: ${fps}`, State.canvas.width - 50, 30);
 }
 
 export default function FPS() {

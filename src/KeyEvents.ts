@@ -1,4 +1,4 @@
-import {getGameState} from "./GameDefense.ts";
+import State from "./State.ts";
 import Alert from "./Alert.ts";
 import FPS from "./FPS.ts";
 import {eGameDisplayState} from "./InitialState.ts";
@@ -9,7 +9,7 @@ export default function KeyEvents() {
 
     document.addEventListener('keydown', function (event) {
 
-        const gameState = getGameState();
+        const {gameState} = State;
 
         if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
             return;

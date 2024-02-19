@@ -2,7 +2,7 @@ import Alert from "./Alert";
 import {getGameGridPosition, isSpaceAvailable} from "./Position";
 import {Turret} from "./Turret";
 import {eGameDisplayState} from "./InitialState";
-import GameDefense, {getGameState} from "./GameDefense.ts";
+import State from "./State.ts";
 import {scrollGridX, scrollGridY} from "./Scroll";
 import GameHeaderHeight from "./HeaderHeight";
 import {GameFooterHeight, handleFooterClick} from "./Footer";
@@ -10,8 +10,8 @@ import {GameFooterHeight, handleFooterClick} from "./Footer";
 
 
 export function mousemove(event: MouseEvent) {
-    const gameState = getGameState();
-    const rect = GameDefense.canvas.getBoundingClientRect();
+    const gameState = State.gameState
+    const rect = State.canvas.getBoundingClientRect();
     const mouseX = (event.clientX - rect.left) ?? 0;
     const mouseY = (event.clientY - rect.top) ?? 0;
     gameState.mousePosition = {x: mouseX, y: mouseY}
@@ -54,7 +54,7 @@ export function touchend(event: TouchEvent) {
 export function wheel(event: WheelEvent) {
     event.preventDefault();
 
-    const gameState = getGameState();
+    const gameState = State.gameState;
 
     if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
         return;
@@ -77,7 +77,7 @@ export function wheel(event: WheelEvent) {
 
 
 export function click(event: MouseEvent) {
-    const gameState = getGameState();
+    const gameState = State.gameState;
 
     if (gameState.gameDisplayState !== eGameDisplayState.GAME) {
         console.log('Mouse click out of game');
@@ -86,7 +86,7 @@ export function click(event: MouseEvent) {
 
     console.log('Mouse click in game');
 
-    const rect = GameDefense.canvas.getBoundingClientRect();
+    const rect = State.canvas.getBoundingClientRect();
 
     const x = event.clientX - rect.left;
 
@@ -183,7 +183,7 @@ export default function MouseEvents() {
 
     console.log('MouseEvents');
 
-    const canvas = GameDefense.canvas;
+    const canvas : HTMLCanvasElement = State.canvas;
 
     canvas.addEventListener('mousemove', mousemove, {passive: true});
 

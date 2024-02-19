@@ -1,6 +1,6 @@
 // this essentially sets up a singly linked list
+import State from "./State.ts";
 import {tGameState} from "./InitialState";
-import {getGameState} from "./GameDefense.ts";
 import HeaderHeight from "./HeaderHeight";
 import CellSize from "./CellSize";
 import tGridPosition from "./tGridPosition";
@@ -17,8 +17,8 @@ export default class Position {
     }
 }
 
-export function getGameGridPosition(x: number, y: number): tGridPosition {
-    const gameState = getGameState();
+export function getGameGridPosition(x: number, y: number): tGridPosition|undefined {
+    const gameState = State.gameState;
     const headerHeight = HeaderHeight();
     const cellSize = CellSize(gameState);
     y -= headerHeight + gameState.offsetY;
@@ -34,7 +34,7 @@ export function getGameGridPosition(x: number, y: number): tGridPosition {
     return {x: gridX, y: gridY};
 }
 
-export function isSpaceAvailable(gridX: number, gridY: number, w: number, h: number, gameState: tGameState = getGameState()): boolean {
+export function isSpaceAvailable(gridX: number, gridY: number, w: number, h: number, gameState: tGameState = State.gameState): boolean {
     // Check each cell in the area defined by w and h for availability
     for (let offsetY = 0; offsetY < h; offsetY++) {
         for (let offsetX = 0; offsetX < w; offsetX++) {
@@ -54,6 +54,6 @@ export function isSpaceAvailable(gridX: number, gridY: number, w: number, h: num
     return true; // The entire area is available
 }
 
-export function isGridSpaceTakenWithTurret(gridX: number, gridY: number, gameState: tGameState = getGameState()): boolean {
+export function isGridSpaceTakenWithTurret(gridX: number, gridY: number, gameState: tGameState = State.gameState): boolean {
     return gameState.gameGrid[gridY][gridX] === 3;
 }

@@ -1,4 +1,4 @@
-import GameDefense from "./GameDefense.ts";
+import State from "./State.ts";
 import {dictionary} from "./Dictionary";
 import {formatNumber} from "./Header";
 import {
@@ -22,12 +22,12 @@ export const footerLevelBarHeight = () => GameFooterHeight() * .5;
 export const turretSectionHeight = () => GameFooterHeight() * .5;
 
 export function GameFooterHeight() {
-    return GameDefense.canvas.height * .25;
+    return State.canvas.height * .25;
 } // Example height for the footer
 
 
-export const OneThirdFooter = () => GameDefense.canvas.width / 3;
-export const OneHalfFooter = () => GameDefense.canvas.width / 2;
+export const OneThirdFooter = () => State.canvas.width / 3;
+export const OneHalfFooter = () => State.canvas.width / 2;
 
 export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameState) {
 
@@ -41,12 +41,12 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
     // Draw the footer background
     ctx.fillStyle = 'rgba(98,74,74,0.37)'; // Assuming a dark background for the footer
 
-    ctx.fillRect(0, 0, GameDefense.canvas.width, footerHeight);
+    ctx.fillRect(0, 0, State.canvas.width, footerHeight);
 
     // Draw the level background
     ctx.fillStyle = 'rgba(172,39,192,0.46)'; // Assuming a dark background for the footer
 
-    ctx.fillRect(0, 0, GameDefense.canvas.width, footerLevelBarHeight());
+    ctx.fillRect(0, 0, State.canvas.width, footerLevelBarHeight());
 
     const fullDictionary = dictionary();
 
@@ -77,11 +77,11 @@ export default function Footer(ctx: CanvasRenderingContext2D, gameState: tGameSt
 
         ctx.fillStyle = buttonActive ? '#64c027' : '#ac27c0';
 
-        ctx.fillRect(x, 0, GameDefense.canvas.width / 6, levelBarHeight);
+        ctx.fillRect(x, 0, State.canvas.width / 6, levelBarHeight);
 
         ctx.fillStyle = 'rgb(255,255,255)'; // Text color
 
-        ctx.fillText(button, x + GameDefense.canvas.width / 12, levelBarHeight / 2, GameDefense.canvas.width / 6 - (GameDefense.canvas.width / 6 * .1));
+        ctx.fillText(button, x + State.canvas.width / 12, levelBarHeight / 2, State.canvas.width / 6 - (State.canvas.width / 6 * .1));
 
     });
 

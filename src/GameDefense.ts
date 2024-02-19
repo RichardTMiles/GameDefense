@@ -1,3 +1,4 @@
+import State from "./State.ts";
 import KeyEvents from "./KeyEvents.ts";
 import MouseEvents from "./MouseEvents";
 import Alert from "./Alert";
@@ -17,29 +18,25 @@ import {updateDimensions} from "./updateDimensions";
 
 const GameDefense = class {
 
-    static canvas: HTMLCanvasElement;
-    static context: CanvasRenderingContext2D;
-    static gameState: tGameState;
-
     constructor(canvas ?: HTMLCanvasElement) {
 
         if (typeof document !== 'undefined') {
 
             console.log('Canvas.ts document is defined')
 
-            GameDefense.canvas = document.createElement('canvas');
+            State.canvas = document.createElement('canvas');
 
-            document.body.appendChild(GameDefense.canvas);
+            document.body.appendChild(State.canvas);
 
         } else if (undefined !== canvas) {
 
             console.log('Canvas.ts document is undefined (React Native)')
 
-            GameDefense.canvas = canvas;
+            State.canvas = canvas;
 
         }
 
-        if (undefined === GameDefense.canvas) {
+        if (undefined === State.canvas) {
 
             console.error('Canvas.ts canvas is undefined')
 
@@ -47,9 +44,9 @@ const GameDefense = class {
 
         }
 
-        GameDefense.context = GameDefense.canvas.getContext('2d')!;
+        State.context = State.canvas.getContext('2d')!;
 
-        GameDefense.gameState = InitialGameState(GameDefense.context);
+        State.gameState = InitialGameState(State.context);
 
         MouseEvents()
 
@@ -93,18 +90,13 @@ const GameDefense = class {
 
     }
 
-    static startNewGame() {
-        GameDefense.gameState = InitialGameState(GameDefense.context);
-        GameDefense.gameState.gameDisplayState = eGameDisplayState.GAME;
-    }
-
 
     // Game rendering function
     // the oder of the rendering is important
     // everything will be 'stacked' on top of each other
     private async GameDefense() {
 
-        const gameState = GameDefense.gameState;
+        const gameState = State.gameState;
 
         updateDimensions(gameState);
 
@@ -130,20 +122,20 @@ const GameDefense = class {
                 }
                 return;
             case eGameDisplayState.GAME:
-                GameDefense.gamePlay()
+                this.gamePlay()
                 return;
         }
 
     }
 
 
-    private static gamePlay() {
+    private gamePlay() {
 
-        const gameState = GameDefense.gameState;
+        const gameState = State.gameState;
 
-        const canvas = GameDefense.canvas;
+        const canvas = State.canvas;
 
-        const context = GameDefense.context;
+        const context = State.context;
 
         gameState.ticks++;
 
@@ -263,8 +255,6 @@ const GameDefense = class {
 
 
 }
-
-export const getGameState = () => GameDefense.gameState;
 
 export default GameDefense;
 

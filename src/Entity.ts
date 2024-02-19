@@ -1,5 +1,5 @@
+import State from "./State.ts";
 import {rotatePoint90Clockwise, rotatePoint90CounterClockwise} from "./updateDimensions";
-import {getGameState} from "./GameDefense.ts";
 import {tGameState} from "./InitialState";
 
 
@@ -14,7 +14,7 @@ export default abstract class Entity {
     y: number;
     gameState: tGameState;
 
-    constructor({x = 0, y = 0, gameState = getGameState()}: iEntityConstructorProps) {
+    constructor({x = 0, y = 0, gameState = State.gameState}: iEntityConstructorProps) {
         this.x = x;
         this.y = y;
         this.gameState = gameState;

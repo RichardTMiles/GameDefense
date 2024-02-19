@@ -1,4 +1,4 @@
-import GameDefense from "./GameDefense.ts";
+import State from "./State.ts";
 
 
-export default () : number => GameDefense.canvas.height * .10; // Example height for the header
+export default () : number => State.canvas.height * .10; // Example height for the header

@@ -1,4 +1,4 @@
-import {getGameState} from "./GameDefense.ts";
+import State from "./State.ts";
 import {elapsedTime} from "./Header";
 
 
@@ -40,7 +40,7 @@ export default function WrapText({
     lines.push({text: line, y: 0}); // Add the last line
 
     // Calculate current scroll position based on elapsed time, ensuring text restarts once it scrolls off
-    const time = elapsedTime(getGameState(), false); // Assuming this function is defined elsewhere
+    const time = elapsedTime(State.gameState, false); // Assuming this function is defined elsewhere
 
     let scrollOffset = (scrollSpeed * time) % (h);
 

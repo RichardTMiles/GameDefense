@@ -1,5 +1,5 @@
-import GameDefense from "./GameDefense.ts";
-import {tGameState} from "./InitialState";
+import State from "./State.ts";
+import {startNewGame, tGameState} from "./InitialState";
 
 export function createAndShowModal(message : string, gameState : tGameState) {
 
@@ -38,7 +38,7 @@ export function createAndShowModal(message : string, gameState : tGameState) {
     // Restart button functionality
     restartButton.addEventListener('click', function () {
         // Reset game state
-        GameDefense.startNewGame();
+        startNewGame();
     });
 
 }

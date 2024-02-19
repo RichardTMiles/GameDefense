@@ -1,9 +1,9 @@
 // Assume these imports at the top
+import State from "./State.ts";
 import GenerateRandomRGBA from "./GenerateRandomRGBA";
-import Particle, {Point} from "./Particle";
+import Particle from "./Particle";
 import {handleIEntity} from "./Entity";
-import GameDefense, {getGameState} from "./GameDefense.ts";
-import {eGameDisplayState, tGameState} from "./InitialState";
+import {eGameDisplayState, startNewGame, tGameState} from "./InitialState";
 
 
 enum eMenuItem {
@@ -119,10 +119,13 @@ export function mainMenuEventListeners() {
 
 // Add event listener for clicks
     const onClick = (e: MouseEvent) => {
-        const gameState = getGameState();
+
+        const gameState = State.gameState;
 
         if (gameState.gameDisplayState !== eGameDisplayState.MAIN_MENU) {
+
             return;
+
         }
 
         const {mouseX, mouseY, menuItems} = getMenuXY(e, gameState);
@@ -133,11 +136,11 @@ export function mainMenuEventListeners() {
                 console.log(`${item.text} was clicked `, menuItems[eMenuItem.START_GAME_DEFENSE]);
 
                 // Remove the event listener to prevent memory leaks
-                const removeEvent = () => GameDefense.canvas?.removeEventListener('click', onClick);
+                const removeEvent = () => State.canvas?.removeEventListener('click', onClick);
 
                 switch (item.text) {
                     case menuItems[eMenuItem.START_GAME_DEFENSE].text:
-                        GameDefense.startNewGame()
+                        startNewGame()
                         removeEvent();
                         break;
                     case menuItems[eMenuItem.SOURCE_CODE].text:
@@ -154,11 +157,10 @@ export function mainMenuEventListeners() {
         });
     };
 
-    GameDefense.canvas?.addEventListener('click', onClick);
-
+    State.canvas?.addEventListener('click', onClick);
 
     const onMouseMove = (e: MouseEvent) => {
-        const gameState = getGameState();
+        const gameState = State.gameState;
 
         if (gameState.gameDisplayState !== eGameDisplayState.MAIN_MENU) {
             return;
@@ -175,6 +177,6 @@ export function mainMenuEventListeners() {
         });
     };
 
-    GameDefense.canvas?.addEventListener('mousemove', onMouseMove);
+    State.canvas?.addEventListener('mousemove', onMouseMove);
 
 }

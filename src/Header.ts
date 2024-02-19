@@ -1,4 +1,4 @@
-import GameDefense, {getGameState} from "./GameDefense.ts";
+import State from "./State.ts";
 import {tGameState} from "./InitialState";
 import {displayFPS} from "./FPS";
 import HeaderHeight from "./HeaderHeight";
@@ -16,7 +16,7 @@ export function drawGradientCircleHeader(ctx: CanvasRenderingContext2D, x: numbe
 
 // the box full width - half to get the center
 // NOTE- the below is derived from the equation = canvas.width / 5 - (canvas.width / 5 / 2);
-const boxWidth = () => GameDefense.canvas.width / 12
+const boxWidth = () => State.canvas.width / 12
 
 export const waveCirclePosition = () => ({
     x: boxWidth(),
@@ -47,7 +47,9 @@ export const scoreCirclePosition = () => ({
 
 let lastLog = -1
 
-export function elapsedTime(gameState: tGameState = getGameState(), inSeconds: boolean = true) {
+export function elapsedTime(gameState?: tGameState, inSeconds: boolean = true) {
+
+    gameState ??= State.gameState;
 
     const endTime = new Date();
 
@@ -117,7 +119,7 @@ export default function Header(ctx: CanvasRenderingContext2D, gameState: tGameSt
     // Draw header
     ctx.fillStyle = 'rgba(96,6,96,0.9)'; // Dark gray background for header
 
-    ctx.fillRect(0, 0, GameDefense.canvas.width, headerHeight);
+    ctx.fillRect(0, 0, State.canvas.width, headerHeight);
 
     // Add text for level info
     ctx.fillStyle = '#fff'; // White text
