@@ -1,5 +1,6 @@
-import canvas from "./Canvas";
+import State from "./State.ts";
 import {GameFooterHeight} from "./Footer";
 import GameHeaderHeight from "./HeaderHeight";
 
-export default () => canvas.height - (GameHeaderHeight() + GameFooterHeight());
+export default () => State.canvas.height - (GameHeaderHeight() + GameFooterHeight());
+

@@ -1,11 +1,11 @@
-import Entity from "Entity";
-import monsterImage from "assets/svg/MonsterSVG";
+import Entity from "./Entity";
+//import monsterImage from "./assets/svg/MonsterSVG";
 import GameHeaderHeight from "./HeaderHeight";
-import {energyCirclePosition, scoreCirclePosition} from "Header";
-import Particle from "Particle";
-import {tGameState} from "InitialState";
-import tGridPosition from "tGridPosition";
-import {dijkstraWithCaching} from "Dijkstra";
+import {energyCirclePosition, scoreCirclePosition} from "./Header";
+import Particle from "./Particle";
+import {tGameState} from "./InitialState";
+import tGridPosition from "./tGridPosition";
+import {dijkstraWithCaching} from "./Dijkstra";
 
 
 export interface iMonster {
@@ -17,9 +17,9 @@ export interface iMonster {
 }
 
 export default class Monster extends Entity {
-    path: tGridPosition[];
-    pathIndex: number;
-    position: tGridPosition;
+    path: tGridPosition[] = [];
+    pathIndex: number = 0;
+    position: tGridPosition = {x: 0, y: 0};
     speed: number;
     health: number;
     startingHealth: number;
@@ -37,10 +37,18 @@ export default class Monster extends Entity {
     }
 
     getPath(){
+        const nextTarget = this.gameState.gameTargets?.find(target => target.destroyed === false);
+
+        if (undefined === nextTarget) {
+            console.error('no next target');
+            return;
+        }
+
         this.path = dijkstraWithCaching(this.gameState.gameGrid, {
             x: this.x,
             y: this.y
-        }, this.gameState.gameTargets.find(target => target.destroyed === false));
+        }, nextTarget);
+        // Reset the path index, this can happen with an orientation flip
         this.pathIndex = 0; // Start at the first point of the path
         this.position = {x: this.x, y: this.y}; // Current position of the monster
     }
@@ -53,9 +61,24 @@ export default class Monster extends Entity {
     }
 
     draw() {
+
         const ctx = this.gameState.context;
+
         // Draw the monster using the blue 3D diamond SVG image
-        ctx.drawImage(monsterImage, this.position.x * this.cellSize, this.position.y * this.cellSize, this.cellSize, this.cellSize);
+        //ctx.drawImage(monsterImage, this.position.x * this.cellSize, this.position.y * this.cellSize, this.cellSize, this.cellSize);
+
+        // todo draw a diamond with a gradient fill instead of the image
+        ctx.beginPath();
+        ctx.moveTo(this.position.x * this.cellSize + this.cellSize / 2, this.position.y * this.cellSize);
+        ctx.lineTo(this.position.x * this.cellSize + this.cellSize, this.position.y * this.cellSize + this.cellSize / 2);
+        ctx.lineTo(this.position.x * this.cellSize + this.cellSize / 2, this.position.y * this.cellSize + this.cellSize);
+        ctx.lineTo(this.position.x * this.cellSize, this.position.y * this.cellSize + this.cellSize / 2);
+        ctx.closePath();
+        ctx.fillStyle = 'rgb(134,30,30)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgb(0,191,255)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
     }
 
@@ -163,7 +186,14 @@ export default class Monster extends Entity {
 
             this.pathIndex = 0;
 
-            this.path = dijkstraWithCaching(gameState.gameGrid, this.position, gameState.gameTargets.find(orb => orb.destroyed === false));
+            const nextTarget = gameState.gameTargets.find(target => !target.destroyed);
+
+            if (undefined === nextTarget) {
+                console.error('no next target');
+                return false;
+            }
+
+            this.path = dijkstraWithCaching(gameState.gameGrid, this.position, nextTarget);
 
             return true;
         }

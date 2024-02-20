@@ -1,4 +1,4 @@
-import canvas from "Canvas";
+import canvas from "./Canvas";
 import Entity, {iEntityConstructorProps} from "./Entity";
 import FPS from "./FPS";
 import {tGameState} from "./InitialState";
@@ -12,7 +12,7 @@ export interface Point {
 
 export interface tParticle {
     start: Point;
-    control?: Point;
+    control: Point;
     end: Point;
     callback?: () => void;
     fillStyle?: string;
@@ -42,7 +42,17 @@ export default class Particle extends Entity {
         this.speed = .5 + Math.random() * 2; // Random speed for variation
         this.size = 3 + Math.random() * 2; // Random size for variation
         const fps = FPS();
-        this.arcPoints = Bezier(this.currentPosition, control, this.endPosition, fps < 30 ? 50 : 100);
+        this.arcPoints = Bezier(
+            this.currentPosition,
+            control /*?? Math.random() > .5 ? {
+                x: this.currentPosition.x,
+                y: this.endPosition.y
+            } : {
+                x: this.endPosition.x,
+                y: this.currentPosition.y
+            }*/,
+            this.endPosition,
+            fps < 30 ? 50 : 100);
         this.currentPointIndex = 0;
         this.fillStyle = fillStyle;
         this.callback = callback;

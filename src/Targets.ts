@@ -1,4 +1,4 @@
-import Entity, {iEntityConstructorProps} from "Entity";
+import Entity, {iEntityConstructorProps} from "./Entity";
 import Particle, {Point} from "./Particle";
 import {energyCirclePosition, scoreCirclePosition, elapsedTime} from "./Header";
 import CellSize from "./CellSize";
@@ -19,6 +19,7 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
     for (let i = 0; i < amount; i++) {
 
         gameState.particles.push(new Particle({
+            gameState,
             fillStyle: 'rgb(39,192,42)',
             callback(): void {
                 gameState.energy += 10 * gameState.level;
@@ -35,6 +36,7 @@ export function timeBonusParticleBurst(start: Point, gameState: tGameState) {
         }));
 
         gameState.particles.push(new Particle({
+            gameState,
             fillStyle: 'rgb(0,207,250)',
             callback(): void {
                 gameState.score += 10 * gameState.level;
@@ -73,7 +75,7 @@ export default class Targets extends Entity {
 
     private levelBonusGiven = -1;
     public destroyed: boolean = false;
-    private key: number = 0;
+    key: number = 0;
 
     constructor({x, y, gameState}: iEntityConstructorProps) {
         super({gameState, x, y});

@@ -1,4 +1,5 @@
-import Targets from "Targets";
+import State from "./State.ts";
+import Targets from "./Targets";
 import {updateDimensions} from "./updateDimensions";
 import Alert from "./Alert";
 import tGridPosition from "./tGridPosition";
@@ -50,7 +51,6 @@ export type tGameState = {
     selectedTurret: iTurret;
     hoveredTurret: Turret | null;
 }
-
 
 
 export const InitialGameState = (context: CanvasRenderingContext2D): tGameState => {
@@ -131,3 +131,10 @@ export const InitialGameState = (context: CanvasRenderingContext2D): tGameState 
     return initialState;
 
 };
+
+
+export function startNewGame() {
+    State.gameState = InitialGameState(State.context);
+    State.gameState.gameDisplayState = eGameDisplayState.GAME;
+}
+

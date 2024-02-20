@@ -1,5 +1,5 @@
+import State from "./State.ts";
 import {iTurret} from "./Turret";
-import canvas from "./Canvas";
 import {footerLevelBarHeight, turretSectionHeight} from "./Footer";
 
 
@@ -38,7 +38,7 @@ export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocati
     return {
         x: 0,
         y: footerLevelBarHeight(),
-        w: forGame ? 1 : canvas.width / 6,
+        w: forGame ? 1 : State.canvas.width / 6,
         h: forGame ? 1 : turretSectionHeight(),
         fillStyle: 'rgba(0,0,0,1)',
         range: 8,
@@ -66,7 +66,7 @@ export const Turret1: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurret => {
-    const OneSixth = canvas.width / 6;
+    const OneSixth = State.canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneSixth,
@@ -99,7 +99,7 @@ export const Turret2: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurret => {
-    const OneSixth = canvas.width / 6;
+    const OneSixth = State.canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneSixth + OneSixth,
@@ -132,7 +132,7 @@ export const Turret3: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurret => {
-    const OneSixth = canvas.width / 6;
+    const OneSixth = State.canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneSixth + 2 * OneSixth,
@@ -165,7 +165,7 @@ export const Turret4: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurret => {
-    const OneSixth = canvas.width / 6;
+    const OneSixth = State.canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneSixth + 3 * OneSixth,
@@ -199,7 +199,7 @@ export const Turret5: tTurretCallable = (location: eTurretTargetDimensionsLocati
 }
 
 export const Turret6: tTurretCallable = (location: eTurretTargetDimensionsLocation): iTurret => {
-    const OneSixth = canvas.width / 6;
+    const OneSixth = State.canvas.width / 6;
     const forGame = location === eTurretTargetDimensionsLocation.GAME;
     return {
         x: OneSixth + 4 * OneSixth,

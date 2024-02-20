@@ -1,4 +1,4 @@
-import canvas from "./Canvas";
+import State from "./State.ts";
 
 
-export default () : number => canvas.height * .10; // Example height for the header
+export default () : number => State.canvas.height * .10; // Example height for the header

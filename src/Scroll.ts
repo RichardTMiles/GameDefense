@@ -1,12 +1,12 @@
+import State from "./State.ts";
 import {tGameState} from "./InitialState";
 import {GameBodyHeight} from "./CellSize";
 
 // Scroll function to update offsetX
-import {getGameState} from "./GameDefense";
 
 export const scrollGridX = (amount: number) => {
 
-    const gameState = getGameState()
+    const gameState = State.gameState;
 
     gameState.offsetX += amount;
 
@@ -23,7 +23,7 @@ export const gameBodyTotalYScroll = (gameState:tGameState) => {
 
 export const scrollGridY = (amount: number) => {
 
-    const gameState = getGameState()
+    const gameState = State.gameState;
 
     gameState.offsetY += amount;
 
