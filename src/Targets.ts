@@ -1,3 +1,4 @@
+import State from "./State.ts";
 import Entity, {iEntityConstructorProps} from "./Entity";
 import Particle, {Point} from "./Particle";
 import {energyCirclePosition, scoreCirclePosition, elapsedTime} from "./Header";
@@ -77,7 +78,7 @@ export default class Targets extends Entity {
     public destroyed: boolean = false;
     key: number = 0;
 
-    constructor({x, y, gameState}: iEntityConstructorProps) {
+    constructor({x, y, gameState = State.gameState}: iEntityConstructorProps) {
         super({gameState, x, y});
         this.key = gameState.gameTargets.length;
     }

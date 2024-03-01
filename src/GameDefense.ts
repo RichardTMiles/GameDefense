@@ -7,7 +7,7 @@ import Footer from "./Footer";
 import DrawGameGrid from "./Grid";
 import Header, {elapsedTime} from "./Header";
 import GameHeaderHeight from "./HeaderHeight";
-import {eGameDisplayState, InitialGameState, tGameState} from "./InitialState";
+import {eGameDisplayState, InitialGameState} from "./InitialState";
 import MainMenu, {mainMenuEventListeners} from "./MainMenu";
 import {createAndShowModal} from "./Modal";
 import showTurretRadius from "./showTurretRadius";
@@ -20,6 +20,8 @@ const GameDefense = class {
 
     constructor(canvas ?: HTMLCanvasElement) {
 
+        let isReactNative = false;
+
         if (typeof document !== 'undefined') {
 
             console.log('Canvas.ts document is defined')
@@ -30,15 +32,23 @@ const GameDefense = class {
 
         } else if (undefined !== canvas) {
 
-            console.log('Canvas.ts document is undefined (React Native)')
+            console.log('Canvas.ts document is undefined (React Native)', typeof canvas)
 
             State.canvas = canvas;
 
+            isReactNative = true;
+
+        } else {
+
+            console.error('Unknown state')
+
+            return;
+
         }
 
-        if (undefined === State.canvas) {
+        if (undefined === State.canvas || State.canvas === null) {
 
-            console.error('Canvas.ts canvas is undefined')
+            console.error('Canvas.ts canvas failed to initialize')
 
             return;
 
@@ -48,11 +58,17 @@ const GameDefense = class {
 
         State.gameState = InitialGameState(State.context);
 
-        MouseEvents()
+        State.gameState.isReactNative = isReactNative;
 
-        KeyEvents()
+        if (false === isReactNative) {
 
-        mainMenuEventListeners()
+            MouseEvents()
+
+            KeyEvents()
+
+            mainMenuEventListeners()
+
+        }
 
         let fpsInterval = 1000 / 35; // 35 FPS
 
