@@ -9,12 +9,15 @@
     "lint": "eslint .",
     "start:native": "react-native start --verbose",
     "start:web": "parcel src/index.html --open",
-    "build:web": "  build src/index.html --public-url ./",
+    "start:web:TruncatedIcosahedron": "parcel ../TruncatedIcosahedron/src/TruncatedIcosahedron.html --open",
+    "xcode": "open GameDefense.xcworkspace",
+    "build:web": "parcel build src/index.html --public-url ./",
     "test": "jest",
     "np": "np --no-publish",
     "postversion": "react-native-version"
   },
   "dependencies": {
+    "gl-matrix": "^3.4.3",
     "react": "18.2.0",
     "react-native": "0.73.4",
     "react-native-canvas": "^0.1.39",

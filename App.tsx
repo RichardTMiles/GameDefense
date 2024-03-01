@@ -7,26 +7,20 @@
 
 import React from 'react';
 import type {PropsWithChildren} from 'react';
-import Canvas from 'react-native-canvas';
+// import Canvas, {CanvasRenderingContext2D as RNCRC2D} from 'react-native-canvas';
 import {
     SafeAreaView,
-    ScrollView,
     StatusBar,
     StyleSheet,
     Text,
     useColorScheme,
     View,
 } from 'react-native';
+import WebView from "react-native-webview";
 
 import {
     Colors,
-    DebugInstructions,
-    Header,
-    LearnMoreLinks,
-    ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-
-import GameDefense from "./src/GameDefense.ts";
 
 type SectionProps = PropsWithChildren<{
     title: string;
@@ -58,48 +52,54 @@ function Section({children, title}: SectionProps): React.JSX.Element {
     );
 }
 
+
+// noinspection HtmlRequiredLangAttribute
+const HTML = (id: string = crypto.randomUUID()) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Canvas</title>
+    </head>
+    <body>
+    <canvas id="${id}"></canvas>
+    <script>
+        window.canvas = document.getElementById('${id}');
+    </script>
+    </body>
+    </html>
+`;
+
 function App(): React.JSX.Element {
+
     const isDarkMode = useColorScheme() === 'dark';
 
     const backgroundStyle = {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
 
-
     return (
         <SafeAreaView style={backgroundStyle}>
-            <Canvas style={styles.canvas} ref={(canvas: Canvas) => {
-                // new GameDefense(canvas as any as HTMLCanvasElement)
-                console.log(GameDefense)
-            }}/>
             <StatusBar
                 barStyle={isDarkMode ? 'light-content' : 'dark-content'}
                 backgroundColor={backgroundStyle.backgroundColor}
             />
-            <ScrollView
-                contentInsetAdjustmentBehavior="automatic"
-                style={backgroundStyle}>
-                <Header/>
-                <View
-                    style={{
-                        backgroundColor: isDarkMode ? Colors.black : Colors.white,
-                    }}>
-                    <Section title="Step One">
-                        Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-                        screen and then come back to see your edits.
-                    </Section>
-                    <Section title="See Your Changes">
-                        <ReloadInstructions/>
-                    </Section>
-                    <Section title="Debug">
-                        <DebugInstructions/>
-                    </Section>
-                    <Section title="Learn More">
-                        Read the docs to discover what to do next:
-                    </Section>
-                    <LearnMoreLinks/>
-                </View>
-            </ScrollView>
+            <View
+                style={{
+                    backgroundColor: isDarkMode ? Colors.black : Colors.white,
+                    width: '100%',
+                    height: '100%',
+                }}>
+                <WebView
+                    style={{flex: 1, height: '100%', width: '100%', backgroundColor: '#222222'}}
+                    ref={() => {
+                        console.log('webview')
+                    }}
+                    source={{uri: 'https://richardtmiles.github.io/GameDefense/#'}}
+                    mixedContentMode="always"
+                    scalesPageToFit={true}
+
+                />
+            </View>
         </SafeAreaView>
     );
 }
@@ -122,8 +122,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     canvas: {
-        width: 300,
-        height: 300,
+        width: '100%',
+        height: '100%',
+        borderWidth: 1,
+        borderBlockColor: 'black',
+        borderStyle: 'solid',
     },
 });
 

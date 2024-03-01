@@ -20,6 +20,8 @@ export enum eGameDisplayState {
 }
 
 export type tGameState = {
+    isTouchDevice: boolean;
+    isReactNative: boolean;
     gameDisplayState: eGameDisplayState;
     tutorial: {
         [key: string]: boolean
@@ -56,6 +58,9 @@ export type tGameState = {
 export const InitialGameState = (context: CanvasRenderingContext2D): tGameState => {
 
     const initialState: tGameState = {
+        // @link https://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+        isTouchDevice: (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)),
+        isReactNative: false,
         gameDisplayState: eGameDisplayState.MAIN_MENU,
         tutorial: {
             welcome: false,
